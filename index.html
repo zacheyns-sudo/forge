@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Forge">
+<meta name="theme-color" content="#ff5a1f">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.svg">
+<title>Forge</title>
+<style>
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --surface-2: #f2ede4;
+  --surface-3: #e8e1d4;
+  --border: #e5ddd0;
+  --border-2: #c9bfae;
+  --text: #1a1a1a;
+  --muted: #6b6257;
+  --muted-2: #a39a8c;
+  --accent: #ff5a1f;
+  --accent-dim: rgba(255,90,31,0.12);
+  --red: #dc2626;
+  --amber: #d97706;
+  --blue: #2563eb;
+  --success: #059669;
+  --nav-h: 68px;
+  --top-h: 52px;
+  --sa-bot: env(safe-area-inset-bottom, 0px);
+  --sa-top: env(safe-area-inset-top, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px; line-height: 1.4;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+body {
+  min-height: 100vh; min-height: 100dvh;
+  padding-top: calc(var(--top-h) + var(--sa-top));
+  padding-bottom: calc(var(--nav-h) + var(--sa-bot));
+}
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; font-size: 16px; }
+
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+#top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  height: calc(var(--top-h) + var(--sa-top));
+  padding: var(--sa-top) 18px 0;
+  background: rgba(250,247,242,0.9);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+#top-bar h1 { font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.top-actions { display: flex; gap: 4px; }
+.icon-btn {
+  background: none; border: none; color: var(--text);
+  width: 38px; height: 38px; border-radius: 10px;
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:active { background: var(--surface-2); }
+
+/* ── Bottom nav ──────────────────────────────────────────────────────────── */
+#bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  height: calc(var(--nav-h) + var(--sa-bot));
+  padding-bottom: var(--sa-bot);
+  background: rgba(250,247,242,0.95);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+#bottom-nav button {
+  background: none; border: none; color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; padding: 6px; cursor: pointer;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.01em;
+  transition: color 0.12s;
+}
+#bottom-nav button .nav-icon { font-size: 20px; }
+#bottom-nav button.active { color: var(--accent); }
+
+/* ── Screens ─────────────────────────────────────────────────────────────── */
+.screen { display: none; padding: 16px 16px 24px; max-width: 680px; margin: 0 auto; }
+.screen.active { display: block; }
+.screen h2 { font-size: 22px; font-weight: 800; margin: 4px 0 14px; letter-spacing: -0.02em; }
+.screen h3 { font-size: 15px; font-weight: 700; margin: 18px 0 10px; letter-spacing: -0.01em; }
+
+/* ── Cards & controls ────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.card.tight { padding: 12px 14px; }
+.stat { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 4px; }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.row { display: flex; gap: 8px; align-items: center; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+label {
+  display: block;
+  font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600; margin-bottom: 6px;
+}
+input, select, textarea {
+  background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 13px 14px; width: 100%;
+  font-weight: 500;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+input[type=number] { -moz-appearance: textfield; }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+textarea { min-height: 80px; resize: vertical; }
+
+.btn {
+  background: var(--accent); color: #fff; border: none;
+  padding: 14px 18px; border-radius: 12px;
+  font-weight: 700; font-size: 15px; cursor: pointer;
+  width: 100%; letter-spacing: -0.01em;
+  transition: transform 0.08s, opacity 0.12s;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-sm { padding: 10px 14px; font-size: 13px; border-radius: 9px; width: auto; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+  background: var(--surface-3); color: var(--text);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.pill.accent { background: var(--accent); color: #fff; }
+.pill.red { background: #ffe4e4; color: var(--red); }
+.pill.amber { background: #fef0d7; color: var(--amber); }
+.pill.blue { background: #e0ecff; color: var(--blue); }
+.pill.muted { background: var(--surface-2); color: var(--muted); }
+
+/* ── Workout type selector ───────────────────────────────────────────────── */
+.type-selector {
+  display: flex; gap: 8px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; margin: 0 -16px 16px; padding: 4px 16px 8px;
+}
+.type-selector::-webkit-scrollbar { display: none; }
+.type-btn {
+  flex: 0 0 auto;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 16px; min-width: 86px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer;
+}
+.type-btn .type-icon { font-size: 24px; line-height: 1; }
+.type-btn .type-label { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.type-btn.active .type-label { font-weight: 800; }
+
+/* ── Exercise list ───────────────────────────────────────────────────────── */
+.exercise {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.exercise-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.exercise-name { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.exercise-last { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.set-row {
+  display: grid; grid-template-columns: 32px 1fr 1fr auto;
+  gap: 8px; align-items: center; margin-bottom: 6px;
+}
+.set-idx {
+  background: var(--surface-2); color: var(--muted);
+  width: 32px; height: 44px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+}
+.set-row input { padding: 11px 12px; font-size: 15px; }
+.set-pr { color: var(--accent); font-size: 18px; width: 28px; text-align: center; }
+.set-pr.hidden { visibility: hidden; }
+.hyrox-fields { display: grid; gap: 8px; }
+.hyrox-fields.cols-2 { grid-template-columns: 1fr 1fr; }
+.hyrox-fields.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.remove-btn {
+  background: none; border: none; color: var(--muted-2);
+  font-size: 20px; width: 36px; height: 36px; cursor: pointer;
+  border-radius: 8px;
+}
+.remove-btn:active { background: var(--surface-2); color: var(--red); }
+
+.add-exercise-btn {
+  background: var(--surface-2); color: var(--accent);
+  border: 1px dashed var(--border-2); border-radius: 12px;
+  padding: 14px; width: 100%; cursor: pointer;
+  font-weight: 700; font-size: 14px; letter-spacing: -0.01em;
+}
+
+.segmented {
+  display: flex; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 3px; gap: 2px;
+}
+.segmented button {
+  flex: 1; background: none; border: none; color: var(--muted);
+  padding: 9px 8px; border-radius: 8px;
+  font-weight: 600; font-size: 13px; cursor: pointer;
+  letter-spacing: 0.01em;
+}
+.segmented button.active { background: var(--surface); color: var(--text); }
+
+.format-toggle {
+  display: inline-flex; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 2px; gap: 2px; margin-left: auto;
+}
+.format-toggle button {
+  background: none; border: none; color: var(--muted);
+  padding: 4px 10px; border-radius: 6px;
+  font-weight: 600; font-size: 11px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.format-toggle button.active { background: var(--accent); color: #fff; }
+
+.slider-row { display: flex; align-items: center; gap: 12px; }
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  height: 36px; background: transparent; padding: 0; border: none;
+  width: 100%;
+}
+input[type=range]::-webkit-slider-runnable-track { height: 6px; background: var(--surface-3); border-radius: 3px; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; background: var(--accent);
+  border-radius: 50%; margin-top: -8px; cursor: pointer;
+}
+input[type=range]::-moz-range-track { height: 6px; background: var(--surface-3); border-radius: 3px; }
+input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var(--accent); border-radius: 50%; border: none; cursor: pointer; }
+.slider-val { font-size: 15px; font-weight: 700; min-width: 28px; text-align: right; }
+
+/* ── Sticky save bar ─────────────────────────────────────────────────────── */
+.save-bar {
+  position: sticky; bottom: 0;
+  margin: 18px -16px 0; padding: 12px 16px calc(12px + var(--sa-bot));
+  background: linear-gradient(to bottom, rgba(250,247,242,0) 0%, var(--bg) 40%);
+}
+
+/* ── History ─────────────────────────────────────────────────────────────── */
+.date-group {
+  font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 700; margin: 16px 0 8px;
+}
+.session {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px;
+  margin-bottom: 8px; cursor: pointer;
+}
+.session-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 10px;
+}
+.session-type { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+.session-stats { font-size: 13px; color: var(--muted); }
+.session-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: none; }
+.session.expanded .session-detail { display: block; }
+.session-ex-row {
+  display: flex; justify-content: space-between; padding: 6px 0;
+  font-size: 14px; border-bottom: 1px solid var(--border);
+}
+.session-ex-row:last-child { border-bottom: none; }
+.session-ex-row .ex-name { color: var(--text); font-weight: 600; }
+.session-ex-row .ex-data { color: var(--muted); text-align: right; }
+
+/* ── Week ────────────────────────────────────────────────────────────────── */
+.week-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.week-nav button {
+  background: var(--surface-2); border: 1px solid var(--border);
+  width: 38px; height: 38px; border-radius: 10px;
+  color: var(--text); font-size: 16px; cursor: pointer;
+}
+.week-label { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.week-range { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stats-grid .card { margin: 0; }
+
+#spark {
+  width: 100%; height: 50px; display: block;
+}
+
+.feedback-body {
+  white-space: pre-wrap; font-size: 14px; line-height: 1.55;
+  color: var(--text);
+}
+.feedback-body strong { color: var(--accent); }
+
+/* ── PRs ─────────────────────────────────────────────────────────────────── */
+.pr-tabs { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; }
+.pr-tabs button {
+  flex: 0 0 auto; background: var(--surface-2); color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.pr-tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pr-row {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+  cursor: pointer;
+}
+.pr-row-head { display: flex; justify-content: space-between; align-items: center; }
+.pr-name { font-size: 15px; font-weight: 700; }
+.pr-value { font-size: 15px; color: var(--accent); font-weight: 800; }
+.pr-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── Overlays ────────────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(40,30,20,0.48); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.overlay.hidden { display: none; }
+.overlay-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 20px; width: 100%; max-width: 440px;
+  max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.overlay-panel h3 { margin-top: 0; font-size: 18px; font-weight: 800; }
+.overlay-close { position: absolute; top: 12px; right: 12px; }
+
+/* Bottom sheet */
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
+  background: var(--surface); border-top: 1px solid var(--border);
+  border-radius: 22px 22px 0 0;
+  padding: 20px 18px calc(24px + var(--sa-bot));
+  max-height: 85vh; max-height: 85dvh;
+  overflow-y: auto;
+  transform: translateY(100%); transition: transform 0.3s ease;
+  box-shadow: 0 -12px 32px rgba(0,0,0,0.15);
+}
+.sheet.open { transform: translateY(0); }
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 65;
+  background: rgba(40,30,20,0.42);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+.sheet-handle {
+  width: 40px; height: 4px; background: var(--border-2);
+  border-radius: 2px; margin: -8px auto 14px;
+}
+.sheet h3 { margin-top: 0; }
+
+/* Exercise picker */
+.picker-search { margin-bottom: 14px; }
+.picker-list { display: flex; flex-direction: column; gap: 4px; }
+.picker-item {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+}
+.picker-item:active { background: var(--surface-3); }
+.picker-item .pi-name { font-weight: 600; }
+.picker-item .pi-tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.picker-section {
+  font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+  margin: 14px 0 6px;
+}
+
+/* Stretch sheet */
+.stretch-card {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; margin-bottom: 10px;
+}
+.stretch-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.stretch-name { font-size: 15px; font-weight: 700; }
+.stretch-hold { font-size: 12px; color: var(--accent); font-weight: 700; }
+.stretch-muscle { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.stretch-instr { font-size: 14px; color: var(--text); line-height: 1.5; }
+
+/* HR Zone picker */
+.hr-zone-picker {
+  display: flex; gap: 6px;
+}
+.hz-btn {
+  flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 4px;
+  font-size: 12px; font-weight: 700; cursor: pointer; color: var(--muted);
+  letter-spacing: 0.03em; text-transform: uppercase;
+}
+.hz-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* PR chart area */
+.pr-row-head { cursor: pointer; }
+.pr-expand-icon {
+  font-size: 18px; color: var(--muted-2); transition: transform 0.15s;
+  line-height: 1; flex-shrink: 0;
+}
+.pr-chart-area { padding-top: 4px; border-top: 1px solid var(--border); margin-top: 10px; }
+
+/* Empty states */
+.empty {
+  text-align: center; color: var(--muted);
+  padding: 40px 20px; font-size: 14px;
+}
+.empty .big { font-size: 36px; margin-bottom: 10px; opacity: 0.6; }
+
+/* Loading spinner */
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.15); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.err-box {
+  background: #ffe4e4; border: 1px solid var(--red);
+  color: var(--red); padding: 10px 12px;
+  border-radius: 10px; font-size: 13px; margin: 10px 0;
+}
+
+/* Onboarding */
+#onboarding .overlay-panel { text-align: center; }
+#onboarding .logo { font-size: 44px; margin-bottom: 4px; }
+#onboarding h3 { font-size: 24px; margin-bottom: 6px; }
+#onboarding p { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+
+/* Misc */
+.mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.spacer-sm { height: 8px; } .spacer-md { height: 14px; } .spacer-lg { height: 24px; }
+.text-muted { color: var(--muted); }
+.text-accent { color: var(--accent); }
+.text-sm { font-size: 13px; }
+.text-center { text-align: center; }
+hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+</style>
+</head>
+<body>
+
+<header id="top-bar">
+  <h1 id="screen-title">Log</h1>
+  <div class="top-actions">
+    <button class="icon-btn" id="settings-btn" aria-label="Settings">⚙</button>
+  </div>
+</header>
+
+<!-- ══ LOG SCREEN ══════════════════════════════════════════════════════════ -->
+<section id="screen-log" class="screen active">
+  <div class="type-selector" id="type-selector"></div>
+  <div id="log-form"></div>
+</section>
+
+<!-- ══ HISTORY SCREEN ══════════════════════════════════════════════════════ -->
+<section id="screen-history" class="screen">
+  <h2>History</h2>
+  <div id="history-list"></div>
+</section>
+
+<!-- ══ WEEK SCREEN ═════════════════════════════════════════════════════════ -->
+<section id="screen-week" class="screen">
+  <div class="week-nav">
+    <button id="week-prev" aria-label="Previous week">◂</button>
+    <div style="text-align:center">
+      <div class="week-label" id="week-label">This Week</div>
+      <div class="week-range" id="week-range"></div>
+    </div>
+    <button id="week-next" aria-label="Next week">▸</button>
+  </div>
+  <div id="week-body"></div>
+</section>
+
+<!-- ══ PRS SCREEN ══════════════════════════════════════════════════════════ -->
+<section id="screen-prs" class="screen">
+  <h2>Personal Records</h2>
+  <div class="pr-tabs" id="pr-tabs">
+    <button data-cat="Lifts" class="active">Lifts</button>
+    <button data-cat="Runs">Runs</button>
+    <button data-cat="Hyrox">Hyrox</button>
+  </div>
+  <div id="pr-list"></div>
+</section>
+
+<!-- ══ BOTTOM NAV ══════════════════════════════════════════════════════════ -->
+<nav id="bottom-nav">
+  <button data-tab="log" class="active"><span class="nav-icon">＋</span><span>Log</span></button>
+  <button data-tab="history"><span class="nav-icon">≡</span><span>History</span></button>
+  <button data-tab="week"><span class="nav-icon">◔</span><span>Week</span></button>
+  <button data-tab="prs"><span class="nav-icon">★</span><span>PRs</span></button>
+</nav>
+
+<!-- ══ OVERLAYS ════════════════════════════════════════════════════════════ -->
+
+<!-- Onboarding -->
+<div id="onboarding" class="overlay hidden">
+  <div class="overlay-panel">
+    <div class="logo">🔥</div>
+    <h3>Forge</h3>
+    <p>Workout tracker built for Hyrox, running, and everything in between.</p>
+    <label for="onboard-key">Anthropic API Key</label>
+    <input type="password" id="onboard-key" placeholder="sk-ant-...">
+    <div class="spacer-md"></div>
+    <button class="btn" id="onboard-save">Start Training</button>
+    <div class="spacer-sm"></div>
+    <button class="btn btn-ghost" id="onboard-skip">Skip for now</button>
+    <div class="spacer-sm"></div>
+    <p class="text-sm" style="margin:6px 0 0">Stored only on this device. AI features need it; logging works without.</p>
+  </div>
+</div>
+
+<!-- Settings -->
+<div id="settings-overlay" class="overlay hidden">
+  <div class="overlay-panel" style="position:relative">
+    <button class="icon-btn overlay-close" onclick="closeSettings()">✕</button>
+    <h3>Settings</h3>
+    <label for="settings-key">Anthropic API Key</label>
+    <input type="password" id="settings-key" placeholder="sk-ant-...">
+    <div class="spacer-sm"></div>
+    <button class="btn btn-sm btn-ghost" onclick="saveSettingsKey()" style="width:100%">Save Key</button>
+
+    <hr>
+    <h3 style="font-size:15px">Data</h3>
+    <button class="btn btn-ghost" onclick="exportCSV()">Export as CSV</button>
+    <div class="spacer-sm"></div>
+    <button class="btn btn-danger" onclick="confirmClearAll()">Clear All Data</button>
+
+    <hr>
+    <p class="text-sm text-muted">Forge v1.0 · All data stored locally on this device.</p>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div id="confirm-overlay" class="overlay hidden">
+  <div class="overlay-panel">
+    <h3 id="confirm-title">Are you sure?</h3>
+    <p id="confirm-msg" class="text-muted text-sm"></p>
+    <div class="spacer-md"></div>
+    <button class="btn btn-danger" id="confirm-yes">Yes, do it</button>
+    <div class="spacer-sm"></div>
+    <button class="btn btn-ghost" id="confirm-no">Cancel</button>
+  </div>
+</div>
+
+<!-- Exercise picker -->
+<div id="picker-backdrop" class="sheet-backdrop"></div>
+<div id="picker-sheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <h3>Add Exercise</h3>
+  <input type="search" id="picker-search" class="picker-search" placeholder="Search exercises or type custom…" autocomplete="off">
+  <div id="picker-list" class="picker-list"></div>
+  <div class="spacer-sm"></div>
+  <button class="btn btn-ghost" id="picker-cancel">Cancel</button>
+</div>
+
+<!-- Stretch sheet -->
+<div id="stretch-backdrop" class="sheet-backdrop"></div>
+<div id="stretch-sheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <h3>Post-Session Stretches</h3>
+  <p class="text-muted text-sm" style="margin:-6px 0 14px">Tailored to what you just logged.</p>
+  <div id="stretch-body"></div>
+  <div class="spacer-sm"></div>
+  <button class="btn btn-ghost" id="stretch-close">Done</button>
+</div>
+
+<!-- Session detail sheet (for PR tap) -->
+<div id="pr-backdrop" class="sheet-backdrop"></div>
+<div id="pr-sheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <h3 id="pr-sheet-title">Session</h3>
+  <div id="pr-sheet-body"></div>
+  <div class="spacer-sm"></div>
+  <button class="btn btn-ghost" id="pr-sheet-close">Close</button>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MODEL = 'claude-haiku-4-5-20251001';
+
+const ATHLETE_CONTEXT = `You are a sports performance coach for a 20-year-old male athlete, 6'3" tall, who is training for Hyrox competition and a sub-1:30 half marathon. His goals are: (1) run a sub-1:30 half marathon, (2) post a competitive Hyrox finish, (3) build general athletic performance. All recommendations must be specific to his context — never generic. Reference the actual exercises, loads, distances, and paces he logs. Consider how his strength work supports his running and vice versa.`;
+
+const LIFT_LIBRARY = [
+  'Back Squat','Front Squat','Deadlift','Romanian Deadlift','Trap Bar Deadlift',
+  'Bench Press','Incline Bench Press','Close-Grip Bench','Overhead Press','Push Press',
+  'Barbell Row','Pendlay Row','Dumbbell Row','Seal Row','T-Bar Row',
+  'Pull-ups','Chin-ups','Lat Pulldown','Cable Row',
+  'Walking Lunges','Reverse Lunge','Bulgarian Split Squat','Step-ups','Box Squat',
+  'Hip Thrust','Glute Bridge','Good Morning',
+  'Dumbbell Bench Press','Incline Dumbbell Press','Dumbbell Shoulder Press','Arnold Press','Lateral Raise',
+  'Bicep Curl','Hammer Curl','Preacher Curl','Tricep Dip','Tricep Pushdown','Skullcrusher',
+  'Standing Calf Raise','Seated Calf Raise','Face Pull','Reverse Fly',
+  'Hanging Leg Raise','Plank','Side Plank','Russian Twist','Ab Wheel','Dead Bug',
+  'Power Clean','Hang Clean','Clean & Press','Push Jerk','Snatch',
+  'Kettlebell Swing','Turkish Get-Up','Goblet Squat'
+];
+
+const HYROX_LIBRARY = {
+  'Running':            { fields: ['distance', 'time'] },
+  'SkiErg':             { fields: ['distance', 'time'] },
+  'Sled Push':          { fields: ['weight', 'distance'] },
+  'Sled Pull':          { fields: ['weight', 'distance'] },
+  'Burpee Broad Jumps': { fields: ['reps', 'distance'] },
+  'Rowing':             { fields: ['distance', 'time'] },
+  'Farmers Carry':      { fields: ['weightHand', 'distance'] },
+  'Sandbag Lunges':     { fields: ['weight', 'distance', 'reps'] },
+  'Wall Balls':         { fields: ['weight', 'reps', 'height'] },
+};
+
+const HYROX_PR_METRIC = {
+  'Running':            { metric: 'pace',       higherBetter: false }, // s per meter
+  'SkiErg':             { metric: 'pace',       higherBetter: false },
+  'Rowing':             { metric: 'pace',       higherBetter: false },
+  'Sled Push':          { metric: 'weight',     higherBetter: true },
+  'Sled Pull':          { metric: 'weight',     higherBetter: true },
+  'Burpee Broad Jumps': { metric: 'distance',   higherBetter: true },
+  'Farmers Carry':      { metric: 'weightHand', higherBetter: true },
+  'Sandbag Lunges':     { metric: 'weight',     higherBetter: true },
+  'Wall Balls':         { metric: 'weight',     higherBetter: true },
+};
+
+const FIELD_LABELS = {
+  distance:   { label: 'Distance (m)', unit: 'm',    type: 'number' },
+  time:       { label: 'Time (mm:ss)', unit: '',     type: 'text', placeholder: '01:45' },
+  weight:     { label: 'Weight (kg)',  unit: 'kg',   type: 'number' },
+  weightHand: { label: 'Weight/hand',  unit: 'kg',   type: 'number' },
+  reps:       { label: 'Reps',         unit: 'reps', type: 'number' },
+  height:     { label: 'Target (m)',   unit: 'm',    type: 'number' },
+};
+
+const TYPES = [
+  { key: 'strength', label: 'Lift',   icon: '💪' },
+  { key: 'hyrox',    label: 'Hyrox',  icon: '🏁' },
+  { key: 'run',      label: 'Run',    icon: '🏃' },
+  { key: 'other',    label: 'Other',  icon: '⚡' },
+  { key: 'rest',     label: 'Rest',   icon: '😴' },
+];
+
+const RUN_TYPES = ['Easy', 'Tempo', 'Intervals', 'Long Run'];
+
+// Storage keys
+const K = {
+  workouts:  'wt_workouts',
+  prs:       'wt_prs',
+  weekly:    'wt_weekly',
+  weight:    'wt_weight',
+  key:       'wt_key',
+  custom:    'wt_custom_lifts',
+  lastType:  'wt_last_type',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+const state = {
+  workouts: [],
+  prs:      {},
+  weekly:   {},
+  weight:   [],
+  key:      '',
+  custom:   [],
+  currentType: 'strength',
+  viewWeek: null,   // ISO week key 'YYYY-WW'
+  prCat:    'Lifts',
+  wip:      null,   // in-progress workout object
+};
+
+function loadState() {
+  try { state.workouts = JSON.parse(localStorage.getItem(K.workouts) || '[]'); } catch { state.workouts = []; }
+  try { state.prs      = JSON.parse(localStorage.getItem(K.prs)      || '{}'); } catch { state.prs = {}; }
+  try { state.weekly   = JSON.parse(localStorage.getItem(K.weekly)   || '{}'); } catch { state.weekly = {}; }
+  try { state.weight   = JSON.parse(localStorage.getItem(K.weight)   || '[]'); } catch { state.weight = []; }
+  try { state.custom   = JSON.parse(localStorage.getItem(K.custom)   || '[]'); } catch { state.custom = []; }
+  state.key         = localStorage.getItem(K.key) || '';
+  state.currentType = localStorage.getItem(K.lastType) || 'strength';
+  state.viewWeek    = isoWeekKey(new Date());
+}
+function persist(keys) {
+  (keys || Object.keys(K)).forEach(k => {
+    const key = K[k];
+    if (!key) return;
+    if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
+    else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' ? {} : [])));
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const uuid = (prefix = 'w') => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+
+function iso(d) { const x = d || new Date(); const p = n => String(n).padStart(2,'0'); return `${x.getFullYear()}-${p(x.getMonth()+1)}-${p(x.getDate())}`; }
+function fmtShort(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function fmtDay(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const today = iso();
+  const yDate = new Date(); yDate.setDate(yDate.getDate() - 1);
+  if (dateStr === today) return 'Today';
+  if (dateStr === iso(yDate)) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function parseTime(str) {
+  if (!str) return 0;
+  const s = String(str).trim();
+  const parts = s.split(':').map(p => parseFloat(p) || 0);
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return parseFloat(s) || 0;
+}
+function fmtTime(sec) {
+  sec = Math.max(0, Math.round(sec || 0));
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  const pad = n => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+function fmtPace(secPerKm) {
+  if (!secPerKm || !isFinite(secPerKm)) return '—';
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return `${m}:${String(s).padStart(2,'0')}/km`;
+}
+function e1RM(weight, reps) {
+  if (!weight || !reps) return 0;
+  return weight * (1 + reps / 30);
+}
+
+// ISO week (Mon-Sun), key format 'YYYY-WNN'
+function isoWeekKey(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(weekNo).padStart(2,'0')}`;
+}
+// Return Mon/Sun dates for a given ISO week key (or offset from today)
+function weekRange(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  const day = d.getDay() || 7; // Mon=1, Sun=7
+  const monday = new Date(d); monday.setDate(d.getDate() - day + 1);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  return { monday, sunday, key: isoWeekKey(monday) };
+}
+function weekRangeFromKey(key) {
+  // find offset by scanning ±30 weeks
+  for (let off = -60; off <= 60; off++) {
+    const r = weekRange(off);
+    if (r.key === key) return r;
+  }
+  return weekRange(0);
+}
+
+function toast(msg, opts = {}) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;bottom:calc(90px + var(--sa-bot));left:50%;transform:translateX(-50%);background:${opts.err?'#ffe4e4':'var(--surface)'};color:${opts.err?'var(--red)':'var(--text)'};border:1px solid ${opts.err?'var(--red)':'var(--border)'};padding:10px 16px;border-radius:10px;z-index:100;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.15)`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; }, opts.long ? 2400 : 1600);
+  setTimeout(() => t.remove(), opts.long ? 2800 : 2000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TABS / NAV
+// ═══════════════════════════════════════════════════════════════════════════
+
+function showTab(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+  document.querySelectorAll('#bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $('#screen-title').textContent = { log: 'Log', history: 'History', week: 'Week', prs: 'PRs' }[name];
+  if (name === 'history') renderHistory();
+  if (name === 'week') renderWeek();
+  if (name === 'prs') renderPRs();
+}
+
+document.querySelectorAll('#bottom-nav button').forEach(b => {
+  b.addEventListener('click', () => showTab(b.dataset.tab));
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOG SCREEN — workout type selector
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderTypeSelector() {
+  const wrap = $('#type-selector');
+  wrap.innerHTML = TYPES.map(t => `
+    <button class="type-btn${state.currentType === t.key ? ' active' : ''}" data-type="${t.key}">
+      <span class="type-icon">${t.icon}</span>
+      <span class="type-label">${t.label}</span>
+    </button>
+  `).join('');
+  wrap.querySelectorAll('.type-btn').forEach(b => {
+    b.addEventListener('click', () => setType(b.dataset.type));
+  });
+}
+
+function setType(type) {
+  state.currentType = type;
+  persist(['lastType']);
+  state.wip = null; // clear in-progress on type change
+  renderTypeSelector();
+  renderLogForm();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOG SCREEN — form rendering per type
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initWIP() {
+  const base = { id: uuid(), date: iso(), timestamp: Date.now(), type: state.currentType };
+  if (state.currentType === 'strength' || state.currentType === 'hyrox') { base.exercises = []; base.rpe = 6; base.feel = 3; }
+  if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy', hrZone: null });
+  if (state.currentType === 'other')
+    Object.assign(base, { label: '', duration: '', rpe: 6, feel: 3, notes: '' });
+  if (state.currentType === 'rest') Object.assign(base, { forced: false, notes: '' });
+  return base;
+}
+
+function renderLogForm() {
+  if (!state.wip || state.wip.type !== state.currentType) state.wip = initWIP();
+  const t = state.currentType;
+  const el = $('#log-form');
+  if (t === 'strength' || t === 'hyrox') el.innerHTML = renderStrengthForm();
+  else if (t === 'run')                  el.innerHTML = renderRunForm();
+  else if (t === 'rest')                 el.innerHTML = renderRestForm();
+  else                                   el.innerHTML = renderGenericForm();
+  wireFormHandlers();
+}
+
+// ── Strength form ───────────────────────────────────────────────────────────
+
+function renderStrengthForm() {
+  const last = lastSessionOfType(state.currentType);
+  const showRepeat = last && state.wip.exercises.length === 0;
+  const exHtml = state.wip.exercises.map((ex, i) => renderExerciseCard(ex, i)).join('');
+  const emptyHint = state.currentType === 'hyrox'
+    ? 'Add stations and runs. Tap ＋ Add Exercise to pick from the 8 Hyrox stations plus Running.'
+    : '';
+
+  return `
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <label style="margin:0">Date</label>
+      <input type="date" style="width:auto;padding:8px 10px;font-size:14px" value="${esc(state.wip.date)}" id="wip-date">
+    </div>
+    ${showRepeat ? `<button class="btn btn-ghost" id="repeat-last" style="margin-bottom:12px">↻ Repeat last ${state.currentType === 'hyrox' ? 'Hyrox' : 'lift'} session (${esc(last.date)})</button>` : ''}
+    ${!state.wip.exercises.length && emptyHint ? `<div class="text-muted text-sm" style="margin-bottom:10px">${emptyHint}</div>` : ''}
+    <div id="exercise-list">${exHtml}</div>
+    <button class="add-exercise-btn" onclick="openPicker()">＋ Add Exercise</button>
+    ${state.wip.exercises.length ? `
+      ${renderRPEFeel(state.wip.rpe ?? 6, state.wip.feel ?? 3)}
+      <div class="save-bar">
+        <button class="btn" id="save-btn">Save Session</button>
+      </div>
+    ` : ''}
+  `;
+}
+
+function renderExerciseCard(ex, i) {
+  const isHyrox = !!HYROX_LIBRARY[ex.name];
+  const lastRef = lastExerciseRef(ex.name);
+  const lastTxt = lastRef ? `<div class="exercise-last">Last time: ${esc(lastRef)}</div>` : '';
+
+  let body = '';
+  if (isHyrox) {
+    body = renderHyroxFields(ex, i);
+  } else {
+    body = `
+      ${ex.sets.map((s, si) => `
+        <div class="set-row" data-ex="${i}" data-set="${si}">
+          <div class="set-idx">${si + 1}</div>
+          <input type="number" inputmode="decimal" placeholder="Weight" class="set-w" value="${s.weight ?? ''}">
+          <input type="number" inputmode="numeric" placeholder="Reps" class="set-r" value="${s.reps ?? ''}">
+          <div class="set-pr${s.isPR ? '' : ' hidden'}">🏆</div>
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:4px" onclick="addSet(${i})">＋ Add Set</button>
+    `;
+  }
+
+  const formatToggle = isHyrox ? `
+    <div class="format-toggle">
+      <button data-fmt="singles" class="${ex.format === 'singles' ? 'active' : ''}" onclick="setFormat(${i},'singles')">Singles</button>
+      <button data-fmt="doubles" class="${ex.format === 'doubles' ? 'active' : ''}" onclick="setFormat(${i},'doubles')">Doubles</button>
+    </div>
+  ` : '';
+
+  return `
+    <div class="exercise" data-ex="${i}">
+      <div class="exercise-head">
+        <div class="exercise-name">${esc(ex.name)}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${formatToggle}
+          <button class="remove-btn" onclick="removeExercise(${i})" aria-label="Remove">✕</button>
+        </div>
+      </div>
+      ${lastTxt}
+      ${body}
+    </div>
+  `;
+}
+
+function renderHyroxFields(ex, i) {
+  const fields = HYROX_LIBRARY[ex.name].fields;
+  const cols = fields.length === 3 ? 'cols-3' : 'cols-2';
+  return `
+    <div class="hyrox-fields ${cols}">
+      ${fields.map(f => `
+        <div>
+          <label>${FIELD_LABELS[f].label}</label>
+          <input ${FIELD_LABELS[f].type === 'number' ? 'type="number" inputmode="decimal"' : 'type="text"'}
+                 placeholder="${FIELD_LABELS[f].placeholder || ''}"
+                 value="${ex[f] ?? ''}"
+                 data-ex="${i}" data-field="${f}" class="hyrox-field">
+        </div>
+      `).join('')}
+    </div>
+    <div class="hyrox-pr" data-ex="${i}" style="margin-top:6px">${ex.isPR ? '<span class="pill accent">🏆 PR</span>' : ''}</div>
+  `;
+}
+
+// ── Run form ────────────────────────────────────────────────────────────────
+
+function renderRunForm() {
+  const w = state.wip;
+  return `
+    <div class="card">
+      <label>Run Type</label>
+      <div class="segmented" style="margin-bottom:14px">
+        ${RUN_TYPES.map(t => `<button data-run-type="${t}" class="${w.runType === t ? 'active' : ''}" onclick="setRunType('${t}')">${t}</button>`).join('')}
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Date</label>
+          <input type="date" id="wip-date" value="${esc(w.date)}">
+        </div>
+        <div>
+          <label>Distance (km)</label>
+          <input type="number" inputmode="decimal" step="0.01" id="run-distance" value="${w.distance}" placeholder="10.5">
+        </div>
+      </div>
+      <div class="spacer-sm"></div>
+      <div class="grid-2">
+        <div>
+          <label>Time (mm:ss)</label>
+          <input type="text" id="run-time" value="${esc(w.time)}" placeholder="45:30">
+        </div>
+        <div>
+          <label>Pace</label>
+          <input type="text" id="run-pace" value="${esc(calcPaceStr(w))}" disabled>
+        </div>
+      </div>
+    </div>
+    ${renderRPEFeel(w.rpe, w.feel)}
+    <div class="card">
+      <label style="margin-bottom:8px">HR Zone</label>
+      <div class="hr-zone-picker">
+        ${[1,2,3,4,5].map(z => `<button class="hz-btn${w.hrZone === z ? ' active' : ''}" data-zone="${z}" onclick="setHRZone(${z})">Z${z}</button>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">${['Easy recovery','Aerobic base','Tempo','Threshold','Max effort'][w.hrZone ? w.hrZone - 1 : 0]}</div>
+    </div>
+    <div class="card">
+      <label>Notes</label>
+      <textarea id="run-notes" placeholder="How did it feel? Splits, conditions, anything to remember.">${esc(w.notes)}</textarea>
+    </div>
+    <div class="save-bar">
+      <button class="btn" id="save-btn">Save Run</button>
+    </div>
+  `;
+}
+
+function calcPaceStr(w) {
+  const km = parseFloat(w.distance);
+  const sec = parseTime(w.time);
+  if (!km || !sec) return '';
+  return fmtPace(sec / km);
+}
+
+// ── Generic session form (other) ────────────────────────────────────────────
+
+function renderGenericForm() {
+  const w = state.wip;
+  const defaultLabel = '';
+  return `
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <label>Date</label>
+          <input type="date" id="wip-date" value="${esc(w.date)}">
+        </div>
+        <div>
+          <label>Duration (min)</label>
+          <input type="number" inputmode="numeric" id="gen-duration" value="${w.duration}" placeholder="60">
+        </div>
+      </div>
+      <div class="spacer-sm"></div>
+      <label>Session Label</label>
+      <input type="text" id="gen-label" value="${esc(w.label || defaultLabel)}" placeholder="${defaultLabel || 'e.g. Circuits, Yoga, Bike ride'}">
+    </div>
+    ${renderRPEFeel(w.rpe, w.feel)}
+    <div class="card">
+      <label>Notes</label>
+      <textarea id="gen-notes" placeholder="What did you do? How did it feel?">${esc(w.notes)}</textarea>
+    </div>
+    <div class="save-bar">
+      <button class="btn" id="save-btn">Save Session</button>
+    </div>
+  `;
+}
+
+// ── Rest form ───────────────────────────────────────────────────────────────
+
+function renderRestForm() {
+  const w = state.wip;
+  return `
+    <div class="card">
+      <label>Date</label>
+      <input type="date" id="wip-date" value="${esc(w.date)}">
+      <div class="spacer-md"></div>
+      <label>Type</label>
+      <div class="segmented">
+        <button class="${!w.forced ? 'active' : ''}" onclick="setRestForced(false)">Intentional</button>
+        <button class="${w.forced ? 'active' : ''}" onclick="setRestForced(true)">Forced (injury/illness)</button>
+      </div>
+      <div class="spacer-md"></div>
+      <label>Notes</label>
+      <textarea id="rest-notes" placeholder="Optional — any tweaks, fatigue, illness context.">${esc(w.notes)}</textarea>
+    </div>
+    <div class="save-bar">
+      <button class="btn" id="save-btn">Log Rest Day</button>
+    </div>
+  `;
+}
+
+// ── RPE + Feel card (shared) ────────────────────────────────────────────────
+
+function renderRPEFeel(rpe, feel) {
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label style="margin:0">RPE (1–10)</label>
+        <span class="slider-val mono" id="rpe-val">${rpe}</span>
+      </div>
+      <input type="range" min="1" max="10" step="1" value="${rpe}" id="rpe-slider">
+      <div class="spacer-md"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label style="margin:0">Feel (1–5)</label>
+        <span class="slider-val mono" id="feel-val">${feel}</span>
+      </div>
+      <input type="range" min="1" max="5" step="1" value="${feel}" id="feel-slider">
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOG FORM — handlers / WIP mutation
+// ═══════════════════════════════════════════════════════════════════════════
+
+function wireFormHandlers() {
+  const w = state.wip;
+
+  $('#wip-date')?.addEventListener('change', e => { w.date = e.target.value; });
+
+  // Strength
+  $('#repeat-last')?.addEventListener('click', repeatLastWorkout);
+  document.querySelectorAll('.set-row input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const row = e.target.closest('.set-row');
+      const exIdx = +row.dataset.ex, setIdx = +row.dataset.set;
+      const ex = w.exercises[exIdx];
+      const set = ex.sets[setIdx];
+      if (e.target.classList.contains('set-w')) set.weight = parseFloat(e.target.value) || 0;
+      if (e.target.classList.contains('set-r')) set.reps   = parseInt(e.target.value) || 0;
+      updateLiftPRFlag(ex, setIdx, row);
+    });
+  });
+  document.querySelectorAll('.hyrox-field').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const exIdx = +e.target.dataset.ex;
+      const field = e.target.dataset.field;
+      const ex = w.exercises[exIdx];
+      ex[field] = FIELD_LABELS[field].type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value;
+      updateHyroxPRFlag(ex, exIdx);
+    });
+  });
+
+  // Run
+  $('#run-distance')?.addEventListener('input', e => { w.distance = e.target.value; syncPace(); });
+  $('#run-time')?.addEventListener('input', e => { w.time = e.target.value; syncPace(); });
+  $('#run-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
+
+  // Generic
+  $('#gen-duration')?.addEventListener('input', e => { w.duration = e.target.value; });
+  $('#gen-label')?.addEventListener('input', e => { w.label = e.target.value; });
+  $('#gen-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
+
+  // Rest
+  $('#rest-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
+
+  // RPE / Feel sliders
+  $('#rpe-slider')?.addEventListener('input', e => { w.rpe = +e.target.value; $('#rpe-val').textContent = w.rpe; });
+  $('#feel-slider')?.addEventListener('input', e => { w.feel = +e.target.value; $('#feel-val').textContent = w.feel; });
+
+  // Save
+  $('#save-btn')?.addEventListener('click', saveWorkout);
+}
+
+window.setHRZone = z => { if (state.wip) { state.wip.hrZone = state.wip.hrZone === z ? null : z; renderLogForm(); } };
+
+function syncPace() { if ($('#run-pace')) $('#run-pace').value = calcPaceStr(state.wip); }
+
+window.setRunType     = t => { state.wip.runType = t; renderLogForm(); };
+window.setRestForced  = f => { state.wip.forced = f; renderLogForm(); };
+window.addSet         = i => { state.wip.exercises[i].sets.push({ weight: '', reps: '' }); renderLogForm(); };
+window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm(); };
+window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(); };
+
+function addExercise(name) {
+  const isHyrox = !!HYROX_LIBRARY[name];
+  if (isHyrox) {
+    state.wip.exercises.push({ name, format: 'singles', isPR: false });
+  } else {
+    if (!LIFT_LIBRARY.includes(name) && !state.custom.includes(name)) {
+      state.custom.push(name);
+      persist(['custom']);
+    }
+    state.wip.exercises.push({ name, sets: [{ weight: '', reps: '' }] });
+  }
+  renderLogForm();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PR DETECTION
+// ═══════════════════════════════════════════════════════════════════════════
+
+// key schemes:
+//   lift::<name>
+//   hyrox::<name>
+//   run::<runType>
+// value: { key, category, name, ...details, date, workoutId, metric }
+
+function updateLiftPRFlag(ex, setIdx, rowEl) {
+  const set = ex.sets[setIdx];
+  if (!set.weight || !set.reps) { set.isPR = false; rowEl.querySelector('.set-pr').classList.add('hidden'); return; }
+  const prev = state.prs['lift::' + ex.name];
+  const e1 = e1RM(set.weight, set.reps);
+  const beats = !prev || e1 > prev.e1RM + 0.001;
+  // Also check no earlier set in this exercise already has higher e1RM:
+  let best = 0;
+  for (let j = 0; j < setIdx; j++) {
+    const s = ex.sets[j];
+    if (s.weight && s.reps) best = Math.max(best, e1RM(s.weight, s.reps));
+  }
+  set.isPR = beats && e1 >= best;
+  rowEl.querySelector('.set-pr').classList.toggle('hidden', !set.isPR);
+}
+
+function updateHyroxPRFlag(ex, exIdx) {
+  const rule = HYROX_PR_METRIC[ex.name];
+  if (!rule) return;
+  const val = hyroxMetricValue(ex);
+  if (val === null) { ex.isPR = false; }
+  else {
+    const prev = state.prs['hyrox::' + ex.name];
+    ex.isPR = !prev || (rule.higherBetter ? val > prev.metric + 0.001 : val < prev.metric - 0.001);
+  }
+  const badge = document.querySelector(`.hyrox-pr[data-ex="${exIdx}"]`);
+  if (badge) badge.innerHTML = ex.isPR ? '<span class="pill accent">🏆 PR</span>' : '';
+}
+
+function hyroxMetricValue(ex) {
+  const rule = HYROX_PR_METRIC[ex.name];
+  if (!rule) return null;
+  if (rule.metric === 'pace') {
+    const dist = parseFloat(ex.distance), t = parseTime(ex.time);
+    if (!dist || !t) return null;
+    return t / dist;
+  }
+  const v = parseFloat(ex[rule.metric]);
+  return v && isFinite(v) ? v : null;
+}
+
+// Full PR recalc on save — returns array of new PRs detected.
+function detectAndRecordPRs(workout) {
+  const newPRs = [];
+
+  if (workout.type === 'strength' || workout.type === 'hyrox') {
+    workout.exercises.forEach(ex => {
+      if (HYROX_LIBRARY[ex.name]) {
+        const rule = HYROX_PR_METRIC[ex.name];
+        const val = hyroxMetricValue(ex);
+        if (val === null || !rule) return;
+        const key = 'hyrox::' + ex.name;
+        const prev = state.prs[key];
+        const beats = !prev || (rule.higherBetter ? val > prev.metric : val < prev.metric);
+        if (beats) {
+          const pr = {
+            key, category: 'Hyrox', name: ex.name,
+            metric: val, metricType: rule.metric,
+            // snapshot detail fields for display
+            weight: ex.weight, weightHand: ex.weightHand,
+            distance: ex.distance, time: ex.time, reps: ex.reps, height: ex.height,
+            format: ex.format,
+            date: workout.date, workoutId: workout.id,
+          };
+          state.prs[key] = pr;
+          newPRs.push(pr);
+        }
+      } else {
+        // Standard lift: e1RM
+        let bestSet = null, bestE1 = 0;
+        ex.sets.forEach(s => {
+          const w = parseFloat(s.weight), r = parseInt(s.reps);
+          if (w && r) {
+            const e = e1RM(w, r);
+            if (e > bestE1) { bestE1 = e; bestSet = { weight: w, reps: r, e1RM: e }; }
+          }
+        });
+        if (!bestSet) return;
+        const key = 'lift::' + ex.name;
+        const prev = state.prs[key];
+        if (!prev || bestSet.e1RM > prev.e1RM) {
+          const pr = {
+            key, category: 'Lifts', name: ex.name,
+            weight: bestSet.weight, reps: bestSet.reps, e1RM: bestSet.e1RM,
+            date: workout.date, workoutId: workout.id,
+          };
+          state.prs[key] = pr;
+          newPRs.push(pr);
+        }
+      }
+    });
+  }
+
+  if (workout.type === 'run') {
+    const km = parseFloat(workout.distance), sec = parseTime(workout.time);
+    if (km && sec) {
+      const key = 'run::' + workout.runType;
+      const pace = sec / km;
+      const prev = state.prs[key];
+      if (!prev || pace < prev.pace) {
+        const pr = {
+          key, category: 'Runs', name: workout.runType + ' Run',
+          pace, distance: km, time: sec,
+          date: workout.date, workoutId: workout.id,
+        };
+        state.prs[key] = pr;
+        newPRs.push(pr);
+      }
+    }
+  }
+
+  if (newPRs.length) persist(['prs']);
+  return newPRs;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE WORKOUT
+// ═══════════════════════════════════════════════════════════════════════════
+
+function saveWorkout() {
+  const w = state.wip;
+  if (!w) return;
+
+  if (w.type === 'strength' || w.type === 'hyrox') {
+    if (!w.exercises.length) return toast('Add at least one exercise.', { err: true });
+  }
+  if (w.type === 'run') {
+    if (!w.distance || !w.time) return toast('Distance and time required.', { err: true });
+  }
+  if (w.type === 'other' && !w.duration) {
+    return toast('Duration required.', { err: true });
+  }
+
+  // Sanitize
+  if (w.type === 'run') {
+    w.distance = parseFloat(w.distance) || 0;
+    w.timeSec = parseTime(w.time);
+    w.paceSec = w.distance ? w.timeSec / w.distance : 0;
+  }
+  if (w.type === 'strength' || w.type === 'hyrox') {
+    w.exercises.forEach(ex => {
+      if (ex.sets) ex.sets = ex.sets.filter(s => parseFloat(s.weight) && parseInt(s.reps)).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps), isPR: !!s.isPR }));
+    });
+    w.exercises = w.exercises.filter(ex => HYROX_LIBRARY[ex.name] ? hyroxMetricValue(ex) !== null : (ex.sets && ex.sets.length));
+    if (!w.exercises.length) return toast('No complete sets logged.', { err: true });
+  }
+
+  state.workouts.push(w);
+  state.workouts.sort((a, b) => b.timestamp - a.timestamp);
+  const newPRs = detectAndRecordPRs(w);
+  persist(['workouts']);
+
+  if (newPRs.length) toast(`🏆 New PR: ${newPRs.map(p => p.name).join(', ')}`, { long: true });
+  else toast('Session saved.');
+
+  // Stretches for strength + hyrox sessions
+  if (w.type === 'strength' || w.type === 'hyrox') fetchStretches(w);
+
+  // Reset WIP and go to history
+  state.wip = null;
+  renderLogForm();
+  setTimeout(() => showTab('history'), 400);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HISTORY HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function lastSessionOfType(type) {
+  return state.workouts.find(w => w.type === type);
+}
+
+function lastExerciseRef(name) {
+  for (const w of state.workouts) {
+    if (w.type !== 'strength' && w.type !== 'hyrox') continue;
+    const ex = (w.exercises || []).find(e => e.name === name);
+    if (!ex) continue;
+    if (HYROX_LIBRARY[name]) return formatHyroxShort(ex);
+    if (ex.sets && ex.sets.length) {
+      const top = ex.sets.reduce((a, b) => (b.weight * b.reps > a.weight * a.reps ? b : a), ex.sets[0]);
+      return `${top.weight}kg × ${top.reps} (${ex.sets.length} sets)`;
+    }
+  }
+  return null;
+}
+
+function formatHyroxShort(ex) {
+  const rule = HYROX_PR_METRIC[ex.name];
+  if (!rule) return '';
+  if (rule.metric === 'pace') {
+    const dist = ex.distance, t = ex.time;
+    if (!dist || !t) return '';
+    return `${dist}m in ${t}`;
+  }
+  if (rule.metric === 'weight')     return `${ex.weight}kg × ${ex.distance || ex.reps || ''}${ex.distance ? 'm' : ''}`;
+  if (rule.metric === 'weightHand') return `${ex.weightHand}kg/hand × ${ex.distance}m`;
+  if (rule.metric === 'distance')   return `${ex.distance}m (${ex.reps || 0} reps)`;
+  return '';
+}
+
+function repeatLastWorkout() {
+  const last = lastSessionOfType(state.currentType);
+  if (!last) return;
+  state.wip.exercises = last.exercises.map(ex => {
+    const isHyrox = !!HYROX_LIBRARY[ex.name];
+    if (isHyrox) return { name: ex.name, format: ex.format || 'singles', isPR: false };
+    return { name: ex.name, sets: (ex.sets || []).map(s => ({ weight: '', reps: '' })) };
+  });
+  renderLogForm();
+  toast('Loaded last session');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXERCISE PICKER
+// ═══════════════════════════════════════════════════════════════════════════
+
+function openPicker() {
+  $('#picker-backdrop').classList.add('open');
+  $('#picker-sheet').classList.add('open');
+  $('#picker-search').value = '';
+  renderPicker('');
+  setTimeout(() => $('#picker-search').focus(), 250);
+}
+function closePicker() {
+  $('#picker-backdrop').classList.remove('open');
+  $('#picker-sheet').classList.remove('open');
+}
+$('#picker-backdrop').addEventListener('click', closePicker);
+$('#picker-cancel').addEventListener('click', closePicker);
+$('#picker-search').addEventListener('input', e => renderPicker(e.target.value));
+
+function renderPicker(q) {
+  const ql = q.trim().toLowerCase();
+  const isHyroxTab = state.currentType === 'hyrox';
+  const libLifts = [...LIFT_LIBRARY, ...state.custom].filter(n => n.toLowerCase().includes(ql));
+  const libHyrox = Object.keys(HYROX_LIBRARY).filter(n => n.toLowerCase().includes(ql));
+  const allowCustom = !isHyroxTab; // Hyrox stations are fixed; custom exercises only make sense for lifts
+
+  let html = '';
+  if (isHyroxTab) {
+    if (libHyrox.length) {
+      html += `<div class="picker-section">Hyrox Stations &amp; Runs</div>`;
+      html += libHyrox.map(n => `<div class="picker-item" data-name="${esc(n)}"><span class="pi-name">${esc(n)}</span><span class="pi-tag">${n === 'Running' ? 'RUN' : 'HYROX'}</span></div>`).join('');
+    }
+  } else {
+    if (libLifts.length) {
+      html += `<div class="picker-section">Lifts</div>`;
+      html += libLifts.map(n => `<div class="picker-item" data-name="${esc(n)}"><span class="pi-name">${esc(n)}</span>${state.custom.includes(n) ? '<span class="pi-tag">CUSTOM</span>' : ''}</div>`).join('');
+    }
+    if (allowCustom && q.trim() && !libLifts.map(x=>x.toLowerCase()).includes(q.trim().toLowerCase())) {
+      html += `<div class="picker-section">Custom</div>`;
+      html += `<div class="picker-item" data-name="${esc(q.trim())}"><span class="pi-name">＋ Add "${esc(q.trim())}"</span><span class="pi-tag">NEW</span></div>`;
+    }
+  }
+  if (!html) html = `<div class="empty">No matches${isHyroxTab ? '' : '. Type a name to add as custom'}.</div>`;
+
+  $('#picker-list').innerHTML = html;
+  $('#picker-list').querySelectorAll('.picker-item').forEach(el => {
+    el.addEventListener('click', () => {
+      addExercise(el.dataset.name);
+      closePicker();
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HISTORY SCREEN
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderHistory() {
+  const el = $('#history-list');
+  if (!state.workouts.length) {
+    el.innerHTML = `<div class="empty"><div class="big">📋</div>No sessions yet. Log your first workout.</div>`;
+    return;
+  }
+  const sorted = [...state.workouts].sort((a, b) => b.timestamp - a.timestamp);
+  const groups = {};
+  sorted.forEach(w => { (groups[w.date] = groups[w.date] || []).push(w); });
+  const dates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+  el.innerHTML = dates.map(date => `
+    <div class="date-group">${fmtDay(date)}</div>
+    ${groups[date].map(w => renderSessionCard(w)).join('')}
+  `).join('');
+  el.querySelectorAll('.session').forEach(s => {
+    s.addEventListener('click', () => s.classList.toggle('expanded'));
+  });
+}
+
+function renderSessionCard(w) {
+  const typeLabel = TYPES.find(t => t.key === w.type)?.label || w.type;
+  const icon = TYPES.find(t => t.key === w.type)?.icon || '';
+  let summary = '', detail = '';
+
+  if (w.type === 'strength' || w.type === 'hyrox') {
+    const exCount = w.exercises.length;
+    const hasPR = w.exercises.some(ex => ex.isPR || (ex.sets || []).some(s => s.isPR));
+    if (w.type === 'strength') {
+      const setCount = w.exercises.reduce((n, ex) => n + (ex.sets?.length || 1), 0);
+      const vol = w.exercises.reduce((v, ex) => v + (ex.sets ? ex.sets.reduce((a, s) => a + s.weight * s.reps, 0) : 0), 0);
+      summary = `${exCount} exercises · ${setCount} sets · ${Math.round(vol)}kg vol${hasPR ? ' · 🏆' : ''}`;
+    } else {
+      const runKm = w.exercises.filter(ex => ex.name === 'Running').reduce((a, ex) => a + (parseFloat(ex.distance) || 0), 0) / 1000;
+      summary = `${exCount} exercises${runKm ? ` · ${runKm.toFixed(2)}km run` : ''}${hasPR ? ' · 🏆' : ''}`;
+    }
+    detail = w.exercises.map(ex => {
+      if (HYROX_LIBRARY[ex.name]) {
+        return `<div class="session-ex-row"><span class="ex-name">${ex.isPR?'🏆 ':''}${esc(ex.name)}${ex.format?` (${ex.format})`:''}</span><span class="ex-data">${esc(formatHyroxShort(ex))}</span></div>`;
+      }
+      const setsStr = (ex.sets || []).map(s => `${s.isPR?'🏆 ':''}${s.weight}×${s.reps}`).join(', ');
+      return `<div class="session-ex-row"><span class="ex-name">${esc(ex.name)}</span><span class="ex-data">${setsStr}</span></div>`;
+    }).join('');
+    if (w.rpe) detail += `<div class="session-ex-row"><span class="ex-name">RPE</span><span class="ex-data">${w.rpe}/10 · Feel ${w.feel}/5</span></div>`;
+    if (w.stretches && w.stretches.length) {
+      detail += `<div class="spacer-sm"></div><button class="btn btn-sm btn-ghost" data-stretches-for="${esc(w.id)}" onclick="event.stopPropagation();showStretchesFor(this.dataset.stretchesFor)">View stretches</button>`;
+    }
+  }
+  if (w.type === 'run') {
+    const zoneName = w.hrZone ? ['Easy recovery','Aerobic base','Tempo','Threshold','Max effort'][w.hrZone - 1] : null;
+    summary = `${w.distance}km · ${fmtTime(w.timeSec)} · ${fmtPace(w.paceSec)} · ${w.runType}`;
+    detail = `<div class="session-ex-row"><span class="ex-name">RPE</span><span class="ex-data">${w.rpe}/10</span></div>
+              <div class="session-ex-row"><span class="ex-name">Feel</span><span class="ex-data">${w.feel}/5</span></div>
+              ${zoneName ? `<div class="session-ex-row"><span class="ex-name">HR Zone</span><span class="ex-data">Z${w.hrZone} — ${zoneName}</span></div>` : ''}
+              ${w.notes ? `<div class="session-ex-row"><span class="ex-name">Notes</span><span class="ex-data" style="flex:1;margin-left:10px">${esc(w.notes)}</span></div>` : ''}`;
+  }
+  if (w.type === 'other') {
+    summary = `${w.duration}min · RPE ${w.rpe}/10 · Feel ${w.feel}/5`;
+    detail = `${w.label ? `<div class="session-ex-row"><span class="ex-name">Label</span><span class="ex-data">${esc(w.label)}</span></div>` : ''}
+              ${w.notes ? `<div class="session-ex-row"><span class="ex-name">Notes</span><span class="ex-data" style="flex:1;margin-left:10px">${esc(w.notes)}</span></div>` : ''}`;
+  }
+  if (w.type === 'rest') {
+    summary = w.forced ? 'Forced rest (injury/illness)' : 'Intentional rest';
+    detail = w.notes ? `<div class="session-ex-row"><span class="ex-name">Notes</span><span class="ex-data" style="flex:1;margin-left:10px">${esc(w.notes)}</span></div>` : '';
+  }
+
+  return `
+    <div class="session" data-id="${w.id}">
+      <div class="session-head">
+        <div>
+          <div class="session-type">${icon} ${typeLabel}${w.type === 'run' ? ' — ' + esc(w.runType) : ''}</div>
+          <div class="session-stats">${summary}</div>
+        </div>
+      </div>
+      <div class="session-detail">${detail}</div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WEEK SCREEN
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderWeek() {
+  const key = state.viewWeek;
+  const range = weekRangeFromKey(key);
+  const nowKey = isoWeekKey(new Date());
+  const isThis = key === nowKey;
+  $('#week-label').textContent = isThis ? 'This Week' : key;
+  $('#week-range').textContent = `${range.monday.toLocaleDateString(undefined, { month:'short', day:'numeric' })} – ${range.sunday.toLocaleDateString(undefined, { month:'short', day:'numeric' })}`;
+
+  // collect workouts in range
+  const fromIso = iso(range.monday), toIso = iso(range.sunday);
+  const ws = state.workouts.filter(w => w.date >= fromIso && w.date <= toIso);
+
+  const lifts = ws.filter(w => w.type === 'strength');
+  const hyrox = ws.filter(w => w.type === 'hyrox');
+  const runs = ws.filter(w => w.type === 'run');
+  const other = ws.filter(w => w.type === 'other');
+  const rests = ws.filter(w => w.type === 'rest');
+
+  const totalVol = lifts.reduce((v, w) => v + w.exercises.reduce((a, ex) => a + (ex.sets ? ex.sets.reduce((b, s) => b + s.weight * s.reps, 0) : 0), 0), 0);
+  const totalKm = runs.reduce((v, w) => v + (parseFloat(w.distance) || 0), 0);
+  const hyroxRunKm = hyrox.reduce((v, w) => v + (w.exercises || []).filter(ex => ex.name === 'Running').reduce((a, ex) => a + (parseFloat(ex.distance) || 0), 0), 0) / 1000;
+  const totalSessions = ws.filter(w => w.type !== 'rest').length;
+  const rpeVals = ws.filter(w => w.rpe).map(w => w.rpe);
+  const feelVals = ws.filter(w => w.feel).map(w => w.feel);
+  const avgRPE = rpeVals.length ? (rpeVals.reduce((a,b)=>a+b,0) / rpeVals.length) : null;
+  const avgFeel = feelVals.length ? (feelVals.reduce((a,b)=>a+b,0) / feelVals.length) : null;
+
+  const weightPts = state.weight.filter(p => p.date >= fromIso && p.date <= toIso).sort((a,b) => a.date.localeCompare(b.date));
+  const weightAll = [...state.weight].sort((a,b) => a.date.localeCompare(b.date));
+
+  const feedback = state.weekly[key] || null;
+
+  $('#week-body').innerHTML = `
+    <div class="stats-grid">
+      <div class="card">
+        <div class="stat-label">Sessions</div>
+        <div class="stat mono">${totalSessions}</div>
+        <div class="stat-sub">${lifts.length} lift · ${hyrox.length} hyrox · ${runs.length} run · ${other.length} other</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Volume</div>
+        <div class="stat mono">${Math.round(totalVol).toLocaleString()}<span style="font-size:14px;color:var(--muted)"> kg</span></div>
+        <div class="stat-sub">${lifts.length} lift sessions</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Distance</div>
+        <div class="stat mono">${totalKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div>
+        <div class="stat-sub">${runs.length} runs${hyroxRunKm ? ` · +${hyroxRunKm.toFixed(1)}km in hyrox` : ''}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Rest days</div>
+        <div class="stat mono">${rests.length}</div>
+        <div class="stat-sub">${rests.filter(r=>r.forced).length} forced</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="card">
+        <div class="stat-label">Avg RPE</div>
+        <div class="stat mono">${avgRPE ? avgRPE.toFixed(1) : '—'}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Avg Feel</div>
+        <div class="stat mono">${avgFeel ? avgFeel.toFixed(1) : '—'}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="stat-label" style="margin:0">Body Weight</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" inputmode="decimal" step="0.1" id="weight-input" placeholder="kg" style="width:80px;padding:8px 10px;font-size:14px;text-align:right">
+          <button class="btn btn-sm" style="padding:8px 12px" id="weight-add">Log</button>
+        </div>
+      </div>
+      ${weightAll.length ? `<svg id="spark" viewBox="0 0 400 50" preserveAspectRatio="none"></svg>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">
+          <span>${weightAll[0].kg.toFixed(1)}kg · ${fmtShort(weightAll[0].date)}</span>
+          <span>${weightAll[weightAll.length-1].kg.toFixed(1)}kg · ${fmtShort(weightAll[weightAll.length-1].date)}</span>
+        </div>` : `<div class="text-muted text-sm">No weight data yet. Log your first reading.</div>`}
+    </div>
+
+    <div class="card">
+      <div class="stat-label" style="margin-bottom:10px">Weekly Feedback</div>
+      ${feedback
+        ? `<div class="feedback-body" id="fb-body">${esc(feedback.text)}</div>
+           <div class="spacer-sm"></div>
+           <button class="btn btn-ghost btn-sm" style="width:100%" id="fb-regen">Regenerate</button>`
+        : `<button class="btn" id="fb-get">${state.key ? 'Get Weekly Feedback' : 'Add API key in settings first'}</button>
+           <div id="fb-stream-target"></div>
+           <div id="fb-error"></div>`
+      }
+    </div>
+  `;
+
+  if (weightAll.length) drawSpark(weightAll);
+  $('#weight-add')?.addEventListener('click', logWeight);
+  $('#weight-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') logWeight(); });
+  $('#fb-get')?.addEventListener('click', () => getWeeklyFeedback(key, ws, { avgRPE, avgFeel, totalVol, totalKm, rests }));
+  $('#fb-regen')?.addEventListener('click', () => { delete state.weekly[key]; persist(['weekly']); renderWeek(); });
+}
+
+$('#week-prev').addEventListener('click', () => {
+  const r = weekRangeFromKey(state.viewWeek);
+  const prev = new Date(r.monday); prev.setDate(prev.getDate() - 7);
+  state.viewWeek = isoWeekKey(prev); renderWeek();
+});
+$('#week-next').addEventListener('click', () => {
+  const r = weekRangeFromKey(state.viewWeek);
+  const next = new Date(r.monday); next.setDate(next.getDate() + 7);
+  state.viewWeek = isoWeekKey(next); renderWeek();
+});
+
+function drawSpark(pts) {
+  const svg = $('#spark'); if (!svg) return;
+  const W = 400, H = 50, pad = 4;
+  const vals = pts.map(p => p.kg);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const xStep = (W - pad * 2) / Math.max(1, pts.length - 1);
+  const ys = vals.map(v => H - pad - ((v - min) / range) * (H - pad * 2));
+  const d = ys.map((y, i) => `${i === 0 ? 'M' : 'L'}${pad + i * xStep},${y.toFixed(1)}`).join(' ');
+  svg.innerHTML = `
+    <path d="${d}" stroke="#ff5a1f" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    ${ys.map((y, i) => `<circle cx="${pad + i * xStep}" cy="${y.toFixed(1)}" r="2" fill="#ff5a1f"/>`).join('')}
+  `;
+}
+
+function logWeight() {
+  const v = parseFloat($('#weight-input').value);
+  if (!v || v < 30 || v > 250) return toast('Enter a valid weight in kg.', { err: true });
+  // replace same-day entry if exists
+  const today = iso();
+  state.weight = state.weight.filter(p => p.date !== today);
+  state.weight.push({ date: today, kg: v });
+  state.weight.sort((a, b) => a.date.localeCompare(b.date));
+  persist(['weight']);
+  toast('Weight logged.');
+  renderWeek();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PRS SCREEN
+// ═══════════════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('#pr-tabs button').forEach(b => {
+  b.addEventListener('click', () => {
+    state.prCat = b.dataset.cat;
+    document.querySelectorAll('#pr-tabs button').forEach(x => x.classList.toggle('active', x === b));
+    renderPRs();
+  });
+});
+
+function renderPRs() {
+  const cat = state.prCat;
+  const list = Object.values(state.prs).filter(p => p.category === cat).sort((a,b) => b.date.localeCompare(a.date));
+  const el = $('#pr-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="big">🏆</div>No ${cat.toLowerCase()} PRs yet.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(pr => {
+    let val = '';
+    if (pr.category === 'Lifts') val = `${pr.weight}kg × ${pr.reps}`;
+    if (pr.category === 'Runs')  val = `${fmtTime(pr.time)} · ${pr.distance}km · ${fmtPace(pr.pace)}`;
+    if (pr.category === 'Hyrox') {
+      if (pr.metricType === 'pace') val = `${pr.distance}m in ${pr.time}`;
+      else if (pr.metricType === 'weight') val = `${pr.weight}kg × ${pr.distance || pr.reps || ''}${pr.distance ? 'm' : ''}`;
+      else if (pr.metricType === 'weightHand') val = `${pr.weightHand}kg/hand × ${pr.distance}m`;
+      else if (pr.metricType === 'distance') val = `${pr.distance}m (${pr.reps||0} reps)`;
+    }
+    const sub = pr.category === 'Lifts' ? `e1RM ${Math.round(pr.e1RM)}kg · ${fmtShort(pr.date)}` : fmtShort(pr.date);
+    const keyAttr = esc(pr.key);
+    return `<div class="pr-row" id="pr-row-${keyAttr}">
+      <div class="pr-row-head" onclick="togglePRChart('${keyAttr}')">
+        <div>
+          <div class="pr-name">${esc(pr.name)}</div>
+          <div class="pr-meta">${sub}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="pr-value mono">${esc(val)}</div>
+          <div class="pr-expand-icon">›</div>
+        </div>
+      </div>
+      <div class="pr-chart-area" id="pr-chart-${keyAttr}" style="display:none"></div>
+    </div>`;
+  }).join('');
+}
+
+window.togglePRChart = function(key) {
+  const area = document.getElementById('pr-chart-' + key);
+  const icon = document.querySelector(`#pr-row-${key} .pr-expand-icon`);
+  if (!area) return;
+  const isOpen = area.style.display !== 'none';
+  if (isOpen) { area.style.display = 'none'; if (icon) icon.textContent = '›'; return; }
+  area.style.display = 'block';
+  if (icon) icon.textContent = '⌄';
+
+  const pr = state.prs[key];
+  if (!pr) return;
+
+  let points = []; // { date, val, label }
+  const exName = pr.name.replace(' Run', '');
+
+  if (pr.category === 'Lifts') {
+    state.workouts.filter(w => w.type === 'strength').forEach(w => {
+      const ex = (w.exercises || []).find(e => e.name === pr.name);
+      if (!ex || !ex.sets) return;
+      let best = 0;
+      ex.sets.forEach(s => { const v = e1RM(s.weight, s.reps); if (v > best) best = v; });
+      if (best) points.push({ date: w.date, val: best, label: `${Math.round(best)}kg e1RM` });
+    });
+  } else if (pr.category === 'Runs') {
+    const runType = pr.name.replace(' Run', '');
+    state.workouts.filter(w => w.type === 'run' && w.runType === runType).forEach(w => {
+      const km = parseFloat(w.distance), sec = parseTime(w.time || '') || w.timeSec;
+      if (km && sec) points.push({ date: w.date, val: sec / km, label: fmtPace(sec / km) + '/km' });
+    });
+  } else if (pr.category === 'Hyrox') {
+    const exKey = pr.name;
+    const rule = HYROX_PR_METRIC[exKey];
+    state.workouts.filter(w => w.type === 'hyrox').forEach(w => {
+      const ex = (w.exercises || []).find(e => e.name === exKey);
+      if (!ex) return;
+      const v = hyroxMetricValue(ex);
+      if (v !== null) points.push({ date: w.date, val: v, label: formatHyroxShort(ex) });
+    });
+  }
+
+  points.sort((a, b) => a.date.localeCompare(b.date));
+  const higherBetter = pr.category === 'Lifts' || (pr.category === 'Hyrox' && HYROX_PR_METRIC[pr.name]?.higherBetter);
+
+  if (points.length < 2) {
+    area.innerHTML = `<div style="padding:12px 0 4px;font-size:13px;color:var(--muted)">Not enough history yet — log more sessions to see trend.</div>`;
+    return;
+  }
+
+  // Build mini sparkline
+  const W = 320, H = 52, pad = 6;
+  const vals = points.map(p => p.val);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const yOf = v => H - pad - (hi === lo ? H/2 - pad : ((v - lo) / (hi - lo)) * (H - pad * 2));
+  const xStep = (W - pad * 2) / (points.length - 1);
+  const pts = points.map((p, i) => [pad + i * xStep, yOf(p.val)]);
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const bestIdx = higherBetter
+    ? vals.indexOf(Math.max(...vals))
+    : vals.indexOf(Math.min(...vals));
+
+  area.innerHTML = `
+    <div style="padding:12px 0 4px">
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">
+        <path d="${d}" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? 'var(--accent)' : 'var(--border-2)'}"/>`).join('')}
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
+        <span>${fmtShort(points[0].date)} · ${points[0].label}</span>
+        <span>${fmtShort(points[points.length-1].date)} · ${points[points.length-1].label}</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">${points.length} sessions logged · PR set ${fmtShort(pr.date)}</div>
+    </div>
+  `;
+};
+
+function showWorkoutSheet(id) {
+  const w = state.workouts.find(x => x.id === id);
+  if (!w) return;
+  $('#pr-sheet-title').textContent = `${fmtDay(w.date)} · ${TYPES.find(t=>t.key===w.type)?.label}`;
+  $('#pr-sheet-body').innerHTML = renderSessionCard(w);
+  const sess = $('#pr-sheet-body .session');
+  if (sess) { sess.classList.add('expanded'); sess.style.cursor = 'default'; }
+  $('#pr-backdrop').classList.add('open');
+  $('#pr-sheet').classList.add('open');
+}
+function closePRSheet() {
+  $('#pr-backdrop').classList.remove('open');
+  $('#pr-sheet').classList.remove('open');
+}
+$('#pr-backdrop').addEventListener('click', closePRSheet);
+$('#pr-sheet-close').addEventListener('click', closePRSheet);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CLAUDE API
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function callClaudeJSON(systemPrompt, userPrompt, maxTokens = 1200) {
+  if (!state.key) throw new Error('API key not set');
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': state.key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(`${res.status}: ${t.slice(0, 200)}`); }
+  const data = await res.json();
+  return data.content?.[0]?.text || '';
+}
+
+async function callClaudeStream(systemPrompt, userPrompt, onChunk, maxTokens = 1600) {
+  if (!state.key) throw new Error('API key not set');
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': state.key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: maxTokens,
+      stream: true,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(`${res.status}: ${t.slice(0, 200)}`); }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '', full = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop() || '';
+    for (const line of lines) {
+      if (!line.startsWith('data:')) continue;
+      const data = line.slice(5).trim();
+      if (!data || data === '[DONE]') continue;
+      try {
+        const json = JSON.parse(data);
+        if (json.type === 'content_block_delta' && json.delta?.text) {
+          full += json.delta.text;
+          onChunk(full);
+        }
+      } catch {}
+    }
+  }
+  return full;
+}
+
+// ── Stretches ───────────────────────────────────────────────────────────────
+
+async function fetchStretches(workout) {
+  if (!state.key) return; // silently skip if no key
+  // Show empty sheet with spinner
+  $('#stretch-body').innerHTML = `<div class="text-center text-muted" style="padding:30px 10px"><div class="spinner"></div><div class="spacer-sm"></div>Building your stretches…</div>`;
+  $('#stretch-backdrop').classList.add('open');
+  $('#stretch-sheet').classList.add('open');
+
+  const exDesc = workout.exercises.map(ex => {
+    if (HYROX_LIBRARY[ex.name]) return `- ${ex.name} (${ex.format || 'singles'}): ${formatHyroxShort(ex)}`;
+    const setsStr = (ex.sets || []).map(s => `${s.weight}kg×${s.reps}`).join(', ');
+    return `- ${ex.name}: ${setsStr}`;
+  }).join('\n');
+
+  const system = `${ATHLETE_CONTEXT}
+
+You recommend post-session stretches. Target the exact muscles just worked, including prime movers, antagonists, and commonly-tight regions relevant to the session. Reference the specific exercises logged. Consider how the stretches support his downstream training (Hyrox stations, running mechanics, sub-1:30 HM pacing).
+
+Output ONLY valid JSON, no markdown, no preamble:
+{
+  "stretches": [
+    { "name": "Pigeon Pose", "muscle": "Glute medius / hip capsule", "hold": "45s each side", "instructions": "From a plank, bring one shin under your torso at an angle, straighten the back leg, sink hips toward the ground. Breathe into the outside of the hip." }
+  ]
+}
+
+Rules:
+- 4-6 stretches total
+- "hold" should be a concrete time or reps (e.g. "45s each side", "10 reps slow")
+- "instructions" should be 1-2 sentences, actionable
+- Prioritize areas he'll feel tomorrow based on what he just trained`;
+
+  const user = `Session just logged:\n${exDesc}\n\nRecommend stretches.`;
+
+  try {
+    const raw = await callClaudeJSON(system, user, 1200);
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const stretches = parsed.stretches || [];
+    workout.stretches = stretches;
+    persist(['workouts']);
+    renderStretches(stretches);
+  } catch (err) {
+    $('#stretch-body').innerHTML = `<div class="err-box">Couldn't generate stretches: ${esc(err.message)}</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" data-retry="${esc(workout.id)}" onclick="retryStretches(this.dataset.retry)">Retry</button>`;
+  }
+}
+window.retryStretches = function(workoutId) {
+  const w = state.workouts.find(x => x.id === workoutId);
+  if (w) fetchStretches(w);
+};
+
+function renderStretches(stretches) {
+  if (!stretches || !stretches.length) {
+    $('#stretch-body').innerHTML = `<div class="text-muted text-center">No stretches returned.</div>`;
+    return;
+  }
+  $('#stretch-body').innerHTML = stretches.map(s => `
+    <div class="stretch-card">
+      <div class="stretch-head">
+        <div class="stretch-name">${esc(s.name)}</div>
+        <div class="stretch-hold mono">${esc(s.hold)}</div>
+      </div>
+      <div class="stretch-muscle">${esc(s.muscle)}</div>
+      <div class="stretch-instr">${esc(s.instructions)}</div>
+    </div>
+  `).join('');
+}
+
+window.showStretchesFor = function(workoutId) {
+  const w = state.workouts.find(x => x.id === workoutId);
+  if (!w || !w.stretches) return;
+  renderStretches(w.stretches);
+  $('#stretch-backdrop').classList.add('open');
+  $('#stretch-sheet').classList.add('open');
+};
+
+$('#stretch-backdrop').addEventListener('click', closeStretches);
+$('#stretch-close').addEventListener('click', closeStretches);
+function closeStretches() {
+  $('#stretch-backdrop').classList.remove('open');
+  $('#stretch-sheet').classList.remove('open');
+}
+
+// ── Weekly feedback ─────────────────────────────────────────────────────────
+
+async function getWeeklyFeedback(weekKey, workouts, stats) {
+  if (!state.key) return toast('Add API key in settings.', { err: true });
+  const target = $('#fb-stream-target');
+  const errBox = $('#fb-error');
+  const btn = $('#fb-get');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analysing…'; }
+  if (errBox) errBox.innerHTML = '';
+  target.innerHTML = '<div class="feedback-body" id="fb-stream"></div>';
+  const streamEl = $('#fb-stream');
+
+  // Summarize the week for Claude
+  const lift = workouts.filter(w => w.type === 'strength');
+  const hyrox = workouts.filter(w => w.type === 'hyrox');
+  const run = workouts.filter(w => w.type === 'run');
+  const other = workouts.filter(w => w.type === 'other');
+  const rest = workouts.filter(w => w.type === 'rest');
+
+  const liftLines = lift.map(w => {
+    const exLines = w.exercises.map(ex => {
+      const setsStr = (ex.sets || []).map(s => `${s.weight}×${s.reps}`).join(', ');
+      return `    - ${ex.name}: ${setsStr}`;
+    }).join('\n');
+    const rpeStr = w.rpe ? ` · RPE ${w.rpe}/10, Feel ${w.feel}/5` : '';
+    return `  ${fmtShort(w.date)} — strength session${rpeStr}:\n${exLines}`;
+  }).join('\n');
+
+  const hyroxLines = hyrox.map(w => {
+    const exLines = (w.exercises || []).map(ex => `    - ${ex.name} (${ex.format || 'singles'}): ${formatHyroxShort(ex)}`).join('\n');
+    return `  ${fmtShort(w.date)} — hyrox session:\n${exLines}`;
+  }).join('\n');
+
+  const runLines = run.map(w => {
+    const zoneStr = w.hrZone ? `, Z${w.hrZone} HR` : '';
+    return `  ${fmtShort(w.date)} — ${w.runType}: ${w.distance}km in ${fmtTime(w.timeSec)} (${fmtPace(w.paceSec)}), RPE ${w.rpe}/10${zoneStr}, Feel ${w.feel}/5${w.notes?` — "${w.notes}"`:''}`
+  }).join('\n');
+  const otherLines = other.map(w => `  ${fmtShort(w.date)} — ${w.label || w.type}: ${w.duration}min, RPE ${w.rpe}/10, Feel ${w.feel}/5${w.notes?` — "${w.notes}"`:''}`).join('\n');
+  const restLines = rest.map(w => `  ${fmtShort(w.date)} — ${w.forced?'FORCED':'intentional'} rest${w.notes?` (${w.notes})`:''}`).join('\n');
+
+  const weightStr = state.weight.filter(p => {
+    const r = weekRangeFromKey(weekKey);
+    return p.date >= iso(r.monday) && p.date <= iso(r.sunday);
+  }).map(p => `  ${fmtShort(p.date)}: ${p.kg}kg`).join('\n');
+
+  const system = `${ATHLETE_CONTEXT}
+
+You write a tight, actionable weekly review. Be concrete and specific — reference his actual logged sessions, loads, paces, and RPE signals. Keep it calm and direct, not cheerleader-y.
+
+Structure the response in short, scannable paragraphs:
+
+**Volume & intensity** — what the week actually looked like vs. where it should be for his goals.
+**Recovery signals** — RPE + feel patterns, consecutive hard days, forced rest.
+**Hyrox observations** — which stations he trained in dedicated hyrox sessions, load progression, gaps vs. a competitive profile.
+**Running observations** — mileage and pace trends vs. a sub-1:30 HM (target pace 4:16/km). Include running done inside hyrox sessions.
+**Next week priority** — one or two specific things to adjust, with reasoning.
+**Red flags** — anything worth watching (high RPE + low feel, too little running, weak areas). Omit if nothing stands out.
+
+~350-500 words total. Skip sections that have no data.`;
+
+  const user = `Week of ${fmtShort(iso(weekRangeFromKey(weekKey).monday))} – ${fmtShort(iso(weekRangeFromKey(weekKey).sunday))}
+
+SUMMARY:
+- ${lift.length} strength sessions, ${hyrox.length} hyrox sessions, ${run.length} runs, ${other.length} other, ${rest.length} rest days
+- Volume lifted: ${Math.round(stats.totalVol)}kg
+- Distance run (pure runs): ${stats.totalKm.toFixed(1)}km
+- Avg RPE: ${stats.avgRPE ? stats.avgRPE.toFixed(1) : 'n/a'}/10, Avg Feel: ${stats.avgFeel ? stats.avgFeel.toFixed(1) : 'n/a'}/5
+
+STRENGTH SESSIONS:
+${liftLines || '  (none)'}
+
+HYROX SESSIONS:
+${hyroxLines || '  (none)'}
+
+RUNS:
+${runLines || '  (none)'}
+
+OTHER SESSIONS:
+${otherLines || '  (none)'}
+
+REST DAYS:
+${restLines || '  (none)'}
+
+BODY WEIGHT:
+${weightStr || '  (none logged)'}`;
+
+  try {
+    const text = await callClaudeStream(system, user, (partial) => {
+      streamEl.innerHTML = esc(partial);
+    }, 1800);
+    state.weekly[weekKey] = { text, generated_at: Date.now() };
+    persist(['weekly']);
+    setTimeout(renderWeek, 400);
+  } catch (err) {
+    if (errBox) errBox.innerHTML = `<div class="err-box">Couldn't generate feedback: ${esc(err.message)}</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="renderWeek()">Try Again</button>`;
+    if (btn) { btn.disabled = false; btn.textContent = 'Get Weekly Feedback'; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETTINGS / ONBOARDING
+// ═══════════════════════════════════════════════════════════════════════════
+
+$('#settings-btn').addEventListener('click', openSettings);
+function openSettings() {
+  $('#settings-key').value = state.key;
+  $('#settings-overlay').classList.remove('hidden');
+}
+window.closeSettings = () => $('#settings-overlay').classList.add('hidden');
+
+window.saveSettingsKey = function() {
+  const v = $('#settings-key').value.trim();
+  state.key = v;
+  persist(['key']);
+  toast('Key saved.');
+  closeSettings();
+};
+
+window.exportCSV = function() {
+  const rows = [['date','type','exercise','weight_kg','reps','distance_m','time','extra_notes']];
+  state.workouts.forEach(w => {
+    if (w.type === 'strength') {
+      w.exercises.forEach(ex => {
+        (ex.sets || []).forEach(s => rows.push([w.date, 'lift', ex.name, s.weight, s.reps, '', '', '']));
+      });
+    }
+    if (w.type === 'hyrox') {
+      (w.exercises || []).forEach(ex => {
+        rows.push([w.date, 'hyrox', ex.name, ex.weight || ex.weightHand || '', ex.reps || '', ex.distance || ex.height || '', ex.time || '', `format:${ex.format||'singles'}`]);
+      });
+    }
+    if (w.type === 'run') rows.push([w.date, 'run', w.runType, '', '', (w.distance*1000)|0, fmtTime(w.timeSec), `rpe:${w.rpe};feel:${w.feel};${(w.notes||'').replace(/[,\n]/g,' ')}`]);
+    if (w.type === 'other') rows.push([w.date, 'other', w.label || '', '', '', '', w.duration + 'min', `rpe:${w.rpe};feel:${w.feel};${(w.notes||'').replace(/[,\n]/g,' ')}`]);
+    if (w.type === 'rest') rows.push([w.date, 'rest', w.forced?'forced':'intentional', '', '', '', '', (w.notes||'').replace(/[,\n]/g,' ')]);
+  });
+  state.weight.forEach(p => rows.push([p.date, 'bodyweight', '', p.kg, '', '', '', '']));
+  const csv = rows.map(r => r.map(c => /[",\n]/.test(String(c)) ? `"${String(c).replace(/"/g,'""')}"` : String(c)).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `forge-${iso()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported.');
+};
+
+window.confirmClearAll = function() {
+  openConfirm('Clear all data?', 'This wipes workouts, PRs, weekly feedbacks, and body-weight history on this device. Your API key stays. This cannot be undone.', () => {
+    state.workouts = []; state.prs = {}; state.weekly = {}; state.weight = []; state.custom = [];
+    persist(['workouts','prs','weekly','weight','custom']);
+    toast('All data cleared.');
+    closeSettings();
+    showTab('log');
+  });
+};
+
+function openConfirm(title, msg, onYes) {
+  $('#confirm-title').textContent = title;
+  $('#confirm-msg').textContent = msg;
+  $('#confirm-overlay').classList.remove('hidden');
+  $('#confirm-yes').onclick = () => { $('#confirm-overlay').classList.add('hidden'); onYes(); };
+  $('#confirm-no').onclick  = () => $('#confirm-overlay').classList.add('hidden');
+}
+
+// Onboarding
+function maybeShowOnboarding() {
+  if (state.key) return;
+  $('#onboarding').classList.remove('hidden');
+}
+$('#onboard-save').addEventListener('click', () => {
+  const v = $('#onboard-key').value.trim();
+  if (!v) return toast('Paste an Anthropic API key or tap Skip.', { err: true });
+  state.key = v; persist(['key']);
+  $('#onboarding').classList.add('hidden');
+});
+$('#onboard-skip').addEventListener('click', () => $('#onboarding').classList.add('hidden'));
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+
+loadState();
+renderTypeSelector();
+renderLogForm();
+maybeShowOnboarding();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
