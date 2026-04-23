@@ -915,7 +915,6 @@ function renderStrengthForm() {
       <input type="date" style="" value="${esc(state.wip.date)}" id="wip-date">
     </div>
     ${showRepeat ? `<button class="btn btn-ghost" id="repeat-last" style="margin-bottom:12px">↻ Repeat last lift session (${esc(last.date)})</button>` : ''}
-    ${!state.wip.exercises.length && emptyHint ? `<div class="text-muted text-sm" style="margin-bottom:10px">${emptyHint}</div>` : ''}
     <div id="exercise-list">${exHtml}</div>
     <button class="add-exercise-btn" onclick="openPicker()">＋ Add Exercise</button>
     ${state.wip.exercises.length ? `
