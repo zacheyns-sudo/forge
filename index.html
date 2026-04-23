@@ -1,33 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+<script>
+  // Anti-FOUC: apply saved theme before CSS renders
+  (function(){const t=localStorage.getItem('theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');})();
+</script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#faf7f2">
+<meta name="theme-color" id="theme-color-meta" content="#f4f4f5">
 <title>Forge</title>
+<link rel="manifest" href="/manifest.json">
 <style>
 :root {
-  --bg: #faf7f2;
+  /* Light — Pure White */
+  --bg: #f4f4f5;
   --surface: #ffffff;
-  --surface-2: #f2ede4;
-  --surface-3: #e8e1d4;
-  --border: #e5ddd0;
-  --border-2: #c9bfae;
-  --text: #1a1a1a;
-  --muted: #6b6257;
-  --muted-2: #a39a8c;
+  --surface-2: #f0f0f1;
+  --surface-3: #e4e4e7;
+  --border: #e4e4e7;
+  --border-2: #a1a1aa;
+  --text: #09090b;
+  --muted: #71717a;
+  --muted-2: #a1a1aa;
   --accent: #ff5a1f;
   --accent-dim: rgba(255,90,31,0.12);
   --red: #dc2626;
   --amber: #d97706;
   --blue: #2563eb;
   --success: #059669;
+  --topbar-bg: #f4f4f5;
+  --nav-bg: rgba(244,244,245,0.94);
+  --bg-fade: rgba(244,244,245,0);
+  --err-tint: #fee2e2;
+  --backdrop: rgba(0,0,0,0.4);
+  --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.1);
   --nav-h: 68px;
   --top-h: 52px;
   --sa-bot: env(safe-area-inset-bottom, 0px);
   --sa-top: env(safe-area-inset-top, 0px);
+}
+
+html.dark {
+  /* Dark — Ink */
+  --bg: #131110;
+  --surface: #1e1b18;
+  --surface-2: #252118;
+  --surface-3: #2e2920;
+  --border: #352f28;
+  --border-2: #4a4238;
+  --text: #f2ede6;
+  --muted: #7a7168;
+  --muted-2: #4e4840;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --blue: #60a5fa;
+  --success: #34d399;
+  --topbar-bg: #131110;
+  --nav-bg: rgba(19,17,16,0.96);
+  --bg-fade: rgba(19,17,16,0);
+  --err-tint: rgba(248,113,113,0.14);
+  --backdrop: rgba(0,0,0,0.65);
+  --shadow-sheet: 0 -8px 40px rgba(0,0,0,0.55);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -52,7 +87,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
   position: fixed; top: 0; left: 0; right: 0; z-index: 40;
   height: calc(var(--top-h) + var(--sa-top));
   padding: var(--sa-top) 18px 0;
-  background: rgba(250,247,242,0.9);
+  background: var(--topbar-bg);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
@@ -72,7 +107,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   height: calc(var(--nav-h) + var(--sa-bot));
   padding-bottom: var(--sa-bot);
-  background: rgba(250,247,242,0.95);
+  background: var(--nav-bg);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid var(--border);
   display: grid; grid-template-columns: repeat(4, 1fr);
@@ -153,6 +188,9 @@ textarea { min-height: 80px; resize: vertical; }
 .pill.red { background: #ffe4e4; color: var(--red); }
 .pill.amber { background: #fef0d7; color: var(--amber); }
 .pill.blue { background: #e0ecff; color: var(--blue); }
+html.dark .pill.red { background: rgba(248,113,113,0.18); }
+html.dark .pill.amber { background: rgba(251,191,36,0.18); }
+html.dark .pill.blue { background: rgba(96,165,250,0.18); }
 .pill.muted { background: var(--surface-2); color: var(--muted); }
 
 /* ── Workout type selector ───────────────────────────────────────────────── */
@@ -266,7 +304,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 .save-bar {
   position: sticky; bottom: 0;
   margin: 18px -16px 0; padding: 12px 16px calc(12px + var(--sa-bot));
-  background: linear-gradient(to bottom, rgba(250,247,242,0) 0%, var(--bg) 40%);
+  background: linear-gradient(to bottom, var(--bg-fade) 0%, var(--bg) 40%);
 }
 
 /* ── History ─────────────────────────────────────────────────────────────── */
@@ -344,7 +382,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 /* ── Overlays ────────────────────────────────────────────────────────────── */
 .overlay {
   position: fixed; inset: 0; z-index: 60;
-  background: rgba(40,30,20,0.48); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: var(--backdrop); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
 .overlay.hidden { display: none; }
@@ -366,12 +404,12 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
   max-height: 85vh; max-height: 85dvh;
   overflow-y: auto;
   transform: translateY(100%); transition: transform 0.3s ease;
-  box-shadow: 0 -12px 32px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-sheet);
 }
 .sheet.open { transform: translateY(0); }
 .sheet-backdrop {
   position: fixed; inset: 0; z-index: 65;
-  background: rgba(40,30,20,0.42);
+  background: var(--backdrop);
   opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
 .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
@@ -444,10 +482,11 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
   border-radius: 50%; animation: spin 0.8s linear infinite;
   vertical-align: middle;
 }
+html.dark .spinner { border-color: rgba(255,255,255,0.12); border-top-color: var(--text); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .err-box {
-  background: #ffe4e4; border: 1px solid var(--red);
+  background: var(--err-tint); border: 1px solid var(--red);
   color: var(--red); padding: 10px 12px;
   border-radius: 10px; font-size: 13px; margin: 10px 0;
 }
@@ -519,6 +558,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <header id="top-bar">
   <h1 id="screen-title">Log</h1>
   <div class="top-actions">
+    <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" onclick="toggleTheme()">☀</button>
     <button class="icon-btn" id="settings-btn" aria-label="Settings">⚙</button>
   </div>
 </header>
@@ -790,7 +830,24 @@ function persist(keys) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const $ = sel => document.querySelector(sel);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const esc = s => String(s ?? '')
+
+/* ── Theme ──────────────────────────────────────────────────────────────── */
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.classList.toggle('dark', dark);
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f4f4f5';
+  document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
+}
+window.toggleTheme = function() {
+  const dark = !document.documentElement.classList.contains('dark');
+  document.documentElement.classList.toggle('dark', dark);
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f4f4f5';
+  document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
+};
+.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const uuid = (prefix = 'w') => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 
 function iso(d) { const x = d || new Date(); const p = n => String(n).padStart(2,'0'); return `${x.getFullYear()}-${p(x.getMonth()+1)}-${p(x.getDate())}`; }
@@ -864,7 +921,7 @@ function weekRangeFromKey(key) {
 function toast(msg, opts = {}) {
   const t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = `position:fixed;bottom:calc(90px + var(--sa-bot));left:50%;transform:translateX(-50%);background:${opts.err?'#ffe4e4':'var(--surface)'};color:${opts.err?'var(--red)':'var(--text)'};border:1px solid ${opts.err?'var(--red)':'var(--border)'};padding:10px 16px;border-radius:10px;z-index:100;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.15)`;
+  t.style.cssText = `position:fixed;bottom:calc(90px + var(--sa-bot));left:50%;transform:translateX(-50%);background:${opts.err?'var(--err-tint)':'var(--surface)'};color:${opts.err?'var(--red)':'var(--text)'};border:1px solid ${opts.err?'var(--red)':'var(--border)'};padding:10px 16px;border-radius:10px;z-index:100;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.15)`;
   document.body.appendChild(t);
   setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; }, opts.long ? 2400 : 1600);
   setTimeout(() => t.remove(), opts.long ? 2800 : 2000);
@@ -2352,11 +2409,15 @@ $('#onboard-skip').addEventListener('click', () => $('#onboarding').classList.ad
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
+initTheme();
 loadState();
 renderTypeSelector();
 renderLogForm();
 maybeShowOnboarding();
 
+</script>
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
 </body>
 </html>
