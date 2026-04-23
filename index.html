@@ -11,7 +11,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" id="theme-color-meta" content="#f4f4f5">
 <title>Forge</title>
-<link rel="manifest" href="/manifest.json">
 <style>
 :root {
   /* Light — Pure White */
@@ -241,9 +240,6 @@ html.dark .pill.blue { background: rgba(96,165,250,0.18); }
 .set-row input { padding: 11px 12px; font-size: 15px; }
 .set-pr { color: var(--accent); font-size: 18px; width: 28px; text-align: center; }
 .set-pr.hidden { visibility: hidden; }
-.hyrox-fields { display: grid; gap: 8px; }
-.hyrox-fields.cols-2 { grid-template-columns: 1fr 1fr; }
-.hyrox-fields.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 
 .remove-btn {
   background: none; border: none; color: var(--muted-2);
@@ -507,50 +503,6 @@ html.dark .spinner { border-color: rgba(255,255,255,0.12); border-top-color: var
 .text-center { text-align: center; }
 hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
-/* ── Hyrox station grid ──────────────────────────────────────────────────── */
-.station-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
-}
-.station-cell {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px 10px; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; gap: 3px; position: relative; min-height: 96px;
-  transition: background 0.1s;
-}
-.station-cell:active { background: var(--surface-2); }
-.station-cell.done { border-color: var(--border-2); }
-.station-cell.done .st-icon { opacity: 0.45; }
-.st-icon { font-size: 26px; line-height: 1; }
-.st-name { font-size: 11px; font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; line-height: 1.3; }
-.st-last { font-size: 11px; color: var(--muted-2); margin-top: 2px; }
-.st-val  { font-size: 11px; color: var(--text); font-weight: 600; margin-top: 2px; }
-.st-check { position: absolute; top: 8px; right: 9px; font-size: 13px; font-weight: 800; }
-
-/* ── Hyrox compact RPE/Feel bar ──────────────────────────────────────────── */
-.hyrox-meta-bar {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 10px 14px; margin-bottom: 12px;
-}
-.hmb-lbl { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
-.hmb-val { font-size: 14px; font-weight: 700; min-width: 18px; text-align: right; flex-shrink: 0; }
-.hyrox-meta-bar input[type=range] { flex: 1; }
-
-/* ── Hyrox quick-entry sheet ─────────────────────────────────────────────── */
-.hq-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.hq-icon  { font-size: 34px; line-height: 1; flex-shrink: 0; }
-.hq-title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
-.hq-fields { display: flex; flex-direction: column; gap: 10px; }
-.hq-input {
-  font-size: 26px; font-weight: 700; text-align: center;
-  padding: 18px 14px; background: var(--surface-2);
-  border: 1px solid var(--border); border-radius: 12px; width: 100%;
-  -moz-appearance: textfield;
-}
-.hq-input::-webkit-outer-spin-button,
-.hq-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.hq-input:focus { border-color: var(--accent); outline: none; }
 
 </style>
 </head>
@@ -595,7 +547,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="pr-tabs" id="pr-tabs">
     <button data-cat="Lifts" class="active">Lifts</button>
     <button data-cat="Runs">Runs</button>
-    <button data-cat="Hyrox">Hyrox</button>
   </div>
   <div id="pr-list"></div>
 </section>
@@ -615,7 +566,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div class="overlay-panel">
     <div class="logo">🔥</div>
     <h3>Forge</h3>
-    <p>Workout tracker built for Hyrox, running, and everything in between.</p>
+    <p>Workout tracker for lifting, running, and everything in between.</p>
     <label for="onboard-key">Anthropic API Key</label>
     <input type="password" id="onboard-key" placeholder="sk-ant-...">
     <div class="spacer-md"></div>
@@ -682,13 +633,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <button class="btn btn-ghost" id="stretch-close">Done</button>
 </div>
 
-<!-- Hyrox quick-entry sheet -->
-<div id="hyrox-quick-backdrop" class="sheet-backdrop"></div>
-<div id="hyrox-quick-sheet" class="sheet" style="max-height:70vh">
-  <div class="sheet-handle"></div>
-  <div id="hyrox-quick-body"></div>
-</div>
-
 <!-- Session detail sheet (for PR tap) -->
 <div id="pr-backdrop" class="sheet-backdrop"></div>
 <div id="pr-sheet" class="sheet">
@@ -708,7 +652,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 const MODEL = 'claude-haiku-4-5-20251001';
 
-const ATHLETE_CONTEXT = `You are a sports performance coach for a 20-year-old male athlete, 6'3" tall, who is training for Hyrox competition and a sub-1:30 half marathon. His goals are: (1) run a sub-1:30 half marathon, (2) post a competitive Hyrox finish, (3) build general athletic performance. All recommendations must be specific to his context — never generic. Reference the actual exercises, loads, distances, and paces he logs. Consider how his strength work supports his running and vice versa.`;
+const ATHLETE_CONTEXT = `You are a sports performance coach for a 20-year-old male athlete, 6'3" tall, training for a sub-1:30 half marathon while building general strength. His goals are: (1) run a sub-1:30 half marathon, (2) build functional strength. All recommendations must be specific to his context — never generic. Reference the actual exercises, loads, distances, and paces he logs. Consider how his strength work supports his running and vice versa.`;
 
 const LIFT_LIBRARY = [
   'Back Squat','Front Squat','Deadlift','Romanian Deadlift','Trap Bar Deadlift',
@@ -725,40 +669,6 @@ const LIFT_LIBRARY = [
   'Kettlebell Swing','Turkish Get-Up','Goblet Squat'
 ];
 
-const HYROX_LIBRARY = {
-  'Running':            { fields: ['distance', 'time'] },
-  'SkiErg':             { fields: ['distance', 'time'] },
-  'Sled Push':          { fields: ['weight', 'distance'] },
-  'Sled Pull':          { fields: ['weight', 'distance'] },
-  'Burpee Broad Jumps': { fields: ['reps', 'distance'] },
-  'Rowing':             { fields: ['distance', 'time'] },
-  'Farmers Carry':      { fields: ['weightHand', 'distance'] },
-  'Sandbag Lunges':     { fields: ['weight', 'distance', 'reps'] },
-  'Wall Balls':         { fields: ['weight', 'reps', 'height'] },
-};
-
-const HYROX_PR_METRIC = {
-  'Running':            { metric: 'pace',       higherBetter: false }, // s per meter
-  'SkiErg':             { metric: 'pace',       higherBetter: false },
-  'Rowing':             { metric: 'pace',       higherBetter: false },
-  'Sled Push':          { metric: 'weight',     higherBetter: true },
-  'Sled Pull':          { metric: 'weight',     higherBetter: true },
-  'Burpee Broad Jumps': { metric: 'distance',   higherBetter: true },
-  'Farmers Carry':      { metric: 'weightHand', higherBetter: true },
-  'Sandbag Lunges':     { metric: 'weight',     higherBetter: true },
-  'Wall Balls':         { metric: 'weight',     higherBetter: true },
-};
-
-const HYROX_STATIONS = [
-  { name: 'SkiErg',            icon: '🎿', fields: [{ key:'distance', ph:'Distance (m)',      mode:'numeric' }, { key:'time', ph:'Time  mm:ss', mode:'text' }] },
-  { name: 'Sled Push',         icon: '🛷', fields: [{ key:'weight',   ph:'Weight (kg)',        mode:'decimal' }, { key:'distance', ph:'Distance (m)', mode:'numeric' }] },
-  { name: 'Sled Pull',         icon: '🔗', fields: [{ key:'weight',   ph:'Weight (kg)',        mode:'decimal' }, { key:'distance', ph:'Distance (m)', mode:'numeric' }] },
-  { name: 'Burpee Broad Jumps',icon: '💨', fields: [{ key:'distance', ph:'Distance (m)',       mode:'numeric' }] },
-  { name: 'Rowing',            icon: '🚣', fields: [{ key:'distance', ph:'Distance (m)',       mode:'numeric' }, { key:'time', ph:'Time  mm:ss', mode:'text' }] },
-  { name: 'Farmers Carry',     icon: '🧳', fields: [{ key:'weightHand', ph:'Weight / hand (kg)', mode:'decimal' }, { key:'distance', ph:'Distance (m)', mode:'numeric' }] },
-  { name: 'Sandbag Lunges',    icon: '🏋️', fields: [{ key:'weight',  ph:'Weight (kg)',        mode:'decimal' }, { key:'reps', ph:'Reps', mode:'numeric' }] },
-  { name: 'Wall Balls',        icon: '🏀', fields: [{ key:'weight',   ph:'Weight (kg)',        mode:'decimal' }, { key:'reps', ph:'Reps', mode:'numeric' }] },
-];
 
 const FIELD_LABELS = {
   distance:   { label: 'Distance (m)', unit: 'm',    type: 'number' },
@@ -771,7 +681,6 @@ const FIELD_LABELS = {
 
 const TYPES = [
   { key: 'strength', label: 'Lift',   icon: '💪' },
-  { key: 'hyrox',    label: 'Hyrox',  icon: '🏁' },
   { key: 'run',      label: 'Run',    icon: '🏃' },
   { key: 'other',    label: 'Other',  icon: '⚡' },
   { key: 'rest',     label: 'Rest',   icon: '😴' },
@@ -976,7 +885,6 @@ function setType(type) {
 function initWIP() {
   const base = { id: uuid(), date: iso(), timestamp: Date.now(), type: state.currentType };
   if (state.currentType === 'strength') { base.exercises = []; base.rpe = 6; base.feel = 3; }
-  if (state.currentType === 'hyrox') { base.exercises = []; base.rpe = 6; base.feel = 3; base.notes = ''; }
   if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy', hrZone: null });
   if (state.currentType === 'other')
     Object.assign(base, { label: '', duration: '', rpe: 6, feel: 3, notes: '' });
@@ -989,7 +897,6 @@ function renderLogForm() {
   const t = state.currentType;
   const el = $('#log-form');
   if (t === 'strength') el.innerHTML = renderStrengthForm();
-  else if (t === 'hyrox') el.innerHTML = renderHyroxForm();
   else if (t === 'run')                  el.innerHTML = renderRunForm();
   else if (t === 'rest')                 el.innerHTML = renderRestForm();
   else                                   el.innerHTML = renderGenericForm();
@@ -1002,16 +909,12 @@ function renderStrengthForm() {
   const last = lastSessionOfType(state.currentType);
   const showRepeat = last && state.wip.exercises.length === 0;
   const exHtml = state.wip.exercises.map((ex, i) => renderExerciseCard(ex, i)).join('');
-  const emptyHint = state.currentType === 'hyrox'
-    ? 'Add stations and runs. Tap ＋ Add Exercise to pick from the 8 Hyrox stations plus Running.'
-    : '';
-
   return `
     <div class="row" style="justify-content:space-between;margin-bottom:10px">
       <label style="margin:0">Date</label>
       <input type="date" style="" value="${esc(state.wip.date)}" id="wip-date">
     </div>
-    ${showRepeat ? `<button class="btn btn-ghost" id="repeat-last" style="margin-bottom:12px">↻ Repeat last ${state.currentType === 'hyrox' ? 'Hyrox' : 'lift'} session (${esc(last.date)})</button>` : ''}
+    ${showRepeat ? `<button class="btn btn-ghost" id="repeat-last" style="margin-bottom:12px">↻ Repeat last lift session (${esc(last.date)})</button>` : ''}
     ${!state.wip.exercises.length && emptyHint ? `<div class="text-muted text-sm" style="margin-bottom:10px">${emptyHint}</div>` : ''}
     <div id="exercise-list">${exHtml}</div>
     <button class="add-exercise-btn" onclick="openPicker()">＋ Add Exercise</button>
@@ -1024,201 +927,29 @@ function renderStrengthForm() {
   `;
 }
 
-// ── Hyrox station grid form ─────────────────────────────────────────────────
-
-function buildStationGrid() {
-  const w = state.wip;
-  return HYROX_STATIONS.map(st => {
-    const logged = w.exercises.find(e => e.name === st.name);
-    const lastRef = !logged ? lastExerciseRef(st.name) : null;
-    const sub = logged
-      ? `<div class="st-val">${esc(formatHyroxShort(logged))}</div>`
-      : (lastRef ? `<div class="st-last">${esc(lastRef)}</div>` : '');
-    return `
-      <div class="station-cell${logged ? ' done' : ''}" onclick="openHyroxQuick('${esc(st.name)}')">
-        ${logged ? `<div class="st-check">✓</div>` : ''}
-        <div class="st-icon">${st.icon}</div>
-        <div class="st-name">${esc(st.name)}</div>
-        ${sub}
-      </div>`;
-  }).join('');
-}
-
-function renderHyroxForm() {
-  const w = state.wip;
-  const count = w.exercises.length;
-  return `
-    <div class="row" style="justify-content:space-between;margin-bottom:14px">
-      <label style="margin:0">Date</label>
-      <input type="date" style="" value="${esc(w.date)}" id="wip-date">
-    </div>
-    <div class="station-grid" id="station-grid">${buildStationGrid()}</div>
-    <div class="card" style="margin-bottom:10px;padding:10px 14px">
-      <textarea id="hyrox-notes" placeholder="Session notes (optional)" style="min-height:52px;margin:0;background:transparent;border:none;padding:0;resize:none;width:100%">${esc(w.notes || '')}</textarea>
-    </div>
-    <div class="hyrox-meta-bar">
-      <span class="hmb-lbl">RPE</span>
-      <input type="range" min="1" max="10" step="1" value="${w.rpe ?? 6}" id="rpe-slider">
-      <span class="hmb-val mono" id="rpe-val">${w.rpe ?? 6}</span>
-      <span class="hmb-lbl" style="margin-left:10px">Feel</span>
-      <input type="range" min="1" max="5" step="1" value="${w.feel ?? 3}" id="feel-slider">
-      <span class="hmb-val mono" id="feel-val">${w.feel ?? 3}</span>
-    </div>
-    <div id="hyrox-save-bar">
-      ${count
-        ? `<div class="save-bar"><button class="btn" id="save-btn">Save Session · ${count} station${count > 1 ? 's' : ''}</button></div>`
-        : `<div class="text-muted text-sm" style="text-align:center;padding:10px 0">Tap a station above to log it</div>`}
-    </div>`;
-}
-
-function refreshHyroxGrid() {
-  const grid = document.getElementById('station-grid');
-  if (grid) grid.innerHTML = buildStationGrid();
-  const bar = document.getElementById('hyrox-save-bar');
-  if (!bar) return;
-  const count = state.wip.exercises.length;
-  bar.innerHTML = count
-    ? `<div class="save-bar"><button class="btn" id="save-btn">Save Session · ${count} station${count > 1 ? 's' : ''}</button></div>`
-    : `<div class="text-muted text-sm" style="text-align:center;padding:10px 0">Tap a station above to log it</div>`;
-  document.getElementById('save-btn')?.addEventListener('click', saveWorkout);
-}
-
-// ── Hyrox quick-entry sheet ─────────────────────────────────────────────────
-
-let _hqStation = null, _hqFormat = 'singles';
-
-window.openHyroxQuick = function(name) {
-  const st = HYROX_STATIONS.find(s => s.name === name);
-  if (!st || !state.wip) return;
-  _hqStation = name;
-  const ex = state.wip.exercises.find(e => e.name === name) || {};
-  _hqFormat = ex.format || 'singles';
-
-  $('#hyrox-quick-body').innerHTML = `
-    <div class="hq-header">
-      <span class="hq-icon">${st.icon}</span>
-      <div>
-        <div class="hq-title">${esc(name)}</div>
-        <div class="format-toggle" style="margin-top:6px">
-          <button data-fmt="singles" class="${_hqFormat === 'singles' ? 'active' : ''}" onclick="setQuickFormat('singles',this)">Singles</button>
-          <button data-fmt="doubles" class="${_hqFormat === 'doubles' ? 'active' : ''}" onclick="setQuickFormat('doubles',this)">Doubles</button>
-        </div>
-      </div>
-    </div>
-    <div class="hq-fields">
-      ${st.fields.map((f, i) => `
-        <input id="hq-${esc(f.key)}"
-               type="${f.mode === 'text' ? 'text' : 'number'}" inputmode="${f.mode}"
-               placeholder="${esc(f.ph)}" value="${esc(ex[f.key] ?? '')}"
-               class="hq-input" ${i === 0 ? 'autofocus' : ''}>`).join('')}
-    </div>
-    <div class="spacer-md"></div>
-    <button class="btn" onclick="saveHyroxQuick()">Done</button>
-    ${ex.name ? `<div class="spacer-sm"></div><button class="btn btn-ghost" onclick="removeHyroxStation('${esc(name)}')">Remove station</button>` : ''}
-  `;
-
-  $('#hyrox-quick-backdrop').classList.add('open');
-  $('#hyrox-quick-sheet').classList.add('open');
-  setTimeout(() => document.getElementById('hq-' + st.fields[0]?.key)?.focus(), 300);
-};
-
-window.setQuickFormat = (fmt, btn) => {
-  _hqFormat = fmt;
-  btn.closest('.format-toggle').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.fmt === fmt));
-};
-
-window.saveHyroxQuick = function() {
-  const st = HYROX_STATIONS.find(s => s.name === _hqStation);
-  if (!st) { closeHyroxQuick(); return; }
-  const ex = { name: _hqStation, format: _hqFormat, isPR: false };
-  let hasValue = false;
-  st.fields.forEach(f => {
-    const raw = (document.getElementById('hq-' + f.key)?.value || '').trim();
-    if (raw) { ex[f.key] = f.mode === 'text' ? raw : (parseFloat(raw) || 0); hasValue = true; }
-  });
-  if (!hasValue) { closeHyroxQuick(); return; }
-  updateHyroxPRFlag(ex, -1);
-  const idx = state.wip.exercises.findIndex(e => e.name === _hqStation);
-  if (idx >= 0) state.wip.exercises[idx] = ex;
-  else state.wip.exercises.push(ex);
-  closeHyroxQuick();
-  refreshHyroxGrid();
-};
-
-window.removeHyroxStation = function(name) {
-  if (state.wip) state.wip.exercises = state.wip.exercises.filter(e => e.name !== name);
-  closeHyroxQuick();
-  refreshHyroxGrid();
-};
-
-function closeHyroxQuick() {
-  $('#hyrox-quick-backdrop').classList.remove('open');
-  $('#hyrox-quick-sheet').classList.remove('open');
-  _hqStation = null;
-}
-
-$('#hyrox-quick-backdrop').addEventListener('click', closeHyroxQuick);
-
 function renderExerciseCard(ex, i) {
-  const isHyrox = !!HYROX_LIBRARY[ex.name];
   const lastRef = lastExerciseRef(ex.name);
   const lastTxt = lastRef ? `<div class="exercise-last">Last time: ${esc(lastRef)}</div>` : '';
-
-  let body = '';
-  if (isHyrox) {
-    body = renderHyroxFields(ex, i);
-  } else {
-    body = `
-      ${ex.sets.map((s, si) => `
-        <div class="set-row" data-ex="${i}" data-set="${si}">
-          <div class="set-idx">${si + 1}</div>
-          <input type="number" inputmode="decimal" placeholder="Weight" class="set-w" value="${s.weight ?? ''}">
-          <input type="number" inputmode="numeric" placeholder="Reps" class="set-r" value="${s.reps ?? ''}">
-          <div class="set-pr${s.isPR ? '' : ' hidden'}">🏆</div>
-        </div>
-      `).join('')}
-      <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:4px" onclick="addSet(${i})">＋ Add Set</button>
-    `;
-  }
-
-  const formatToggle = isHyrox ? `
-    <div class="format-toggle">
-      <button data-fmt="singles" class="${ex.format === 'singles' ? 'active' : ''}" onclick="setFormat(${i},'singles')">Singles</button>
-      <button data-fmt="doubles" class="${ex.format === 'doubles' ? 'active' : ''}" onclick="setFormat(${i},'doubles')">Doubles</button>
-    </div>
-  ` : '';
-
+  const body = `
+    ${ex.sets.map((s, si) => `
+      <div class="set-row" data-ex="${i}" data-set="${si}">
+        <div class="set-idx">${si + 1}</div>
+        <input type="number" inputmode="decimal" placeholder="Weight" class="set-w" value="${s.weight ?? ''}">
+        <input type="number" inputmode="numeric" placeholder="Reps" class="set-r" value="${s.reps ?? ''}">
+        <div class="set-pr${s.isPR ? '' : ' hidden'}">🏆</div>
+      </div>
+    `).join('')}
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:4px" onclick="addSet(${i})">＋ Add Set</button>
+  `;
   return `
     <div class="exercise" data-ex="${i}">
       <div class="exercise-head">
         <div class="exercise-name">${esc(ex.name)}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          ${formatToggle}
-          <button class="remove-btn" onclick="removeExercise(${i})" aria-label="Remove">✕</button>
-        </div>
+        <button class="remove-btn" onclick="removeExercise(${i})" aria-label="Remove">✕</button>
       </div>
       ${lastTxt}
       ${body}
     </div>
-  `;
-}
-
-function renderHyroxFields(ex, i) {
-  const fields = HYROX_LIBRARY[ex.name].fields;
-  const cols = fields.length === 3 ? 'cols-3' : 'cols-2';
-  return `
-    <div class="hyrox-fields ${cols}">
-      ${fields.map(f => `
-        <div>
-          <label>${FIELD_LABELS[f].label}</label>
-          <input ${FIELD_LABELS[f].type === 'number' ? 'type="number" inputmode="decimal"' : 'type="text"'}
-                 placeholder="${FIELD_LABELS[f].placeholder || ''}"
-                 value="${ex[f] ?? ''}"
-                 data-ex="${i}" data-field="${f}" class="hyrox-field">
-        </div>
-      `).join('')}
-    </div>
-    <div class="hyrox-pr" data-ex="${i}" style="margin-top:6px">${ex.isPR ? '<span class="pill accent">🏆 PR</span>' : ''}</div>
   `;
 }
 
@@ -1375,23 +1106,10 @@ function wireFormHandlers() {
       updateLiftPRFlag(ex, setIdx, row);
     });
   });
-  document.querySelectorAll('.hyrox-field').forEach(inp => {
-    inp.addEventListener('input', e => {
-      const exIdx = +e.target.dataset.ex;
-      const field = e.target.dataset.field;
-      const ex = w.exercises[exIdx];
-      ex[field] = FIELD_LABELS[field].type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value;
-      updateHyroxPRFlag(ex, exIdx);
-    });
-  });
-
   // Run
   $('#run-distance')?.addEventListener('input', e => { w.distance = e.target.value; syncPace(); });
   $('#run-time')?.addEventListener('input', e => { w.time = e.target.value; syncPace(); });
   $('#run-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
-
-  // Hyrox notes
-  $('#hyrox-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
 
   // Generic
   $('#gen-duration')?.addEventListener('input', e => { w.duration = e.target.value; });
@@ -1420,16 +1138,11 @@ window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm()
 window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(); };
 
 function addExercise(name) {
-  const isHyrox = !!HYROX_LIBRARY[name];
-  if (isHyrox) {
-    state.wip.exercises.push({ name, format: 'singles', isPR: false });
-  } else {
-    if (!LIFT_LIBRARY.includes(name) && !state.custom.includes(name)) {
-      state.custom.push(name);
-      persist(['custom']);
-    }
-    state.wip.exercises.push({ name, sets: [{ weight: '', reps: '' }] });
+  if (!LIFT_LIBRARY.includes(name) && !state.custom.includes(name)) {
+    state.custom.push(name);
+    persist(['custom']);
   }
+  state.wip.exercises.push({ name, sets: [{ weight: '', reps: '' }] });
   renderLogForm();
 }
 
@@ -1439,7 +1152,6 @@ function addExercise(name) {
 
 // key schemes:
 //   lift::<name>
-//   hyrox::<name>
 //   run::<runType>
 // value: { key, category, name, ...details, date, workoutId, metric }
 
@@ -1459,79 +1171,31 @@ function updateLiftPRFlag(ex, setIdx, rowEl) {
   rowEl.querySelector('.set-pr').classList.toggle('hidden', !set.isPR);
 }
 
-function updateHyroxPRFlag(ex, exIdx) {
-  const rule = HYROX_PR_METRIC[ex.name];
-  if (!rule) return;
-  const val = hyroxMetricValue(ex);
-  if (val === null) { ex.isPR = false; }
-  else {
-    const prev = state.prs['hyrox::' + ex.name];
-    ex.isPR = !prev || (rule.higherBetter ? val > prev.metric + 0.001 : val < prev.metric - 0.001);
-  }
-  const badge = document.querySelector(`.hyrox-pr[data-ex="${exIdx}"]`);
-  if (badge) badge.innerHTML = ex.isPR ? '<span class="pill accent">🏆 PR</span>' : '';
-}
-
-function hyroxMetricValue(ex) {
-  const rule = HYROX_PR_METRIC[ex.name];
-  if (!rule) return null;
-  if (rule.metric === 'pace') {
-    const dist = parseFloat(ex.distance), t = parseTime(ex.time);
-    if (!dist || !t) return null;
-    return t / dist;
-  }
-  const v = parseFloat(ex[rule.metric]);
-  return v && isFinite(v) ? v : null;
-}
-
 // Full PR recalc on save — returns array of new PRs detected.
 function detectAndRecordPRs(workout) {
   const newPRs = [];
 
-  if (workout.type === 'strength' || workout.type === 'hyrox') {
+  if (workout.type === 'strength') {
     workout.exercises.forEach(ex => {
-      if (HYROX_LIBRARY[ex.name]) {
-        const rule = HYROX_PR_METRIC[ex.name];
-        const val = hyroxMetricValue(ex);
-        if (val === null || !rule) return;
-        const key = 'hyrox::' + ex.name;
-        const prev = state.prs[key];
-        const beats = !prev || (rule.higherBetter ? val > prev.metric : val < prev.metric);
-        if (beats) {
-          const pr = {
-            key, category: 'Hyrox', name: ex.name,
-            metric: val, metricType: rule.metric,
-            // snapshot detail fields for display
-            weight: ex.weight, weightHand: ex.weightHand,
-            distance: ex.distance, time: ex.time, reps: ex.reps, height: ex.height,
-            format: ex.format,
-            date: workout.date, workoutId: workout.id,
-          };
-          state.prs[key] = pr;
-          newPRs.push(pr);
+      let bestSet = null, bestE1 = 0;
+      ex.sets.forEach(s => {
+        const w = parseFloat(s.weight), r = parseInt(s.reps);
+        if (w && r) {
+          const e = e1RM(w, r);
+          if (e > bestE1) { bestE1 = e; bestSet = { weight: w, reps: r, e1RM: e }; }
         }
-      } else {
-        // Standard lift: e1RM
-        let bestSet = null, bestE1 = 0;
-        ex.sets.forEach(s => {
-          const w = parseFloat(s.weight), r = parseInt(s.reps);
-          if (w && r) {
-            const e = e1RM(w, r);
-            if (e > bestE1) { bestE1 = e; bestSet = { weight: w, reps: r, e1RM: e }; }
-          }
-        });
-        if (!bestSet) return;
-        const key = 'lift::' + ex.name;
-        const prev = state.prs[key];
-        if (!prev || bestSet.e1RM > prev.e1RM) {
-          const pr = {
-            key, category: 'Lifts', name: ex.name,
-            weight: bestSet.weight, reps: bestSet.reps, e1RM: bestSet.e1RM,
-            date: workout.date, workoutId: workout.id,
-          };
-          state.prs[key] = pr;
-          newPRs.push(pr);
-        }
+      });
+      if (!bestSet) return;
+      const key = 'lift::' + ex.name;
+      const prev = state.prs[key];
+      if (!prev || bestSet.e1RM > prev.e1RM) {
+        const pr = {
+          key, category: 'Lifts', name: ex.name,
+          weight: bestSet.weight, reps: bestSet.reps, e1RM: bestSet.e1RM,
+          date: workout.date, workoutId: workout.id,
+        };
+        state.prs[key] = pr;
+        newPRs.push(pr);
       }
     });
   }
@@ -1566,7 +1230,7 @@ function saveWorkout() {
   const w = state.wip;
   if (!w) return;
 
-  if (w.type === 'strength' || w.type === 'hyrox') {
+  if (w.type === 'strength') {
     if (!w.exercises.length) return toast('Add at least one exercise.', { err: true });
   }
   if (w.type === 'run') {
@@ -1582,11 +1246,11 @@ function saveWorkout() {
     w.timeSec = parseTime(w.time);
     w.paceSec = w.distance ? w.timeSec / w.distance : 0;
   }
-  if (w.type === 'strength' || w.type === 'hyrox') {
+  if (w.type === 'strength') {
     w.exercises.forEach(ex => {
       if (ex.sets) ex.sets = ex.sets.filter(s => parseFloat(s.weight) && parseInt(s.reps)).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps), isPR: !!s.isPR }));
     });
-    w.exercises = w.exercises.filter(ex => HYROX_LIBRARY[ex.name] ? hyroxMetricValue(ex) !== null : (ex.sets && ex.sets.length));
+    w.exercises = w.exercises.filter(ex => ex.sets && ex.sets.length);
     if (!w.exercises.length) return toast('No complete sets logged.', { err: true });
   }
 
@@ -1598,8 +1262,7 @@ function saveWorkout() {
   if (newPRs.length) toast(`🏆 New PR: ${newPRs.map(p => p.name).join(', ')}`, { long: true });
   else toast('Session saved.');
 
-  // Stretches for strength + hyrox sessions
-  if (w.type === 'strength' || w.type === 'hyrox') fetchStretches(w);
+  if (w.type === 'strength') fetchStretches(w);
 
   // Reset WIP and go to history
   state.wip = null;
@@ -1617,10 +1280,9 @@ function lastSessionOfType(type) {
 
 function lastExerciseRef(name) {
   for (const w of state.workouts) {
-    if (w.type !== 'strength' && w.type !== 'hyrox') continue;
+    if (w.type !== 'strength') continue;
     const ex = (w.exercises || []).find(e => e.name === name);
     if (!ex) continue;
-    if (HYROX_LIBRARY[name]) return formatHyroxShort(ex);
     if (ex.sets && ex.sets.length) {
       const top = ex.sets.reduce((a, b) => (b.weight * b.reps > a.weight * a.reps ? b : a), ex.sets[0]);
       return `${top.weight}kg × ${top.reps} (${ex.sets.length} sets)`;
@@ -1628,29 +1290,14 @@ function lastExerciseRef(name) {
   }
   return null;
 }
-
-function formatHyroxShort(ex) {
-  const rule = HYROX_PR_METRIC[ex.name];
-  if (!rule) return '';
-  if (rule.metric === 'pace') {
-    const dist = ex.distance, t = ex.time;
-    if (!dist || !t) return '';
-    return `${dist}m in ${t}`;
-  }
-  if (rule.metric === 'weight')     return `${ex.weight}kg × ${ex.distance || ex.reps || ''}${ex.distance ? 'm' : ''}`;
-  if (rule.metric === 'weightHand') return `${ex.weightHand}kg/hand × ${ex.distance}m`;
-  if (rule.metric === 'distance')   return `${ex.distance}m (${ex.reps || 0} reps)`;
-  return '';
 }
 
 function repeatLastWorkout() {
   const last = lastSessionOfType(state.currentType);
   if (!last) return;
-  state.wip.exercises = last.exercises.map(ex => {
-    const isHyrox = !!HYROX_LIBRARY[ex.name];
-    if (isHyrox) return { name: ex.name, format: ex.format || 'singles', isPR: false };
-    return { name: ex.name, sets: (ex.sets || []).map(s => ({ weight: '', reps: '' })) };
-  });
+  state.wip.exercises = last.exercises.map(ex =>
+    ({ name: ex.name, sets: (ex.sets || []).map(() => ({ weight: '', reps: '' })) })
+  );
   renderLogForm();
   toast('Loaded last session');
 }
@@ -1676,28 +1323,18 @@ $('#picker-search').addEventListener('input', e => renderPicker(e.target.value))
 
 function renderPicker(q) {
   const ql = q.trim().toLowerCase();
-  const isHyroxTab = state.currentType === 'hyrox';
   const libLifts = [...LIFT_LIBRARY, ...state.custom].filter(n => n.toLowerCase().includes(ql));
-  const libHyrox = Object.keys(HYROX_LIBRARY).filter(n => n.toLowerCase().includes(ql));
-  const allowCustom = !isHyroxTab; // Hyrox stations are fixed; custom exercises only make sense for lifts
 
   let html = '';
-  if (isHyroxTab) {
-    if (libHyrox.length) {
-      html += `<div class="picker-section">Hyrox Stations &amp; Runs</div>`;
-      html += libHyrox.map(n => `<div class="picker-item" data-name="${esc(n)}"><span class="pi-name">${esc(n)}</span><span class="pi-tag">${n === 'Running' ? 'RUN' : 'HYROX'}</span></div>`).join('');
-    }
-  } else {
-    if (libLifts.length) {
-      html += `<div class="picker-section">Lifts</div>`;
-      html += libLifts.map(n => `<div class="picker-item" data-name="${esc(n)}"><span class="pi-name">${esc(n)}</span>${state.custom.includes(n) ? '<span class="pi-tag">CUSTOM</span>' : ''}</div>`).join('');
-    }
-    if (allowCustom && q.trim() && !libLifts.map(x=>x.toLowerCase()).includes(q.trim().toLowerCase())) {
-      html += `<div class="picker-section">Custom</div>`;
-      html += `<div class="picker-item" data-name="${esc(q.trim())}"><span class="pi-name">＋ Add "${esc(q.trim())}"</span><span class="pi-tag">NEW</span></div>`;
-    }
+  if (libLifts.length) {
+    html += `<div class="picker-section">Lifts</div>`;
+    html += libLifts.map(n => `<div class="picker-item" data-name="${esc(n)}"><span class="pi-name">${esc(n)}</span>${state.custom.includes(n) ? '<span class="pi-tag">CUSTOM</span>' : ''}</div>`).join('');
   }
-  if (!html) html = `<div class="empty">No matches${isHyroxTab ? '' : '. Type a name to add as custom'}.</div>`;
+  if (q.trim() && !libLifts.map(x=>x.toLowerCase()).includes(q.trim().toLowerCase())) {
+    html += `<div class="picker-section">Custom</div>`;
+    html += `<div class="picker-item" data-name="${esc(q.trim())}"><span class="pi-name">＋ Add "${esc(q.trim())}"</span><span class="pi-tag">NEW</span></div>`;
+  }
+  if (!html) html = `<div class="empty">No matches. Type a name to add as custom.</div>`;
 
   $('#picker-list').innerHTML = html;
   $('#picker-list').querySelectorAll('.picker-item').forEach(el => {
@@ -1736,21 +1373,13 @@ function renderSessionCard(w) {
   const icon = TYPES.find(t => t.key === w.type)?.icon || '';
   let summary = '', detail = '';
 
-  if (w.type === 'strength' || w.type === 'hyrox') {
+  if (w.type === 'strength') {
     const exCount = w.exercises.length;
-    const hasPR = w.exercises.some(ex => ex.isPR || (ex.sets || []).some(s => s.isPR));
-    if (w.type === 'strength') {
-      const setCount = w.exercises.reduce((n, ex) => n + (ex.sets?.length || 1), 0);
-      const vol = w.exercises.reduce((v, ex) => v + (ex.sets ? ex.sets.reduce((a, s) => a + s.weight * s.reps, 0) : 0), 0);
-      summary = `${exCount} exercises · ${setCount} sets · ${Math.round(vol)}kg vol${hasPR ? ' · 🏆' : ''}`;
-    } else {
-      const runKm = w.exercises.filter(ex => ex.name === 'Running').reduce((a, ex) => a + (parseFloat(ex.distance) || 0), 0) / 1000;
-      summary = `${exCount} exercises${runKm ? ` · ${runKm.toFixed(2)}km run` : ''}${hasPR ? ' · 🏆' : ''}`;
-    }
+    const hasPR = w.exercises.some(ex => (ex.sets || []).some(s => s.isPR));
+    const setCount = w.exercises.reduce((n, ex) => n + (ex.sets?.length || 0), 0);
+    const vol = w.exercises.reduce((v, ex) => v + (ex.sets ? ex.sets.reduce((a, s) => a + s.weight * s.reps, 0) : 0), 0);
+    summary = `${exCount} exercises · ${setCount} sets · ${Math.round(vol)}kg vol${hasPR ? ' · 🏆' : ''}`;
     detail = w.exercises.map(ex => {
-      if (HYROX_LIBRARY[ex.name]) {
-        return `<div class="session-ex-row"><span class="ex-name">${ex.isPR?'🏆 ':''}${esc(ex.name)}${ex.format?` (${ex.format})`:''}</span><span class="ex-data">${esc(formatHyroxShort(ex))}</span></div>`;
-      }
       const setsStr = (ex.sets || []).map(s => `${s.isPR?'🏆 ':''}${s.weight}×${s.reps}`).join(', ');
       return `<div class="session-ex-row"><span class="ex-name">${esc(ex.name)}</span><span class="ex-data">${setsStr}</span></div>`;
     }).join('');
@@ -1807,14 +1436,12 @@ function renderWeek() {
   const ws = state.workouts.filter(w => w.date >= fromIso && w.date <= toIso);
 
   const lifts = ws.filter(w => w.type === 'strength');
-  const hyrox = ws.filter(w => w.type === 'hyrox');
   const runs = ws.filter(w => w.type === 'run');
   const other = ws.filter(w => w.type === 'other');
   const rests = ws.filter(w => w.type === 'rest');
 
   const totalVol = lifts.reduce((v, w) => v + w.exercises.reduce((a, ex) => a + (ex.sets ? ex.sets.reduce((b, s) => b + s.weight * s.reps, 0) : 0), 0), 0);
   const totalKm = runs.reduce((v, w) => v + (parseFloat(w.distance) || 0), 0);
-  const hyroxRunKm = hyrox.reduce((v, w) => v + (w.exercises || []).filter(ex => ex.name === 'Running').reduce((a, ex) => a + (parseFloat(ex.distance) || 0), 0), 0) / 1000;
   const totalSessions = ws.filter(w => w.type !== 'rest').length;
   const rpeVals = ws.filter(w => w.rpe).map(w => w.rpe);
   const feelVals = ws.filter(w => w.feel).map(w => w.feel);
@@ -1831,7 +1458,7 @@ function renderWeek() {
       <div class="card">
         <div class="stat-label">Sessions</div>
         <div class="stat mono">${totalSessions}</div>
-        <div class="stat-sub">${lifts.length} lift · ${hyrox.length} hyrox · ${runs.length} run · ${other.length} other</div>
+        <div class="stat-sub">${lifts.length} lift · ${runs.length} run · ${other.length} other</div>
       </div>
       <div class="card">
         <div class="stat-label">Volume</div>
@@ -1841,7 +1468,7 @@ function renderWeek() {
       <div class="card">
         <div class="stat-label">Distance</div>
         <div class="stat mono">${totalKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div>
-        <div class="stat-sub">${runs.length} runs${hyroxRunKm ? ` · +${hyroxRunKm.toFixed(1)}km in hyrox` : ''}</div>
+        <div class="stat-sub">${runs.length} runs</div>
       </div>
       <div class="card">
         <div class="stat-label">Rest days</div>
@@ -1958,12 +1585,6 @@ function renderPRs() {
     let val = '';
     if (pr.category === 'Lifts') val = `${pr.weight}kg × ${pr.reps}`;
     if (pr.category === 'Runs')  val = `${fmtTime(pr.time)} · ${pr.distance}km · ${fmtPace(pr.pace)}`;
-    if (pr.category === 'Hyrox') {
-      if (pr.metricType === 'pace') val = `${pr.distance}m in ${pr.time}`;
-      else if (pr.metricType === 'weight') val = `${pr.weight}kg × ${pr.distance || pr.reps || ''}${pr.distance ? 'm' : ''}`;
-      else if (pr.metricType === 'weightHand') val = `${pr.weightHand}kg/hand × ${pr.distance}m`;
-      else if (pr.metricType === 'distance') val = `${pr.distance}m (${pr.reps||0} reps)`;
-    }
     const sub = pr.category === 'Lifts' ? `e1RM ${Math.round(pr.e1RM)}kg · ${fmtShort(pr.date)}` : fmtShort(pr.date);
     const keyAttr = esc(pr.key);
     return `<div class="pr-row" id="pr-row-${keyAttr}">
@@ -2011,19 +1632,10 @@ window.togglePRChart = function(key) {
       const km = parseFloat(w.distance), sec = parseTime(w.time || '') || w.timeSec;
       if (km && sec) points.push({ date: w.date, val: sec / km, label: fmtPace(sec / km) + '/km' });
     });
-  } else if (pr.category === 'Hyrox') {
-    const exKey = pr.name;
-    const rule = HYROX_PR_METRIC[exKey];
-    state.workouts.filter(w => w.type === 'hyrox').forEach(w => {
-      const ex = (w.exercises || []).find(e => e.name === exKey);
-      if (!ex) return;
-      const v = hyroxMetricValue(ex);
-      if (v !== null) points.push({ date: w.date, val: v, label: formatHyroxShort(ex) });
-    });
   }
 
   points.sort((a, b) => a.date.localeCompare(b.date));
-  const higherBetter = pr.category === 'Lifts' || (pr.category === 'Hyrox' && HYROX_PR_METRIC[pr.name]?.higherBetter);
+  const higherBetter = pr.category === 'Lifts';
 
   if (points.length < 2) {
     area.innerHTML = `<div style="padding:12px 0 4px;font-size:13px;color:var(--muted)">Not enough history yet — log more sessions to see trend.</div>`;
@@ -2154,14 +1766,13 @@ async function fetchStretches(workout) {
   $('#stretch-sheet').classList.add('open');
 
   const exDesc = workout.exercises.map(ex => {
-    if (HYROX_LIBRARY[ex.name]) return `- ${ex.name} (${ex.format || 'singles'}): ${formatHyroxShort(ex)}`;
     const setsStr = (ex.sets || []).map(s => `${s.weight}kg×${s.reps}`).join(', ');
     return `- ${ex.name}: ${setsStr}`;
   }).join('\n');
 
   const system = `${ATHLETE_CONTEXT}
 
-You recommend post-session stretches. Target the exact muscles just worked, including prime movers, antagonists, and commonly-tight regions relevant to the session. Reference the specific exercises logged. Consider how the stretches support his downstream training (Hyrox stations, running mechanics, sub-1:30 HM pacing).
+You recommend post-session stretches. Target the exact muscles just worked, including prime movers, antagonists, and commonly-tight regions relevant to the session. Reference the specific exercises logged. Consider how the stretches support his downstream training (running mechanics, sub-1:30 HM pacing).
 
 Output ONLY valid JSON, no markdown, no preamble:
 {
@@ -2241,7 +1852,6 @@ async function getWeeklyFeedback(weekKey, workouts, stats) {
 
   // Summarize the week for Claude
   const lift = workouts.filter(w => w.type === 'strength');
-  const hyrox = workouts.filter(w => w.type === 'hyrox');
   const run = workouts.filter(w => w.type === 'run');
   const other = workouts.filter(w => w.type === 'other');
   const rest = workouts.filter(w => w.type === 'rest');
@@ -2253,11 +1863,6 @@ async function getWeeklyFeedback(weekKey, workouts, stats) {
     }).join('\n');
     const rpeStr = w.rpe ? ` · RPE ${w.rpe}/10, Feel ${w.feel}/5` : '';
     return `  ${fmtShort(w.date)} — strength session${rpeStr}:\n${exLines}`;
-  }).join('\n');
-
-  const hyroxLines = hyrox.map(w => {
-    const exLines = (w.exercises || []).map(ex => `    - ${ex.name} (${ex.format || 'singles'}): ${formatHyroxShort(ex)}`).join('\n');
-    return `  ${fmtShort(w.date)} — hyrox session:\n${exLines}`;
   }).join('\n');
 
   const runLines = run.map(w => {
@@ -2280,8 +1885,7 @@ Structure the response in short, scannable paragraphs:
 
 **Volume & intensity** — what the week actually looked like vs. where it should be for his goals.
 **Recovery signals** — RPE + feel patterns, consecutive hard days, forced rest.
-**Hyrox observations** — which stations he trained in dedicated hyrox sessions, load progression, gaps vs. a competitive profile.
-**Running observations** — mileage and pace trends vs. a sub-1:30 HM (target pace 4:16/km). Include running done inside hyrox sessions.
+**Running observations** — mileage and pace trends vs. a sub-1:30 HM (target pace 4:16/km).
 **Next week priority** — one or two specific things to adjust, with reasoning.
 **Red flags** — anything worth watching (high RPE + low feel, too little running, weak areas). Omit if nothing stands out.
 
@@ -2290,16 +1894,13 @@ Structure the response in short, scannable paragraphs:
   const user = `Week of ${fmtShort(iso(weekRangeFromKey(weekKey).monday))} – ${fmtShort(iso(weekRangeFromKey(weekKey).sunday))}
 
 SUMMARY:
-- ${lift.length} strength sessions, ${hyrox.length} hyrox sessions, ${run.length} runs, ${other.length} other, ${rest.length} rest days
+- ${lift.length} strength sessions, ${run.length} runs, ${other.length} other, ${rest.length} rest days
 - Volume lifted: ${Math.round(stats.totalVol)}kg
 - Distance run (pure runs): ${stats.totalKm.toFixed(1)}km
 - Avg RPE: ${stats.avgRPE ? stats.avgRPE.toFixed(1) : 'n/a'}/10, Avg Feel: ${stats.avgFeel ? stats.avgFeel.toFixed(1) : 'n/a'}/5
 
 STRENGTH SESSIONS:
 ${liftLines || '  (none)'}
-
-HYROX SESSIONS:
-${hyroxLines || '  (none)'}
 
 RUNS:
 ${runLines || '  (none)'}
@@ -2352,11 +1953,6 @@ window.exportCSV = function() {
     if (w.type === 'strength') {
       w.exercises.forEach(ex => {
         (ex.sets || []).forEach(s => rows.push([w.date, 'lift', ex.name, s.weight, s.reps, '', '', '']));
-      });
-    }
-    if (w.type === 'hyrox') {
-      (w.exercises || []).forEach(ex => {
-        rows.push([w.date, 'hyrox', ex.name, ex.weight || ex.weightHand || '', ex.reps || '', ex.distance || ex.height || '', ex.time || '', `format:${ex.format||'singles'}`]);
       });
     }
     if (w.type === 'run') rows.push([w.date, 'run', w.runType, '', '', (w.distance*1000)|0, fmtTime(w.timeSec), `rpe:${w.rpe};feel:${w.feel};${(w.notes||'').replace(/[,\n]/g,' ')}`]);
@@ -2415,9 +2011,6 @@ renderTypeSelector();
 renderLogForm();
 maybeShowOnboarding();
 
-</script>
-<script>
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
 </body>
 </html>
