@@ -1175,26 +1175,25 @@ function renderRunForm() {
       <div class="segmented" style="margin-bottom:14px">
         ${RUN_TYPES.map(t => `<button data-run-type="${t}" class="${w.runType === t ? 'active' : ''}" onclick="setRunType('${t}')">${t}</button>`).join('')}
       </div>
-      <div class="grid-2">
-        <div>
-          <label>Date</label>
-          <input type="date" id="wip-date" value="${esc(w.date)}">
-        </div>
-        <div>
-          <label>Distance (km)</label>
-          <input type="number" inputmode="decimal" step="0.01" id="run-distance" value="${w.distance}" placeholder="10.5">
-        </div>
+      <div>
+        <label>Date</label>
+        <input type="date" id="wip-date" value="${esc(w.date)}">
       </div>
       <div class="spacer-sm"></div>
       <div class="grid-2">
         <div>
+          <label>Distance (km)</label>
+          <input type="number" inputmode="decimal" step="0.01" id="run-distance" value="${w.distance}" placeholder="10.5">
+        </div>
+        <div>
           <label>Time (mm:ss)</label>
           <input type="text" id="run-time" value="${esc(w.time)}" placeholder="45:30">
         </div>
-        <div>
-          <label>Pace</label>
-          <input type="text" id="run-pace" value="${esc(calcPaceStr(w))}" disabled>
-        </div>
+      </div>
+      <div class="spacer-sm"></div>
+      <div>
+        <label>Pace</label>
+        <input type="text" id="run-pace" value="${esc(calcPaceStr(w))}" disabled>
       </div>
     </div>
     ${renderRPEFeel(w.rpe, w.feel)}
@@ -1229,15 +1228,14 @@ function renderGenericForm() {
   const defaultLabel = '';
   return `
     <div class="card">
-      <div class="grid-2">
-        <div>
-          <label>Date</label>
-          <input type="date" id="wip-date" value="${esc(w.date)}">
-        </div>
-        <div>
-          <label>Duration (min)</label>
-          <input type="number" inputmode="numeric" id="gen-duration" value="${w.duration}" placeholder="60">
-        </div>
+      <div>
+        <label>Date</label>
+        <input type="date" id="wip-date" value="${esc(w.date)}">
+      </div>
+      <div class="spacer-sm"></div>
+      <div>
+        <label>Duration (min)</label>
+        <input type="number" inputmode="numeric" id="gen-duration" value="${w.duration}" placeholder="60">
       </div>
       <div class="spacer-sm"></div>
       <label>Session Label</label>
