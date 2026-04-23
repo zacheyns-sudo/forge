@@ -830,7 +830,8 @@ function persist(keys) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const $ = sel => document.querySelector(sel);
-const esc = s => String(s ?? '')
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const uuid = (prefix = 'w') => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 
 /* ── Theme ──────────────────────────────────────────────────────────────── */
 function initTheme() {
@@ -847,8 +848,6 @@ window.toggleTheme = function() {
   document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f4f4f5';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 };
-.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-const uuid = (prefix = 'w') => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 
 function iso(d) { const x = d || new Date(); const p = n => String(n).padStart(2,'0'); return `${x.getFullYear()}-${p(x.getMonth()+1)}-${p(x.getDate())}`; }
 function fmtShort(dateStr) {
