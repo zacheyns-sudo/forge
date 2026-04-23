@@ -4,11 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Forge">
-<meta name="theme-color" content="#ff5a1f">
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#faf7f2">
 <title>Forge</title>
 <style>
 :root {
@@ -141,7 +138,7 @@ textarea { min-height: 80px; resize: vertical; }
 .btn:active { transform: scale(0.98); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border-2); }
 .btn-danger { background: var(--red); color: #fff; }
 .btn-sm { padding: 10px 14px; font-size: 13px; border-radius: 9px; width: auto; }
 
@@ -175,7 +172,7 @@ textarea { min-height: 80px; resize: vertical; }
 }
 .type-btn .type-icon { font-size: 24px; line-height: 1; }
 .type-btn .type-label { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
-.type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.type-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
 .type-btn.active .type-label { font-weight: 800; }
 
 /* ── Exercise list ───────────────────────────────────────────────────────── */
@@ -217,7 +214,7 @@ textarea { min-height: 80px; resize: vertical; }
 .remove-btn:active { background: var(--surface-2); color: var(--red); }
 
 .add-exercise-btn {
-  background: var(--surface-2); color: var(--accent);
+  background: var(--surface-2); color: var(--text);
   border: 1px dashed var(--border-2); border-radius: 12px;
   padding: 14px; width: 100%; cursor: pointer;
   font-weight: 700; font-size: 14px; letter-spacing: -0.01em;
@@ -247,7 +244,7 @@ textarea { min-height: 80px; resize: vertical; }
   font-weight: 600; font-size: 11px; cursor: pointer;
   text-transform: uppercase; letter-spacing: 0.04em;
 }
-.format-toggle button.active { background: var(--accent); color: #fff; }
+.format-toggle button.active { background: var(--text); color: #fff; }
 
 .slider-row { display: flex; align-items: center; gap: 12px; }
 input[type=range] {
@@ -258,11 +255,11 @@ input[type=range] {
 input[type=range]::-webkit-slider-runnable-track { height: 6px; background: var(--surface-3); border-radius: 3px; }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
-  width: 22px; height: 22px; background: var(--accent);
+  width: 22px; height: 22px; background: var(--text);
   border-radius: 50%; margin-top: -8px; cursor: pointer;
 }
 input[type=range]::-moz-range-track { height: 6px; background: var(--surface-3); border-radius: 3px; }
-input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var(--accent); border-radius: 50%; border: none; cursor: pointer; }
+input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var(--text); border-radius: 50%; border: none; cursor: pointer; }
 .slider-val { font-size: 15px; font-weight: 700; min-width: 28px; text-align: right; }
 
 /* ── Sticky save bar ─────────────────────────────────────────────────────── */
@@ -323,7 +320,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
   white-space: pre-wrap; font-size: 14px; line-height: 1.55;
   color: var(--text);
 }
-.feedback-body strong { color: var(--accent); }
+.feedback-body strong { color: var(--text); font-weight: 800; }
 
 /* ── PRs ─────────────────────────────────────────────────────────────────── */
 .pr-tabs { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; }
@@ -333,7 +330,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
   padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
   text-transform: uppercase; letter-spacing: 0.04em;
 }
-.pr-tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pr-tabs button.active { background: var(--text); color: #fff; border-color: var(--text); }
 .pr-row {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
@@ -341,7 +338,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 }
 .pr-row-head { display: flex; justify-content: space-between; align-items: center; }
 .pr-name { font-size: 15px; font-weight: 700; }
-.pr-value { font-size: 15px; color: var(--accent); font-weight: 800; }
+.pr-value { font-size: 15px; color: var(--text); font-weight: 800; }
 .pr-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
 /* ── Overlays ────────────────────────────────────────────────────────────── */
@@ -395,7 +392,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 }
 .picker-item:active { background: var(--surface-3); }
 .picker-item .pi-name { font-weight: 600; }
-.picker-item .pi-tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.picker-item .pi-tag { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .picker-section {
   font-size: 11px; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
@@ -409,7 +406,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 }
 .stretch-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .stretch-name { font-size: 15px; font-weight: 700; }
-.stretch-hold { font-size: 12px; color: var(--accent); font-weight: 700; }
+.stretch-hold { font-size: 12px; color: var(--muted); font-weight: 700; }
 .stretch-muscle { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 .stretch-instr { font-size: 14px; color: var(--text); line-height: 1.5; }
 
@@ -423,7 +420,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
   font-size: 12px; font-weight: 700; cursor: pointer; color: var(--muted);
   letter-spacing: 0.03em; text-transform: uppercase;
 }
-.hz-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.hz-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
 
 /* PR chart area */
 .pr-row-head { cursor: pointer; }
@@ -443,7 +440,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 /* Loading spinner */
 .spinner {
   display: inline-block; width: 14px; height: 14px;
-  border: 2px solid rgba(0,0,0,0.15); border-top-color: var(--accent);
+  border: 2px solid rgba(0,0,0,0.15); border-top-color: var(--text);
   border-radius: 50%; animation: spin 0.8s linear infinite;
   vertical-align: middle;
 }
@@ -469,6 +466,51 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 .text-sm { font-size: 13px; }
 .text-center { text-align: center; }
 hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ── Hyrox station grid ──────────────────────────────────────────────────── */
+.station-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+}
+.station-cell {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 10px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 3px; position: relative; min-height: 96px;
+  transition: background 0.1s;
+}
+.station-cell:active { background: var(--surface-2); }
+.station-cell.done { border-color: var(--border-2); }
+.station-cell.done .st-icon { opacity: 0.45; }
+.st-icon { font-size: 26px; line-height: 1; }
+.st-name { font-size: 11px; font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; line-height: 1.3; }
+.st-last { font-size: 11px; color: var(--muted-2); margin-top: 2px; }
+.st-val  { font-size: 11px; color: var(--text); font-weight: 600; margin-top: 2px; }
+.st-check { position: absolute; top: 8px; right: 9px; font-size: 13px; font-weight: 800; }
+
+/* ── Hyrox compact RPE/Feel bar ──────────────────────────────────────────── */
+.hyrox-meta-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 14px; margin-bottom: 12px;
+}
+.hmb-lbl { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
+.hmb-val { font-size: 14px; font-weight: 700; min-width: 18px; text-align: right; flex-shrink: 0; }
+.hyrox-meta-bar input[type=range] { flex: 1; }
+
+/* ── Hyrox quick-entry sheet ─────────────────────────────────────────────── */
+.hq-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.hq-icon  { font-size: 34px; line-height: 1; flex-shrink: 0; }
+.hq-title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
+.hq-fields { display: flex; flex-direction: column; gap: 10px; }
+.hq-input {
+  font-size: 26px; font-weight: 700; text-align: center;
+  padding: 18px 14px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 12px; width: 100%;
+  -moz-appearance: textfield;
+}
+.hq-input::-webkit-outer-spin-button,
+.hq-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.hq-input:focus { border-color: var(--accent); outline: none; }
 
 </style>
 </head>
@@ -599,6 +641,13 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <button class="btn btn-ghost" id="stretch-close">Done</button>
 </div>
 
+<!-- Hyrox quick-entry sheet -->
+<div id="hyrox-quick-backdrop" class="sheet-backdrop"></div>
+<div id="hyrox-quick-sheet" class="sheet" style="max-height:70vh">
+  <div class="sheet-handle"></div>
+  <div id="hyrox-quick-body"></div>
+</div>
+
 <!-- Session detail sheet (for PR tap) -->
 <div id="pr-backdrop" class="sheet-backdrop"></div>
 <div id="pr-sheet" class="sheet">
@@ -658,6 +707,17 @@ const HYROX_PR_METRIC = {
   'Sandbag Lunges':     { metric: 'weight',     higherBetter: true },
   'Wall Balls':         { metric: 'weight',     higherBetter: true },
 };
+
+const HYROX_STATIONS = [
+  { name: 'SkiErg',            icon: '🎿', fields: [{ key:'distance', ph:'Distance (m)',      mode:'numeric' }, { key:'time', ph:'Time  mm:ss', mode:'text' }] },
+  { name: 'Sled Push',         icon: '🛷', fields: [{ key:'weight',   ph:'Weight (kg)',        mode:'decimal' }, { key:'distance', ph:'Distance (m)', mode:'numeric' }] },
+  { name: 'Sled Pull',         icon: '🔗', fields: [{ key:'weight',   ph:'Weight (kg)',        mode:'decimal' }, { key:'distance', ph:'Distance (m)', mode:'numeric' }] },
+  { name: 'Burpee Broad Jumps',icon: '💨', fields: [{ key:'distance', ph:'Distance (m)',       mode:'numeric' }] },
+  { name: 'Rowing',            icon: '🚣', fields: [{ key:'distance', ph:'Distance (m)',       mode:'numeric' }, { key:'time', ph:'Time  mm:ss', mode:'text' }] },
+  { name: 'Farmers Carry',     icon: '🧳', fields: [{ key:'weightHand', ph:'Weight / hand (kg)', mode:'decimal' }, { key:'distance', ph:'Distance (m)', mode:'numeric' }] },
+  { name: 'Sandbag Lunges',    icon: '🏋️', fields: [{ key:'weight',  ph:'Weight (kg)',        mode:'decimal' }, { key:'reps', ph:'Reps', mode:'numeric' }] },
+  { name: 'Wall Balls',        icon: '🏀', fields: [{ key:'weight',   ph:'Weight (kg)',        mode:'decimal' }, { key:'reps', ph:'Reps', mode:'numeric' }] },
+];
 
 const FIELD_LABELS = {
   distance:   { label: 'Distance (m)', unit: 'm',    type: 'number' },
@@ -858,7 +918,8 @@ function setType(type) {
 
 function initWIP() {
   const base = { id: uuid(), date: iso(), timestamp: Date.now(), type: state.currentType };
-  if (state.currentType === 'strength' || state.currentType === 'hyrox') { base.exercises = []; base.rpe = 6; base.feel = 3; }
+  if (state.currentType === 'strength') { base.exercises = []; base.rpe = 6; base.feel = 3; }
+  if (state.currentType === 'hyrox') { base.exercises = []; base.rpe = 6; base.feel = 3; base.notes = ''; }
   if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy', hrZone: null });
   if (state.currentType === 'other')
     Object.assign(base, { label: '', duration: '', rpe: 6, feel: 3, notes: '' });
@@ -870,7 +931,8 @@ function renderLogForm() {
   if (!state.wip || state.wip.type !== state.currentType) state.wip = initWIP();
   const t = state.currentType;
   const el = $('#log-form');
-  if (t === 'strength' || t === 'hyrox') el.innerHTML = renderStrengthForm();
+  if (t === 'strength') el.innerHTML = renderStrengthForm();
+  else if (t === 'hyrox') el.innerHTML = renderHyroxForm();
   else if (t === 'run')                  el.innerHTML = renderRunForm();
   else if (t === 'rest')                 el.innerHTML = renderRestForm();
   else                                   el.innerHTML = renderGenericForm();
@@ -904,6 +966,141 @@ function renderStrengthForm() {
     ` : ''}
   `;
 }
+
+// ── Hyrox station grid form ─────────────────────────────────────────────────
+
+function buildStationGrid() {
+  const w = state.wip;
+  return HYROX_STATIONS.map(st => {
+    const logged = w.exercises.find(e => e.name === st.name);
+    const lastRef = !logged ? lastExerciseRef(st.name) : null;
+    const sub = logged
+      ? `<div class="st-val">${esc(formatHyroxShort(logged))}</div>`
+      : (lastRef ? `<div class="st-last">${esc(lastRef)}</div>` : '');
+    return `
+      <div class="station-cell${logged ? ' done' : ''}" onclick="openHyroxQuick('${esc(st.name)}')">
+        ${logged ? `<div class="st-check">✓</div>` : ''}
+        <div class="st-icon">${st.icon}</div>
+        <div class="st-name">${esc(st.name)}</div>
+        ${sub}
+      </div>`;
+  }).join('');
+}
+
+function renderHyroxForm() {
+  const w = state.wip;
+  const count = w.exercises.length;
+  return `
+    <div class="row" style="justify-content:space-between;margin-bottom:14px">
+      <label style="margin:0">Date</label>
+      <input type="date" style="width:auto;padding:8px 10px;font-size:14px" value="${esc(w.date)}" id="wip-date">
+    </div>
+    <div class="station-grid" id="station-grid">${buildStationGrid()}</div>
+    <div class="card" style="margin-bottom:10px;padding:10px 14px">
+      <textarea id="hyrox-notes" placeholder="Session notes (optional)" style="min-height:52px;margin:0;background:transparent;border:none;padding:0;resize:none;width:100%">${esc(w.notes || '')}</textarea>
+    </div>
+    <div class="hyrox-meta-bar">
+      <span class="hmb-lbl">RPE</span>
+      <input type="range" min="1" max="10" step="1" value="${w.rpe ?? 6}" id="rpe-slider">
+      <span class="hmb-val mono" id="rpe-val">${w.rpe ?? 6}</span>
+      <span class="hmb-lbl" style="margin-left:10px">Feel</span>
+      <input type="range" min="1" max="5" step="1" value="${w.feel ?? 3}" id="feel-slider">
+      <span class="hmb-val mono" id="feel-val">${w.feel ?? 3}</span>
+    </div>
+    <div id="hyrox-save-bar">
+      ${count
+        ? `<div class="save-bar"><button class="btn" id="save-btn">Save Session · ${count} station${count > 1 ? 's' : ''}</button></div>`
+        : `<div class="text-muted text-sm" style="text-align:center;padding:10px 0">Tap a station above to log it</div>`}
+    </div>`;
+}
+
+function refreshHyroxGrid() {
+  const grid = document.getElementById('station-grid');
+  if (grid) grid.innerHTML = buildStationGrid();
+  const bar = document.getElementById('hyrox-save-bar');
+  if (!bar) return;
+  const count = state.wip.exercises.length;
+  bar.innerHTML = count
+    ? `<div class="save-bar"><button class="btn" id="save-btn">Save Session · ${count} station${count > 1 ? 's' : ''}</button></div>`
+    : `<div class="text-muted text-sm" style="text-align:center;padding:10px 0">Tap a station above to log it</div>`;
+  document.getElementById('save-btn')?.addEventListener('click', saveWorkout);
+}
+
+// ── Hyrox quick-entry sheet ─────────────────────────────────────────────────
+
+let _hqStation = null, _hqFormat = 'singles';
+
+window.openHyroxQuick = function(name) {
+  const st = HYROX_STATIONS.find(s => s.name === name);
+  if (!st || !state.wip) return;
+  _hqStation = name;
+  const ex = state.wip.exercises.find(e => e.name === name) || {};
+  _hqFormat = ex.format || 'singles';
+
+  $('#hyrox-quick-body').innerHTML = `
+    <div class="hq-header">
+      <span class="hq-icon">${st.icon}</span>
+      <div>
+        <div class="hq-title">${esc(name)}</div>
+        <div class="format-toggle" style="margin-top:6px">
+          <button data-fmt="singles" class="${_hqFormat === 'singles' ? 'active' : ''}" onclick="setQuickFormat('singles',this)">Singles</button>
+          <button data-fmt="doubles" class="${_hqFormat === 'doubles' ? 'active' : ''}" onclick="setQuickFormat('doubles',this)">Doubles</button>
+        </div>
+      </div>
+    </div>
+    <div class="hq-fields">
+      ${st.fields.map((f, i) => `
+        <input id="hq-${esc(f.key)}"
+               type="${f.mode === 'text' ? 'text' : 'number'}" inputmode="${f.mode}"
+               placeholder="${esc(f.ph)}" value="${esc(ex[f.key] ?? '')}"
+               class="hq-input" ${i === 0 ? 'autofocus' : ''}>`).join('')}
+    </div>
+    <div class="spacer-md"></div>
+    <button class="btn" onclick="saveHyroxQuick()">Done</button>
+    ${ex.name ? `<div class="spacer-sm"></div><button class="btn btn-ghost" onclick="removeHyroxStation('${esc(name)}')">Remove station</button>` : ''}
+  `;
+
+  $('#hyrox-quick-backdrop').classList.add('open');
+  $('#hyrox-quick-sheet').classList.add('open');
+  setTimeout(() => document.getElementById('hq-' + st.fields[0]?.key)?.focus(), 300);
+};
+
+window.setQuickFormat = (fmt, btn) => {
+  _hqFormat = fmt;
+  btn.closest('.format-toggle').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.fmt === fmt));
+};
+
+window.saveHyroxQuick = function() {
+  const st = HYROX_STATIONS.find(s => s.name === _hqStation);
+  if (!st) { closeHyroxQuick(); return; }
+  const ex = { name: _hqStation, format: _hqFormat, isPR: false };
+  let hasValue = false;
+  st.fields.forEach(f => {
+    const raw = (document.getElementById('hq-' + f.key)?.value || '').trim();
+    if (raw) { ex[f.key] = f.mode === 'text' ? raw : (parseFloat(raw) || 0); hasValue = true; }
+  });
+  if (!hasValue) { closeHyroxQuick(); return; }
+  updateHyroxPRFlag(ex, -1);
+  const idx = state.wip.exercises.findIndex(e => e.name === _hqStation);
+  if (idx >= 0) state.wip.exercises[idx] = ex;
+  else state.wip.exercises.push(ex);
+  closeHyroxQuick();
+  refreshHyroxGrid();
+};
+
+window.removeHyroxStation = function(name) {
+  if (state.wip) state.wip.exercises = state.wip.exercises.filter(e => e.name !== name);
+  closeHyroxQuick();
+  refreshHyroxGrid();
+};
+
+function closeHyroxQuick() {
+  $('#hyrox-quick-backdrop').classList.remove('open');
+  $('#hyrox-quick-sheet').classList.remove('open');
+  _hqStation = null;
+}
+
+$('#hyrox-quick-backdrop').addEventListener('click', closeHyroxQuick);
 
 function renderExerciseCard(ex, i) {
   const isHyrox = !!HYROX_LIBRARY[ex.name];
@@ -1137,6 +1334,9 @@ function wireFormHandlers() {
   $('#run-distance')?.addEventListener('input', e => { w.distance = e.target.value; syncPace(); });
   $('#run-time')?.addEventListener('input', e => { w.time = e.target.value; syncPace(); });
   $('#run-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
+
+  // Hyrox notes
+  $('#hyrox-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
 
   // Generic
   $('#gen-duration')?.addEventListener('input', e => { w.duration = e.target.value; });
@@ -1661,8 +1861,8 @@ function drawSpark(pts) {
   const ys = vals.map(v => H - pad - ((v - min) / range) * (H - pad * 2));
   const d = ys.map((y, i) => `${i === 0 ? 'M' : 'L'}${pad + i * xStep},${y.toFixed(1)}`).join(' ');
   svg.innerHTML = `
-    <path d="${d}" stroke="#ff5a1f" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-    ${ys.map((y, i) => `<circle cx="${pad + i * xStep}" cy="${y.toFixed(1)}" r="2" fill="#ff5a1f"/>`).join('')}
+    <path d="${d}" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    ${ys.map((y, i) => `<circle cx="${pad + i * xStep}" cy="${y.toFixed(1)}" r="2" fill="#1a1a1a"/>`).join('')}
   `;
 }
 
@@ -1790,8 +1990,8 @@ window.togglePRChart = function(key) {
   area.innerHTML = `
     <div style="padding:12px 0 4px">
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">
-        <path d="${d}" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? 'var(--accent)' : 'var(--border-2)'}"/>`).join('')}
+        <path d="${d}" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? '#1a1a1a' : '#c9bfae'}"/>`).join('')}
       </svg>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
         <span>${fmtShort(points[0].date)} · ${points[0].label}</span>
@@ -2159,9 +2359,6 @@ renderTypeSelector();
 renderLogForm();
 maybeShowOnboarding();
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
 </script>
 </body>
 </html>
