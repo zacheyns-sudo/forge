@@ -1,14 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Background -->
-  <rect width="512" height="512" rx="112" fill="#ff5a1f"/>
-
+  <rect width="512" height="512" rx="112" fill="#3d6b52"/>
   <!-- F: vertical stem -->
   <rect x="118" y="96" width="76" height="324" fill="#fff"/>
   <!-- F: top arm -->
   <rect x="118" y="96" width="268" height="76" fill="#fff"/>
   <!-- F: mid arm -->
   <rect x="118" y="210" width="204" height="66" fill="#fff"/>
-
-  <!-- Diagonal slash — orange cuts through the white F, bottom-left to top-right -->
-  <polygon points="148,406 200,434 390,108 338,80" fill="#ff5a1f"/>
+  <!-- Diagonal slash -->
+  <polygon points="148,406 200,434 390,108 338,80" fill="#3d6b52"/>
 </svg>

@@ -9,7 +9,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" id="theme-color-meta" content="#f4f4f5">
+<meta name="theme-color" id="theme-color-meta" content="#f7f3ed">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.svg">
 <title>Forge</title>
 <style>
 :root {
@@ -512,7 +514,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <h1 id="screen-title">Log</h1>
   <div class="top-actions">
     <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" onclick="toggleTheme()">☀</button>
-    <button class="icon-btn" id="settings-btn" aria-label="Settings">⚙</button>
+    <button class="icon-btn" id="settings-btn" aria-label="Settings" style="font-size:13px;font-weight:600;letter-spacing:0.02em">Settings</button>
   </div>
 </header>
 
@@ -748,14 +750,14 @@ function initTheme() {
   const saved = localStorage.getItem('theme');
   const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.classList.toggle('dark', dark);
-  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f4f4f5';
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f7f3ed';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 }
 window.toggleTheme = function() {
   const dark = !document.documentElement.classList.contains('dark');
   document.documentElement.classList.toggle('dark', dark);
   localStorage.setItem('theme', dark ? 'dark' : 'light');
-  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f4f4f5';
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f7f3ed';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 };
 
