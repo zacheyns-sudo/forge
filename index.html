@@ -78,8 +78,8 @@ html, body {
 }
 body {
   min-height: 100vh; min-height: 100dvh;
-  padding-top: calc(var(--top-h) + var(--sa-top));
-  padding-bottom: calc(var(--nav-h) + var(--sa-bot));
+  padding-top: calc(var(--top-h) + var(--sa-top) + var(--pill-h));
+  padding-bottom: var(--sa-bot);
 }
 button { font-family: inherit; }
 input, select, textarea { font-family: inherit; font-size: 16px; }
@@ -104,25 +104,40 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 }
 .icon-btn:active { background: var(--surface-2); }
 
-/* ── Bottom nav ──────────────────────────────────────────────────────────── */
-#bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-  height: calc(var(--nav-h) + var(--sa-bot));
-  padding-bottom: var(--sa-bot);
-  background: var(--nav-bg);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid var(--border);
-  display: grid; grid-template-columns: repeat(4, 1fr);
-}
-#bottom-nav button {
-  background: none; border: none; color: var(--muted);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; padding: 6px; cursor: pointer;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.01em;
-  transition: color 0.12s;
-}
-#bottom-nav button .nav-icon { font-size: 20px; }
-#bottom-nav button.active { color: var(--accent); }
+    /* ── Top pill nav ────────────────────────────────────────────────────────── */
+    #top-nav {
+      position: fixed;
+      top: calc(var(--top-h) + var(--sa-top));
+      left: 0;
+      right: 0;
+      z-index: 39;
+      padding: 8px 16px;
+      display: flex;
+      gap: 6px;
+      background: var(--topbar-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    #top-nav button {
+      flex: 1;
+      padding: 7px 0;
+      border: none;
+      border-radius: 20px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    #top-nav button.active {
+      background: var(--accent);
+      color: #fff;
+    }
 
 /* ── Screens ─────────────────────────────────────────────────────────────── */
 .screen { display: none; padding: 16px 16px 24px; max-width: 680px; margin: 0 auto; }
@@ -519,8 +534,14 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   </div>
 </header>
 
+  <nav id="top-nav">
+    <button data-tab="today" class="active">Today</button>
+    <button data-tab="plan">Plan</button>
+    <button data-tab="prs">PRs</button>
+  </nav>
+
 <!-- ══ LOG SCREEN ══════════════════════════════════════════════════════════ -->
-<section id="screen-log" class="screen active">
+<section id="screen-log" class="screen">
   <div class="type-selector" id="type-selector"></div>
   <div id="log-form"></div>
 </section>
@@ -544,6 +565,17 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div id="week-body"></div>
 </section>
 
+  <!-- ══ TODAY SCREEN ═══════════════════════════════════════════════════════ -->
+  <section id="screen-today" class="screen active">
+    <div id="day-strip-wrap"></div>
+    <div id="day-content"></div>
+  </section>
+
+  <!-- ══ PLAN SCREEN ════════════════════════════════════════════════════════ -->
+  <section id="screen-plan" class="screen">
+    <div id="plan-body"></div>
+  </section>
+
 <!-- ══ PRS SCREEN ══════════════════════════════════════════════════════════ -->
 <section id="screen-prs" class="screen">
   <h2>Personal Records</h2>
@@ -553,14 +585,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   </div>
   <div id="pr-list"></div>
 </section>
-
-<!-- ══ BOTTOM NAV ══════════════════════════════════════════════════════════ -->
-<nav id="bottom-nav">
-  <button data-tab="log" class="active"><span class="nav-icon">＋</span><span>Log</span></button>
-  <button data-tab="history"><span class="nav-icon">≡</span><span>History</span></button>
-  <button data-tab="week"><span class="nav-icon">◔</span><span>Week</span></button>
-  <button data-tab="prs"><span class="nav-icon">★</span><span>PRs</span></button>
-</nav>
 
 <!-- ══ OVERLAYS ════════════════════════════════════════════════════════════ -->
 
@@ -854,18 +878,19 @@ function toast(msg, opts = {}) {
 // TABS / NAV
 // ═══════════════════════════════════════════════════════════════════════════
 
-function showTab(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
-  document.querySelectorAll('#bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  $('#screen-title').textContent = { log: 'Log', history: 'History', week: 'Week', prs: 'PRs' }[name];
-  if (name === 'history') renderHistory();
-  if (name === 'week') renderWeek();
-  if (name === 'prs') renderPRs();
-}
+    function showTab(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+      document.querySelectorAll('#top-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+      const titles = { today: 'Today', plan: 'Plan', prs: 'PRs' };
+      $('#screen-title').textContent = titles[name] || name;
+      if (name === 'today') renderTodayScreen();
+      if (name === 'plan') renderPlanScreen();
+      if (name === 'prs') renderPRs();
+    }
 
-document.querySelectorAll('#bottom-nav button').forEach(b => {
-  b.addEventListener('click', () => showTab(b.dataset.tab));
-});
+    document.querySelectorAll('#top-nav button').forEach(b => {
+      b.addEventListener('click', () => showTab(b.dataset.tab));
+    });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LOG SCREEN — workout type selector
