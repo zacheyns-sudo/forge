@@ -37,7 +37,6 @@
   --err-tint: #fde8e8;
   --backdrop: rgba(0, 0, 0, 0.4);
   --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.1);
-  --nav-h: 68px;
   --top-h: 52px;
   --pill-h: 52px;
   --sa-bot: env(safe-area-inset-bottom, 0px);
@@ -527,7 +526,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <body>
 
 <header id="top-bar">
-  <h1 id="screen-title">Log</h1>
+  <h1 id="screen-title">Today</h1>
   <div class="top-actions">
     <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" onclick="toggleTheme()">☀</button>
     <button class="icon-btn" id="settings-btn" aria-label="Settings" style="font-size:13px;font-weight:600;letter-spacing:0.02em">Settings</button>
@@ -877,6 +876,9 @@ function toast(msg, opts = {}) {
 // ═══════════════════════════════════════════════════════════════════════════
 // TABS / NAV
 // ═══════════════════════════════════════════════════════════════════════════
+
+    function renderTodayScreen() { /* implemented in Task 8 */ }
+    function renderPlanScreen() { /* implemented in Task 6 */ }
 
     function showTab(name) {
       document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
