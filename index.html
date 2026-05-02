@@ -960,8 +960,116 @@ function toast(msg, opts = {}) {
 // ═══════════════════════════════════════════════════════════════════════════
 
     function renderTodayScreen() { /* implemented in Task 8 */ }
-    function renderPlanScreen() { /* implemented in Task 6 */ }
-    function renderPlanDayEditor(dow) { /* implemented in Task 6 */ }
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PLAN SCREEN
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    const DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let planViewDow = 1; // default to Monday
+
+    function renderPlanScreen() {
+      const el = $('#plan-body');
+      if (!el) return;
+      el.innerHTML = `
+        <h2>Weekly Plan</h2>
+        <div class="plan-dow-strip">
+          ${DOW_LABELS.map((label, dow) => `
+            <button class="plan-dow-btn${planViewDow === dow ? ' active' : ''}"
+              onclick="setPlanDow(${dow})">${label}</button>
+          `).join('')}
+        </div>
+        <div id="plan-day-editor"></div>
+      `;
+      renderPlanDayEditor(planViewDow);
+    }
+
+    window.setPlanDow = function(dow) {
+      planViewDow = dow;
+      renderPlanScreen();
+    };
+
+    function renderPlanDayEditor(dow) {
+      const el = $('#plan-day-editor');
+      if (!el) return;
+      const day = state.plan[dow] || { type: 'rest' };
+      const types = [
+        { key: 'strength', label: 'Strength' },
+        { key: 'run', label: 'Run' },
+        { key: 'rest', label: 'Rest' },
+        { key: 'other', label: 'Other' },
+      ];
+
+      let detailHtml = '';
+      if (day.type === 'strength') {
+        const exes = day.exercises || [];
+        detailHtml = `
+          <div class="card">
+            <label>Exercises</label>
+            <div class="plan-ex-list">
+              ${exes.length
+                ? exes.map((name, idx) => `
+                    <div class="plan-ex-item">
+                      <span>${esc(name)}</span>
+                      <button class="plan-ex-remove" onclick="removeExerciseFromPlan(${dow}, ${idx})">✕</button>
+                    </div>`).join('')
+                : `<div style="color:var(--muted);font-size:13px;padding:8px 0">No exercises yet.</div>`}
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="openPicker('plan', ${dow})" style="width:100%">＋ Add Exercise</button>
+          </div>
+        `;
+      } else if (day.type === 'run') {
+        const runType = day.runType || 'Easy Run';
+        detailHtml = `
+          <div class="card">
+            <label>Run Type</label>
+            <div class="segmented" style="margin-bottom:14px">
+              ${RUN_TYPES.map(t => `<button data-rt="${t}" class="${runType === t ? 'active' : ''}" onclick="savePlanDay(${dow},'runType','${t}')">${t}</button>`).join('')}
+            </div>
+            <label>Target Distance (km, optional)</label>
+            <input type="number" inputmode="decimal" step="0.1" placeholder="e.g. 10"
+              value="${esc(day.targetDistance || '')}"
+              onchange="savePlanDay(${dow},'targetDistance',this.value ? parseFloat(this.value) : null)">
+          </div>
+        `;
+      } else if (day.type === 'other' || day.type === 'rest') {
+        detailHtml = `
+          <div class="card">
+            <label>Notes (optional)</label>
+            <textarea placeholder="Any notes for this day…" onchange="savePlanDay(${dow},'notes',this.value)">${esc(day.notes || '')}</textarea>
+          </div>
+        `;
+      }
+
+      el.innerHTML = `
+        <div class="plan-type-row">
+          ${types.map(t => `
+            <button class="plan-type-btn${day.type === t.key ? ' active' : ''}"
+              onclick="savePlanDay(${dow},'type','${t.key}')">${t.label}</button>
+          `).join('')}
+        </div>
+        ${detailHtml}
+      `;
+    }
+
+    window.savePlanDay = function(dow, field, value) {
+      if (!state.plan[dow]) state.plan[dow] = { type: 'rest' };
+      if (field === 'type' && value !== state.plan[dow].type) {
+        state.plan[dow] = { type: value };
+        if (value === 'strength') state.plan[dow].exercises = [];
+        if (value === 'run') { state.plan[dow].runType = 'Easy Run'; state.plan[dow].targetDistance = null; }
+      } else {
+        state.plan[dow][field] = value;
+      }
+      persist(['plan']);
+      renderPlanDayEditor(dow);
+    };
+
+    window.removeExerciseFromPlan = function(dow, idx) {
+      if (!state.plan[dow] || !state.plan[dow].exercises) return;
+      state.plan[dow].exercises.splice(idx, 1);
+      persist(['plan']);
+      renderPlanDayEditor(dow);
+    };
 
     function showTab(name) {
       document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
