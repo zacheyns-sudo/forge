@@ -846,6 +846,18 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   </div>
 </div>
 
+<!-- ══ LOG SHEET ═════════════════════════════════════════════════════════ -->
+  <div id="log-backdrop" class="sheet-backdrop"></div>
+  <div id="log-sheet" class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 id="log-sheet-title" style="margin:0">Log Workout</h3>
+      <button class="icon-btn" onclick="closeLogSheet()" aria-label="Close">✕</button>
+    </div>
+    <div id="sheet-type-selector" style="display:none"></div>
+    <div id="sheet-form"></div>
+  </div>
+
 <!-- Exercise picker -->
 <div id="picker-backdrop" class="sheet-backdrop"></div>
 <div id="picker-sheet" class="sheet">
