@@ -77,12 +77,13 @@ If a user taps "Log a workout anyway" or "Log something different", the bottom s
 
 ### Starting a workout (bottom sheet)
 - Tapping "Start Workout" slides up a bottom sheet
-- Sheet contains the full logging form, pre-populated:
-  - For strength days: exercise cards with exercise name + sets/reps rows, previous session's values shown as placeholder ghost text
-  - For run days: distance, time, run type, HR zone fields
+- Sheet contains the full logging form, pre-populated from the template — but everything is editable:
+  - For strength days: exercise cards with exercise name + sets/reps rows, previous session's values shown as placeholder ghost text. User can swap exercises, add new ones, or remove any before saving. The template is a default, not a lock.
+  - For run days: distance, time, run type (Easy Run / Hard Run / Long Run), HR zone fields
   - For other days: activity name + duration + notes
 - User fills in actual values, taps **Save Workout**
 - Sheet dismisses, day is marked as logged (filled dot), summary shown
+- Edits made in the sheet do not update the template — only the logged session is affected
 
 ---
 
@@ -99,7 +100,7 @@ Weekly template builder. A repeating schedule — same pattern every week.
 - If Strength: exercise list (same picker as current — search + custom entry)
   - Exercises saved here are the default set for that day; user fills in weights/reps on the day
   - No sets/reps pre-filled in the template — just the exercise names
-- If Run: run type selector (Easy / Tempo / Intervals / Long Run) + optional target distance
+- If Run: run type selector (**Easy Run / Hard Run / Long Run**) + optional target distance
 - If Rest or Other: optional notes field
 - Changes save immediately (no explicit save button needed per day)
 
@@ -139,7 +140,7 @@ Weekly template. Keyed by day of week (0 = Sunday, 1 = Monday … 6 = Saturday).
 ```json
 {
   "1": { "type": "strength", "exercises": ["Squat", "RDL", "Leg Press"] },
-  "2": { "type": "run", "runType": "Easy", "targetDistance": 10 },
+  "2": { "type": "run", "runType": "Easy Run", "targetDistance": 10 },
   "3": { "type": "rest" },
   "4": { "type": "strength", "exercises": ["Bench Press", "Row", "OHP"] },
   "5": { "type": "run", "runType": "Easy" },
