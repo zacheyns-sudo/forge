@@ -689,7 +689,7 @@ const TYPES = [
   { key: 'rest',     label: 'Rest',   icon: '😴' },
 ];
 
-const RUN_TYPES = ['Easy', 'Tempo', 'Intervals', 'Long Run'];
+const RUN_TYPES = ['Easy Run', 'Hard Run', 'Long Run'];
 
 // Storage keys
 const K = {
@@ -700,6 +700,8 @@ const K = {
   key:       'wt_key',
   custom:    'wt_custom_lifts',
   lastType:  'wt_last_type',
+  plan:      'wt_plan',
+  onboarded: 'wt_onboarded',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -717,6 +719,11 @@ const state = {
   viewWeek: null,   // ISO week key 'YYYY-WW'
   prCat:    'Lifts',
   wip:      null,   // in-progress workout object
+  plan:     {},
+  onboarded: false,
+  viewDate: null,
+  pickerContext: 'log',
+  planPickerDow: null,
 };
 
 function loadState() {
@@ -725,15 +732,19 @@ function loadState() {
   try { state.weekly   = JSON.parse(localStorage.getItem(K.weekly)   || '{}'); } catch { state.weekly = {}; }
   try { state.weight   = JSON.parse(localStorage.getItem(K.weight)   || '[]'); } catch { state.weight = []; }
   try { state.custom   = JSON.parse(localStorage.getItem(K.custom)   || '[]'); } catch { state.custom = []; }
+  try { state.plan     = JSON.parse(localStorage.getItem(K.plan)     || '{}'); } catch { state.plan = {}; }
+  state.onboarded = localStorage.getItem(K.onboarded) === '1';
   state.key         = localStorage.getItem(K.key) || '';
   state.currentType = localStorage.getItem(K.lastType) || 'strength';
   state.viewWeek    = isoWeekKey(new Date());
+  state.viewDate = iso();
 }
 function persist(keys) {
   (keys || Object.keys(K)).forEach(k => {
     const key = K[k];
     if (!key) return;
     if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
+    else if (k === 'onboarded') localStorage.setItem(key, state.onboarded ? '1' : '');
     else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' ? {} : [])));
   });
 }
@@ -888,7 +899,7 @@ function setType(type) {
 function initWIP() {
   const base = { id: uuid(), date: iso(), timestamp: Date.now(), type: state.currentType };
   if (state.currentType === 'strength') { base.exercises = []; base.rpe = 6; base.feel = 3; }
-  if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy', hrZone: null });
+  if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy Run', hrZone: null });
   if (state.currentType === 'other')
     Object.assign(base, { label: '', duration: '', rpe: 6, feel: 3, notes: '' });
   if (state.currentType === 'rest') Object.assign(base, { forced: false, notes: '' });
