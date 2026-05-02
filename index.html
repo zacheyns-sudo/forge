@@ -798,18 +798,26 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <!-- Onboarding -->
 <div id="onboarding" class="overlay hidden">
-  <div class="overlay-panel">
-    <div class="logo">🔥</div>
-    <h3>Forge</h3>
-    <p>Workout tracker for lifting, running, and everything in between.</p>
-    <label for="onboard-key">Anthropic API Key</label>
-    <input type="password" id="onboard-key" placeholder="sk-ant-...">
-    <div class="spacer-md"></div>
-    <button class="btn" id="onboard-save">Start Training</button>
-    <div class="spacer-sm"></div>
-    <button class="btn btn-ghost" id="onboard-skip">Skip for now</button>
-    <div class="spacer-sm"></div>
-    <p class="text-sm" style="margin:6px 0 0">Stored only on this device. AI features need it; logging works without.</p>
+  <div class="overlay-panel" style="max-width:400px">
+    <div id="setup-welcome" class="">
+      <div class="logo" style="font-size:36px;text-align:center;margin-bottom:8px">🔥</div>
+      <h3 style="text-align:center;margin-bottom:8px">Welcome to Forge</h3>
+      <p style="text-align:center;color:var(--muted);margin-bottom:24px">Let's set up your training week. You can always change this later in Plan.</p>
+      <button class="btn" id="setup-start">Get Started</button>
+      <div class="spacer-sm"></div>
+      <button class="btn btn-ghost" id="setup-skip">Skip for now</button>
+    </div>
+    <div id="setup-step" class="hidden">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px" id="setup-step-label">Day 1 of 7</div>
+      <h3 style="margin:0 0 16px" id="setup-step-day">Monday</h3>
+      <div class="plan-type-row" id="setup-type-row"></div>
+      <div id="setup-detail"></div>
+      <div class="spacer-md"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="setup-prev" style="flex:0 0 auto;width:44px">‹</button>
+        <button class="btn" id="setup-next" style="flex:1">Next →</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1741,7 +1749,11 @@ function addExercise(name) {
       state.plan[dow].exercises.push(name);
       persist(['plan']);
     }
-    renderPlanDayEditor(dow);
+    if (!$('#setup-step').classList.contains('hidden')) {
+      renderSetupStep();
+    } else {
+      renderPlanDayEditor(dow);
+    }
     return;
   }
   // Default: log context
@@ -2601,18 +2613,123 @@ function openConfirm(title, msg, onYes) {
   $('#confirm-no').onclick  = () => $('#confirm-overlay').classList.add('hidden');
 }
 
-// Onboarding
+// ── First-run setup ─────────────────────────────────────────────────────────
+const SETUP_DAYS = [1, 2, 3, 4, 5, 6, 0]; // Mon–Sun
+const SETUP_DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+let setupIdx = 0;
+
 function maybeShowOnboarding() {
-  if (state.key) return;
+  if (state.onboarded) return;
   $('#onboarding').classList.remove('hidden');
 }
-$('#onboard-save').addEventListener('click', () => {
-  const v = $('#onboard-key').value.trim();
-  if (!v) return toast('Paste an Anthropic API key or tap Skip.', { err: true });
-  state.key = v; persist(['key']);
+
+function finishSetup() {
+  state.onboarded = true;
+  persist(['onboarded', 'plan']);
   $('#onboarding').classList.add('hidden');
+  renderTodayScreen();
+  renderPlanScreen();
+}
+
+$('#setup-start').addEventListener('click', () => {
+  $('#setup-welcome').classList.add('hidden');
+  $('#setup-step').classList.remove('hidden');
+  setupIdx = 0;
+  renderSetupStep();
 });
-$('#onboard-skip').addEventListener('click', () => $('#onboarding').classList.add('hidden'));
+
+$('#setup-skip').addEventListener('click', finishSetup);
+
+$('#setup-next').addEventListener('click', () => {
+  setupIdx++;
+  if (setupIdx >= SETUP_DAYS.length) {
+    finishSetup();
+  } else {
+    renderSetupStep();
+  }
+});
+
+$('#setup-prev').addEventListener('click', () => {
+  if (setupIdx > 0) { setupIdx--; renderSetupStep(); }
+});
+
+function renderSetupStep() {
+  const dow = SETUP_DAYS[setupIdx];
+  const dayName = SETUP_DAY_NAMES[setupIdx];
+  const day = state.plan[dow] || { type: 'rest' };
+
+  $('#setup-step-label').textContent = `Day ${setupIdx + 1} of 7`;
+  $('#setup-step-day').textContent = dayName;
+  $('#setup-prev').disabled = setupIdx === 0;
+  $('#setup-next').textContent = setupIdx === SETUP_DAYS.length - 1 ? "Let's Train →" : 'Next →';
+
+  const types = [
+    { key: 'strength', label: 'Strength' },
+    { key: 'run', label: 'Run' },
+    { key: 'rest', label: 'Rest' },
+    { key: 'other', label: 'Other' },
+  ];
+
+  $('#setup-type-row').innerHTML = types.map(t => `
+    <button class="plan-type-btn${day.type === t.key ? ' active' : ''}"
+      onclick="setSetupType(${dow}, '${t.key}')">${t.label}</button>
+  `).join('');
+
+  renderSetupDetail(dow, day);
+}
+
+window.setSetupType = function(dow, type) {
+  if (!state.plan[dow] || state.plan[dow].type !== type) {
+    state.plan[dow] = { type };
+    if (type === 'strength') state.plan[dow].exercises = [];
+    if (type === 'run') { state.plan[dow].runType = 'Easy Run'; }
+  }
+  renderSetupStep();
+};
+
+function renderSetupDetail(dow, day) {
+  const el = $('#setup-detail');
+  if (day.type === 'strength') {
+    const exes = day.exercises || [];
+    el.innerHTML = `
+      <div class="card" style="margin-top:12px">
+        <label>Exercises (optional)</label>
+        <div class="plan-ex-list" id="setup-ex-list">
+          ${exes.map((name, idx) => `
+            <div class="plan-ex-item">
+              <span>${esc(name)}</span>
+              <button class="plan-ex-remove" onclick="removeSetupEx(${dow},${idx})">✕</button>
+            </div>`).join('')}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openPicker('plan',${dow})" style="width:100%;margin-top:4px">＋ Add Exercise</button>
+      </div>
+    `;
+  } else if (day.type === 'run') {
+    el.innerHTML = `
+      <div class="card" style="margin-top:12px">
+        <label>Run Type</label>
+        <div class="segmented">
+          ${RUN_TYPES.map(t => `<button class="${(day.runType||'Easy Run')===t?'active':''}" onclick="setSetupRunType(${dow},'${t}')">${t}</button>`).join('')}
+        </div>
+      </div>
+    `;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+window.removeSetupEx = function(dow, idx) {
+  if (state.plan[dow] && state.plan[dow].exercises) {
+    state.plan[dow].exercises.splice(idx, 1);
+    renderSetupStep();
+  }
+};
+
+window.setSetupRunType = function(dow, runType) {
+  if (!state.plan[dow]) state.plan[dow] = { type: 'run' };
+  state.plan[dow].runType = runType;
+  renderSetupStep();
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
