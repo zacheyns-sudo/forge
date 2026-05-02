@@ -1250,6 +1250,74 @@ function toast(msg, opts = {}) {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // LOG SHEET
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function openLogSheet(dateStr, fromPlan) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const dow = d.getDay();
+      const planDay = state.plan[dow];
+
+      if (fromPlan && planDay && planDay.type !== 'rest') {
+        state.currentType = planDay.type;
+        state.wip = initWIP();
+        state.wip.date = dateStr;
+        state.wip.timestamp = new Date(dateStr + 'T00:00:00').getTime();
+        if (planDay.type === 'strength' && planDay.exercises && planDay.exercises.length) {
+          state.wip.exercises = planDay.exercises.map(name => ({
+            name,
+            sets: [{ weight: '', reps: '' }],
+          }));
+        }
+        if (planDay.type === 'run' && planDay.runType) {
+          state.wip.runType = planDay.runType;
+        }
+        $('#sheet-type-selector').style.display = 'none';
+        $('#log-sheet-title').textContent = fmtShort(dateStr);
+      } else {
+        state.currentType = 'strength';
+        state.wip = initWIP();
+        state.wip.date = dateStr;
+        state.wip.timestamp = new Date(dateStr + 'T00:00:00').getTime();
+        const sel = $('#sheet-type-selector');
+        sel.style.display = 'block';
+        sel.innerHTML = TYPES.filter(t => t.key !== 'rest').map(t => `
+          <button class="type-btn${state.currentType === t.key ? ' active' : ''}" onclick="setSheetType('${t.key}')">
+            <span class="type-icon">${t.icon}</span>
+            <span class="type-label">${t.label}</span>
+          </button>
+        `).join('');
+        $('#log-sheet-title').textContent = 'Log Workout';
+      }
+
+      renderLogForm($('#sheet-form'));
+      $('#log-backdrop').classList.add('open');
+      $('#log-sheet').classList.add('open');
+    }
+
+    window.setSheetType = function(type) {
+      state.currentType = type;
+      state.wip = initWIP();
+      state.wip.date = state.viewDate || iso();
+      const sel = $('#sheet-type-selector');
+      if (sel) {
+        sel.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(type)));
+      }
+      renderLogForm($('#sheet-form'));
+    };
+
+    function closeLogSheet() {
+      $('#log-backdrop').classList.remove('open');
+      $('#log-sheet').classList.remove('open');
+      state.wip = null;
+      renderTodayScreen();
+      const today = iso();
+      $('#screen-title').textContent = (state.viewDate === today) ? 'Today' : fmtShort(state.viewDate);
+    }
+
+    $('#log-backdrop').addEventListener('click', closeLogSheet);
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // PLAN SCREEN
     // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1413,10 +1481,11 @@ function initWIP() {
   return base;
 }
 
-function renderLogForm() {
+function renderLogForm(targetEl) {
   if (!state.wip || state.wip.type !== state.currentType) state.wip = initWIP();
   const t = state.currentType;
-  const el = $('#log-form');
+  const el = targetEl || $('#log-form');
+  if (!el) return;
   if (t === 'strength') el.innerHTML = renderStrengthForm();
   else if (t === 'run')                  el.innerHTML = renderRunForm();
   else if (t === 'rest')                 el.innerHTML = renderRestForm();
@@ -1798,10 +1867,14 @@ function saveWorkout() {
 
   if (w.type === 'strength') fetchStretches(w);
 
-  // Reset WIP and go to history
+  // Reset WIP and navigate
   state.wip = null;
-  renderLogForm();
-  setTimeout(() => showTab('history'), 400);
+  if ($('#log-sheet').classList.contains('open')) {
+    closeLogSheet();
+  } else {
+    renderLogForm();
+    setTimeout(() => showTab('today'), 400);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
