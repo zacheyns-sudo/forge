@@ -64,6 +64,7 @@ html.dark {
   --err-tint: rgba(248,113,113,0.14);
   --backdrop: rgba(0,0,0,0.65);
   --shadow-sheet: 0 -8px 40px rgba(0,0,0,0.55);
+  --accent-dim: rgba(153, 27, 27, 0.22);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -960,6 +961,7 @@ function toast(msg, opts = {}) {
 
     function renderTodayScreen() { /* implemented in Task 8 */ }
     function renderPlanScreen() { /* implemented in Task 6 */ }
+    function renderPlanDayEditor(dow) { /* implemented in Task 6 */ }
 
     function showTab(name) {
       document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
@@ -1276,6 +1278,7 @@ function addExercise(name) {
     state.custom.push(name);
     persist(['custom']);
   }
+  if (!state.wip) state.wip = initWIP();
   state.wip.exercises.push({ name, sets: [{ weight: '', reps: '' }] });
   renderLogForm();
 }
