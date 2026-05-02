@@ -1254,6 +1254,7 @@ function toast(msg, opts = {}) {
     // ═══════════════════════════════════════════════════════════════════════════
 
     function openLogSheet(dateStr, fromPlan) {
+      if ($('#log-sheet').classList.contains('open')) return;
       const d = new Date(dateStr + 'T00:00:00');
       const dow = d.getDay();
       const planDay = state.plan[dow];
@@ -1464,7 +1465,7 @@ function setType(type) {
   persist(['lastType']);
   state.wip = null; // clear in-progress on type change
   renderTypeSelector();
-  renderLogForm();
+  renderLogForm(resolveLogTarget());
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1479,6 +1480,10 @@ function initWIP() {
     Object.assign(base, { label: '', duration: '', rpe: 6, feel: 3, notes: '' });
   if (state.currentType === 'rest') Object.assign(base, { forced: false, notes: '' });
   return base;
+}
+
+function resolveLogTarget() {
+  return $('#log-sheet').classList.contains('open') ? $('#sheet-form') : $('#log-form');
 }
 
 function renderLogForm(targetEl) {
@@ -1716,15 +1721,15 @@ function wireFormHandlers() {
   $('#save-btn')?.addEventListener('click', saveWorkout);
 }
 
-window.setHRZone = z => { if (state.wip) { state.wip.hrZone = state.wip.hrZone === z ? null : z; renderLogForm(); } };
+window.setHRZone = z => { if (state.wip) { state.wip.hrZone = state.wip.hrZone === z ? null : z; renderLogForm(resolveLogTarget()); } };
 
 function syncPace() { if ($('#run-pace')) $('#run-pace').value = calcPaceStr(state.wip); }
 
-window.setRunType     = t => { state.wip.runType = t; renderLogForm(); };
-window.setRestForced  = f => { state.wip.forced = f; renderLogForm(); };
-window.addSet         = i => { state.wip.exercises[i].sets.push({ weight: '', reps: '' }); renderLogForm(); };
-window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm(); };
-window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(); };
+window.setRunType     = t => { state.wip.runType = t; renderLogForm(resolveLogTarget()); };
+window.setRestForced  = f => { state.wip.forced = f; renderLogForm(resolveLogTarget()); };
+window.addSet         = i => { state.wip.exercises[i].sets.push({ weight: '', reps: '' }); renderLogForm(resolveLogTarget()); };
+window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm(resolveLogTarget()); };
+window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(resolveLogTarget()); };
 
 function addExercise(name) {
   if (state.pickerContext === 'plan') {
@@ -1746,7 +1751,7 @@ function addExercise(name) {
   }
   if (!state.wip) state.wip = initWIP();
   state.wip.exercises.push({ name, sets: [{ weight: '', reps: '' }] });
-  renderLogForm();
+  renderLogForm(resolveLogTarget());
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1904,7 +1909,7 @@ function repeatLastWorkout() {
   state.wip.exercises = last.exercises.map(ex =>
     ({ name: ex.name, sets: (ex.sets || []).map(() => ({ weight: '', reps: '' })) })
   );
-  renderLogForm();
+  renderLogForm(resolveLogTarget());
   toast('Loaded last session');
 }
 
