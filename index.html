@@ -732,7 +732,7 @@ function loadState() {
   try { state.weekly   = JSON.parse(localStorage.getItem(K.weekly)   || '{}'); } catch { state.weekly = {}; }
   try { state.weight   = JSON.parse(localStorage.getItem(K.weight)   || '[]'); } catch { state.weight = []; }
   try { state.custom   = JSON.parse(localStorage.getItem(K.custom)   || '[]'); } catch { state.custom = []; }
-  try { state.plan     = JSON.parse(localStorage.getItem(K.plan)     || '{}'); } catch { state.plan = {}; }
+  try { const v = JSON.parse(localStorage.getItem(K.plan) || '{}'); state.plan = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch { state.plan = {}; }
   state.onboarded = localStorage.getItem(K.onboarded) === '1';
   state.key         = localStorage.getItem(K.key) || '';
   state.currentType = localStorage.getItem(K.lastType) || 'strength';
@@ -745,7 +745,7 @@ function persist(keys) {
     if (!key) return;
     if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
     else if (k === 'onboarded') localStorage.setItem(key, state.onboarded ? '1' : '');
-    else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' ? {} : [])));
+    else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' || k === 'plan' ? {} : [])));
   });
 }
 
@@ -1221,7 +1221,7 @@ function detectAndRecordPRs(workout) {
       const prev = state.prs[key];
       if (!prev || pace < prev.pace) {
         const pr = {
-          key, category: 'Runs', name: workout.runType + ' Run',
+          key, category: 'Runs', name: workout.runType,
           pace, distance: km, time: sec,
           date: workout.date, workoutId: workout.id,
         };
