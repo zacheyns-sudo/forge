@@ -1397,6 +1397,7 @@ function toast(msg, opts = {}) {
 
 function renderTypeSelector() {
   const wrap = $('#type-selector');
+  if (!wrap) return;
   wrap.innerHTML = TYPES.map(t => `
     <button class="type-btn${state.currentType === t.key ? ' active' : ''}" data-type="${t.key}">
       <span class="type-icon">${t.icon}</span>
@@ -2541,7 +2542,7 @@ window.confirmClearAll = function() {
     persist(['workouts','prs','weekly','weight','custom']);
     toast('All data cleared.');
     closeSettings();
-    showTab('log');
+    showTab('today');
   });
 };
 
