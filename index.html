@@ -1038,7 +1038,7 @@ function renderStrengthForm() {
     </div>
     ${showRepeat ? `<button class="btn btn-ghost" id="repeat-last" style="margin-bottom:12px">↻ Repeat last lift session (${esc(last.date)})</button>` : ''}
     <div id="exercise-list">${exHtml}</div>
-    <button class="add-exercise-btn" onclick="openPicker()">＋ Add Exercise</button>
+    <button class="add-exercise-btn" onclick="openPicker('log')">＋ Add Exercise</button>
     ${state.wip.exercises.length ? `
       ${renderRPEFeel(state.wip.rpe ?? 6, state.wip.feel ?? 3)}
       <div class="save-bar">
@@ -1259,6 +1259,19 @@ window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm()
 window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(); };
 
 function addExercise(name) {
+  if (state.pickerContext === 'plan') {
+    const dow = state.planPickerDow;
+    if (dow == null) return;
+    if (!state.plan[dow]) state.plan[dow] = { type: 'strength', exercises: [] };
+    if (!state.plan[dow].exercises) state.plan[dow].exercises = [];
+    if (!state.plan[dow].exercises.includes(name)) {
+      state.plan[dow].exercises.push(name);
+      persist(['plan']);
+    }
+    renderPlanDayEditor(dow);
+    return;
+  }
+  // Default: log context
   if (!LIFT_LIBRARY.includes(name) && !state.custom.includes(name)) {
     state.custom.push(name);
     persist(['custom']);
@@ -1426,7 +1439,9 @@ function repeatLastWorkout() {
 // EXERCISE PICKER
 // ═══════════════════════════════════════════════════════════════════════════
 
-function openPicker() {
+function openPicker(context, planDow) {
+  state.pickerContext = context || 'log';
+  state.planPickerDow = planDow != null ? planDow : null;
   $('#picker-backdrop').classList.add('open');
   $('#picker-sheet').classList.add('open');
   $('#picker-search').value = '';
