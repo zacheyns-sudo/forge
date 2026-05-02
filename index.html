@@ -1659,7 +1659,7 @@ window.togglePRChart = function(key) {
     <div style="padding:12px 0 4px">
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">
         <path d="${d}" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? '#1a1a1a' : '#c9bfae'}"/>`).join('')}
+        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? '#1a1a1a' : '#d4c4aa'}"/>`).join('')}
       </svg>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
         <span>${fmtShort(points[0].date)} · ${points[0].label}</span>
