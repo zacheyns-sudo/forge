@@ -603,6 +603,133 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       padding: 0 4px;
     }
 
+    /* ── Today screen ────────────────────────────────────────────────────────── */
+    .day-strip {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      margin: 0 -16px 16px;
+      padding: 10px 16px 12px;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .day-strip::-webkit-scrollbar { display: none; }
+
+    .day-cell {
+      flex: 0 0 auto;
+      width: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px 2px;
+      border-radius: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .day-cell:active { background: var(--surface-2); }
+
+    .day-cell .dc-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .day-cell .dc-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .day-cell.today .dc-label {
+      color: var(--accent);
+      font-size: 9px;
+    }
+
+    .day-cell.today .dc-num {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .day-cell.selected:not(.today) .dc-num {
+      background: var(--surface-3);
+    }
+
+    .day-cell .dc-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: transparent;
+    }
+
+    .day-cell .dc-dot.logged { background: var(--accent); }
+    .day-cell .dc-dot.planned { background: var(--border-2); }
+
+    .day-content-area {
+      padding: 0 0 24px;
+    }
+
+    .today-workout-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+    }
+
+    .today-workout-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .today-ex-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .today-ex-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .today-empty {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--muted);
+    }
+
+    .today-empty .big { font-size: 40px; margin-bottom: 8px; }
+
+    .today-secondary-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+      display: block;
+      margin-top: 4px;
+    }
+
 </style>
 </head>
 <body>
