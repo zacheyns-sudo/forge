@@ -1098,7 +1098,157 @@ function toast(msg, opts = {}) {
 // TABS / NAV
 // ═══════════════════════════════════════════════════════════════════════════
 
-    function renderTodayScreen() { /* implemented in Task 8 */ }
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TODAY SCREEN
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function renderTodayScreen() {
+      const stripEl = $('#day-strip-wrap');
+      const contentEl = $('#day-content');
+      if (!stripEl || !contentEl) return;
+      if (!state.viewDate) state.viewDate = iso();
+
+      stripEl.innerHTML = renderDayStrip();
+      contentEl.innerHTML = renderDayContent(state.viewDate);
+
+      const selected = stripEl.querySelector('.day-cell.selected');
+      if (selected) selected.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }
+
+    window.setViewDate = function(dateStr) {
+      state.viewDate = dateStr;
+      const today = iso();
+      $('#screen-title').textContent = dateStr === today ? 'Today' : fmtShort(dateStr);
+      renderTodayScreen();
+    };
+
+    function renderDayStrip() {
+      const today = iso();
+      const days = [];
+      for (let i = -14; i <= 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        days.push(iso(d));
+      }
+
+      return `<div class="day-strip">${days.map(dateStr => {
+        const d = new Date(dateStr + 'T00:00:00');
+        const isToday = dateStr === today;
+        const isSelected = dateStr === state.viewDate;
+        const logged = state.workouts.some(w => w.date === dateStr);
+        const dow = d.getDay();
+        const planned = state.plan[dow] && state.plan[dow].type !== 'rest';
+        const dayLabel = isToday ? 'TODAY' : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow];
+        const dotClass = logged ? 'logged' : (planned ? 'planned' : '');
+        const cellClass = ['day-cell', isToday ? 'today' : '', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
+        return `
+          <div class="${cellClass}" onclick="setViewDate('${dateStr}')">
+            <div class="dc-label">${dayLabel}</div>
+            <div class="dc-num">${d.getDate()}</div>
+            <div class="dc-dot ${dotClass}"></div>
+          </div>
+        `;
+      }).join('')}</div>`;
+    }
+
+    function renderDayContent(dateStr) {
+      const today = iso();
+      const d = new Date(dateStr + 'T00:00:00');
+      const dow = d.getDay();
+      const planDay = state.plan[dow];
+      const logged = state.workouts.filter(w => w.date === dateStr);
+      const isFuture = dateStr > today;
+      const isPast = dateStr < today;
+      const isToday = dateStr === today;
+
+      if (logged.length) {
+        const w = logged[0];
+        return `
+          <div class="day-content-area">
+            <div class="today-workout-name">${esc(TYPES.find(t => t.key === w.type)?.label || w.type)}</div>
+            <div class="today-workout-meta">${fmtDay(dateStr)}</div>
+            <div class="card">${renderSessionCard(w).replace('<div class="session"', '<div class="session expanded"')}</div>
+            ${isToday ? `<button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">+ Log another session</button>` : ''}
+          </div>
+        `;
+      }
+
+      if (isFuture) {
+        if (!planDay || planDay.type === 'rest') {
+          return `<div class="today-empty"><div class="big">😴</div><div>Rest day planned</div></div>`;
+        }
+        return renderPlannedDayView(dateStr, planDay, false);
+      }
+
+      if (isToday) {
+        if (!planDay) {
+          return `
+            <div class="today-empty">
+              <div class="big">📋</div>
+              <div style="font-weight:700;margin-bottom:8px">No plan set for today</div>
+              <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Set up your weekly schedule in the Plan tab.</div>
+              <button class="btn" onclick="showTab('plan')">Go to Plan</button>
+              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
+            </div>
+          `;
+        }
+        if (planDay.type === 'rest') {
+          return `
+            <div class="today-empty">
+              <div class="big">😴</div>
+              <div style="font-weight:700;margin-bottom:8px">Rest day</div>
+              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
+            </div>
+          `;
+        }
+        return renderPlannedDayView(dateStr, planDay, true);
+      }
+
+      if (isPast) {
+        if (!planDay || planDay.type === 'rest') {
+          return `<div class="today-empty"><div class="big">—</div><div style="color:var(--muted)">Nothing planned</div></div>`;
+        }
+        return `
+          <div class="day-content-area">
+            ${renderPlannedDayView(dateStr, planDay, false)}
+            <p style="color:var(--muted);font-size:13px;text-align:center;margin-top:8px">Not logged</p>
+            <button class="today-secondary-link" style="text-align:center" onclick="openLogSheet('${dateStr}', true)">Log it late</button>
+          </div>
+        `;
+      }
+
+      return '';
+    }
+
+    function renderPlannedDayView(dateStr, planDay, showStart) {
+      const typeLabel = { strength: 'Strength', run: 'Run', other: 'Other', rest: 'Rest' }[planDay.type] || planDay.type;
+      let detailHtml = '';
+
+      if (planDay.type === 'strength') {
+        const exes = planDay.exercises || [];
+        detailHtml = exes.length
+          ? `<div class="today-ex-preview">${exes.map(n => `<span class="today-ex-chip">${esc(n)}</span>`).join('')}</div>`
+          : `<p style="color:var(--muted);font-size:13px">No exercises set — tap Start to add them.</p>`;
+      } else if (planDay.type === 'run') {
+        const runType = planDay.runType || 'Easy Run';
+        const dist = planDay.targetDistance ? ` · ${planDay.targetDistance}km target` : '';
+        detailHtml = `<div class="today-workout-meta">${esc(runType)}${dist}</div>`;
+      }
+
+      const startBtn = showStart
+        ? `<button class="btn" onclick="openLogSheet('${dateStr}', true)">Start Workout</button>`
+        : '';
+
+      return `
+        <div class="day-content-area">
+          <div class="today-workout-name">${typeLabel}</div>
+          <div class="today-workout-meta">${fmtDay(dateStr)}</div>
+          ${detailHtml}
+          ${startBtn}
+        </div>
+      `;
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // PLAN SCREEN
     // ═══════════════════════════════════════════════════════════════════════════
@@ -2394,6 +2544,7 @@ initTheme();
 loadState();
 renderTypeSelector();
 renderLogForm();
+renderTodayScreen();
 maybeShowOnboarding();
 
 </script>
