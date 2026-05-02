@@ -1391,31 +1391,6 @@ function toast(msg, opts = {}) {
       b.addEventListener('click', () => showTab(b.dataset.tab));
     });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LOG SCREEN — workout type selector
-// ═══════════════════════════════════════════════════════════════════════════
-
-function renderTypeSelector() {
-  const wrap = $('#type-selector');
-  if (!wrap) return;
-  wrap.innerHTML = TYPES.map(t => `
-    <button class="type-btn${state.currentType === t.key ? ' active' : ''}" data-type="${t.key}">
-      <span class="type-icon">${t.icon}</span>
-      <span class="type-label">${t.label}</span>
-    </button>
-  `).join('');
-  wrap.querySelectorAll('.type-btn').forEach(b => {
-    b.addEventListener('click', () => setType(b.dataset.type));
-  });
-}
-
-function setType(type) {
-  state.currentType = type;
-  persist(['lastType']);
-  state.wip = null; // clear in-progress on type change
-  renderTypeSelector();
-  renderLogForm(resolveLogTarget());
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LOG SCREEN — form rendering per type
