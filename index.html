@@ -9,36 +9,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" id="theme-color-meta" content="#f7f3ed">
+<meta name="theme-color" id="theme-color-meta" content="#fdf8f0">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.svg">
 <title>Forge</title>
 <style>
 :root {
-  /* Light — Warm Cream */
-  --bg: #f7f3ed;
-  --surface: #fefcf8;
-  --surface-2: #f0ebe3;
-  --surface-3: #e6dfd5;
-  --border: #ddd6cc;
-  --border-2: #bfb5a8;
-  --text: #1c1814;
-  --muted: #857970;
-  --muted-2: #b0a89e;
-  --accent: #3d6b52;
-  --accent-dim: rgba(61,107,82,0.12);
+  /* Light — Sand + Deep Red */
+  --bg: #fdf8f0;
+  --surface: #fffdf9;
+  --surface-2: #f5ede0;
+  --surface-3: #ede3d2;
+  --border: #e8dece;
+  --border-2: #d4c4aa;
+  --text: #1c1208;
+  --muted: #a0906e;
+  --muted-2: #c8b89a;
+  --accent: #991b1b;
+  --accent-dim: rgba(153, 27, 27, 0.10);
   --red: #b91c1c;
   --amber: #b45309;
   --blue: #1d4ed8;
   --success: #166534;
-  --topbar-bg: #f7f3ed;
-  --nav-bg: rgba(247,243,237,0.94);
-  --bg-fade: rgba(247,243,237,0);
+  --topbar-bg: #fdf8f0;
+  --nav-bg: rgba(253, 248, 240, 0.94);
+  --bg-fade: rgba(253, 248, 240, 0);
   --err-tint: #fde8e8;
-  --backdrop: rgba(0,0,0,0.4);
-  --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.1);
+  --backdrop: rgba(0, 0, 0, 0.4);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.1);
   --nav-h: 68px;
   --top-h: 52px;
+  --pill-h: 52px;
   --sa-bot: env(safe-area-inset-bottom, 0px);
   --sa-top: env(safe-area-inset-top, 0px);
 }
@@ -750,14 +751,14 @@ function initTheme() {
   const saved = localStorage.getItem('theme');
   const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.classList.toggle('dark', dark);
-  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f7f3ed';
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#fdf8f0';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 }
 window.toggleTheme = function() {
   const dark = !document.documentElement.classList.contains('dark');
   document.documentElement.classList.toggle('dark', dark);
   localStorage.setItem('theme', dark ? 'dark' : 'light');
-  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f7f3ed';
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#fdf8f0';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 };
 
