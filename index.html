@@ -1670,6 +1670,70 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
       sendChadMessage(text);
     };
 
+    async function sendChadMessage(text) {
+      if (!text.trim()) return;
+
+      // During setup flow, route to setup handler
+      if (typeof chadSetupStep === 'number' && chadSetupStep >= 0 && chadSetupStep < CHAD_SETUP_STEPS.length) {
+        chadHandleSetupResponse(text);
+        return;
+      }
+
+      const isPinned = $('#chad-pin-toggle').classList.contains('active');
+
+      // Save user message
+      const userMsg = { role: 'user', content: text, timestamp: Date.now() };
+      state.chadMessages.push(userMsg);
+
+      if (isPinned) {
+        state.chadPins.push(text);
+        persist(['chadPins']);
+        $('#chad-pin-toggle').classList.remove('active');
+        renderChadPins();
+      }
+
+      persist(['chadMessages']);
+      renderChadMessages();
+
+      // Loading bubble
+      const msgs = $('#chad-messages');
+      const loadingEl = document.createElement('div');
+      loadingEl.className = 'chad-msg chad-msg-loading';
+      loadingEl.innerHTML = '<div class="spinner"></div>';
+      if (msgs) { msgs.appendChild(loadingEl); msgs.scrollTop = msgs.scrollHeight; }
+
+      try {
+        const raw = await callChadAPI();
+        let parsed;
+        try {
+          parsed = JSON.parse(raw.replace(/```json\n?|```/g, '').trim());
+        } catch {
+          parsed = { type: 'message', content: raw };
+        }
+
+        loadingEl.remove();
+
+        const assistantMsg = {
+          role: 'assistant',
+          content: parsed.content || '',
+          timestamp: Date.now(),
+        };
+        if (parsed.type === 'plan_proposal' && parsed.days && typeof parsed.days === 'object') {
+          assistantMsg.planProposal = parsed.days;
+        }
+
+        state.chadMessages.push(assistantMsg);
+        persist(['chadMessages']);
+        renderChadMessages();
+      } catch (err) {
+        loadingEl.remove();
+        const errMsg = { role: 'assistant', content: `Error: ${err.message}`, timestamp: Date.now() };
+        state.chadMessages.push(errMsg);
+        persist(['chadMessages']);
+        renderChadMessages();
+      }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // PLAN SCREEN
     // ═══════════════════════════════════════════════════════════════════════════
