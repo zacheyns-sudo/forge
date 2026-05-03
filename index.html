@@ -885,15 +885,19 @@ const RUN_TYPES = ['Easy Run', 'Hard Run', 'Long Run'];
 
 // Storage keys
 const K = {
-  workouts:  'wt_workouts',
-  prs:       'wt_prs',
-  weekly:    'wt_weekly',
-  weight:    'wt_weight',
-  key:       'wt_key',
-  custom:    'wt_custom_lifts',
-  lastType:  'wt_last_type',
-  plan:      'wt_plan',
-  onboarded: 'wt_onboarded',
+  workouts:     'wt_workouts',
+  prs:          'wt_prs',
+  weekly:       'wt_weekly',
+  weight:       'wt_weight',
+  key:          'wt_key',
+  custom:       'wt_custom_lifts',
+  lastType:     'wt_last_type',
+  plan:         'wt_plan',
+  onboarded:    'wt_onboarded',
+  chadProfile:  'wt_chad_profile',
+  chadBlocks:   'wt_chad_blocks',
+  chadPins:     'wt_chad_pins',
+  chadMessages: 'wt_chad_messages',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -916,6 +920,11 @@ const state = {
   viewDate: null,
   pickerContext: 'log',
   planPickerDow: null,
+  chadProfile:  null,
+  chadBlocks:   [],
+  chadPins:     [],
+  chadMessages: [],
+  chadOpen:     false,
 };
 
 function loadState() {
@@ -928,6 +937,10 @@ function loadState() {
   state.onboarded = localStorage.getItem(K.onboarded) === '1';
   state.key         = localStorage.getItem(K.key) || '';
   state.currentType = localStorage.getItem(K.lastType) || 'strength';
+  try { state.chadProfile  = JSON.parse(localStorage.getItem(K.chadProfile)  || 'null'); } catch { state.chadProfile = null; }
+  try { state.chadBlocks   = JSON.parse(localStorage.getItem(K.chadBlocks)   || '[]');  } catch { state.chadBlocks = []; }
+  try { state.chadPins     = JSON.parse(localStorage.getItem(K.chadPins)     || '[]');  } catch { state.chadPins = []; }
+  try { state.chadMessages = JSON.parse(localStorage.getItem(K.chadMessages) || '[]');  } catch { state.chadMessages = []; }
   state.viewWeek    = isoWeekKey(new Date());
   state.viewDate = iso();
 }
@@ -937,6 +950,7 @@ function persist(keys) {
     if (!key) return;
     if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
     else if (k === 'onboarded') localStorage.setItem(key, state.onboarded ? '1' : '');
+    else if (k === 'chadProfile') localStorage.setItem(key, JSON.stringify(state.chadProfile ?? null));
     else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' || k === 'plan' ? {} : [])));
   });
 }
