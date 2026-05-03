@@ -2892,7 +2892,7 @@ async function fetchStretches(workout) {
 
   const system = `${buildAthleteContext()}
 
-You recommend post-session stretches. Target the exact muscles just worked, including prime movers, antagonists, and commonly-tight regions relevant to the session. Reference the specific exercises logged. Consider how the stretches support his downstream training (running mechanics, sub-1:30 HM pacing).
+You recommend post-session stretches. Target the exact muscles just worked, including prime movers, antagonists, and commonly-tight regions relevant to the session. Reference the specific exercises logged. Consider how the stretches support the athlete's downstream training and recovery.
 
 Output ONLY valid JSON, no markdown, no preamble:
 {
@@ -3003,9 +3003,9 @@ You write a tight, actionable weekly review. Be concrete and specific — refere
 
 Structure the response in short, scannable paragraphs:
 
-**Volume & intensity** — what the week actually looked like vs. where it should be for his goals.
+**Volume & intensity** — what the week actually looked like vs. where it should be for the athlete's goals.
 **Recovery signals** — RPE + feel patterns, consecutive hard days, forced rest.
-**Running observations** — mileage and pace trends vs. a sub-1:30 HM (target pace 4:16/km).
+**Running observations** — mileage and pace trends vs. goal pace.
 **Next week priority** — one or two specific things to adjust, with reasoning.
 **Red flags** — anything worth watching (high RPE + low feel, too little running, weak areas). Omit if nothing stands out.
 
