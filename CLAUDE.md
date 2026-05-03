@@ -66,9 +66,18 @@ The exercise picker is a reusable bottom sheet (`#picker-sheet`) with a `state.p
 
 `showTab(name)` is the single nav function — it shows the matching `.screen` element and marks the active tab button. Tabs: `today`, `plan`, `prs`.
 
-### AI coach
+### AI coach — Chad
 
-Uses the Anthropic API (Claude Haiku, `MODEL` constant) with a hardcoded `ATHLETE_CONTEXT` describing the user. The API key is stored in `state.key` / `localStorage`. Features that call the API: post-session stretches (`fetchStretches`). All AI calls are optional — the app works fully without a key.
+Chad is a persistent AI training assistant (floating bottom-sheet chat). Key functions:
+- `openChad()` / `closeChad()` — open/close the sheet
+- `buildAthleteContext()` — builds the athlete profile string from `state.chadProfile` + `state.chadPins`
+- `buildChadSystemPrompt()` — full system prompt for Chad, instructs JSON-only responses
+- `callChadAPI()` — multi-turn Anthropic API call using `state.chadMessages` as history
+- `sendChadMessage(text)` — adds user message, calls API, handles plan proposals
+- `chadStartSetup()` / `chadHandleSetupResponse()` — first-open conversational profile collection
+- `renderChadPlanCard(m)` / `window.applyChadPlan(encoded, ts)` — plan proposal cards in chat
+
+`state.chadProfile` replaces the old hardcoded `ATHLETE_CONTEXT`. `fetchStretches` uses `buildAthleteContext()` for its system prompt. All AI calls are optional — the app works fully without a key.
 
 ### CSS conventions
 

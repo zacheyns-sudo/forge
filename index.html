@@ -1072,8 +1072,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 const MODEL = 'claude-haiku-4-5-20251001';
 
-const ATHLETE_CONTEXT = `You are a sports performance coach for a 20-year-old male athlete, 6'3" tall, training for a sub-1:30 half marathon while building general strength. His goals are: (1) run a sub-1:30 half marathon, (2) build functional strength. All recommendations must be specific to his context — never generic. Reference the actual exercises, loads, distances, and paces he logs. Consider how his strength work supports his running and vice versa.`;
-
 const LIFT_LIBRARY = [
   'Back Squat','Front Squat','Deadlift','Romanian Deadlift','Trap Bar Deadlift',
   'Bench Press','Incline Bench Press','Close-Grip Bench','Overhead Press','Push Press',
@@ -2892,7 +2890,7 @@ async function fetchStretches(workout) {
     return `- ${ex.name}: ${setsStr}`;
   }).join('\n');
 
-  const system = `${ATHLETE_CONTEXT}
+  const system = `${buildAthleteContext()}
 
 You recommend post-session stretches. Target the exact muscles just worked, including prime movers, antagonists, and commonly-tight regions relevant to the session. Reference the specific exercises logged. Consider how the stretches support his downstream training (running mechanics, sub-1:30 HM pacing).
 
@@ -2999,7 +2997,7 @@ async function getWeeklyFeedback(weekKey, workouts, stats) {
     return p.date >= iso(r.monday) && p.date <= iso(r.sunday);
   }).map(p => `  ${fmtShort(p.date)}: ${p.kg}kg`).join('\n');
 
-  const system = `${ATHLETE_CONTEXT}
+  const system = `${buildAthleteContext()}
 
 You write a tight, actionable weekly review. Be concrete and specific — reference his actual logged sessions, loads, paces, and RPE signals. Keep it calm and direct, not cheerleader-y.
 
