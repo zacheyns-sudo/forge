@@ -1782,6 +1782,72 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
       renderChadMessages();
     }
 
+    // ── Plan proposals ───────────────────────────────────────────────────────────
+
+    function renderChadPlanCard(m) {
+      const days = m.planProposal; // e.g. { "1": {type:'strength', exercises:[...]}, "3": {type:'rest'} }
+      const DOW_ABBR = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const TYPE_ABBR = { strength: 'Str', run: 'Run', rest: 'Rest', other: 'Othr' };
+
+      const grid = [1, 2, 3, 4, 5, 6, 0].map(dow => {
+        const existing = state.plan[dow] || { type: 'rest' };
+        const proposed = days[String(dow)] || days[dow];
+        const d = proposed || existing;
+        const isProposed = !!proposed;
+        return `<div class="chad-plan-day">
+          <div class="cpd-label">${DOW_ABBR[dow]}</div>
+          <div class="cpd-type ${d.type}${isProposed ? ' proposed' : ''}">${TYPE_ABBR[d.type] || d.type}</div>
+        </div>`;
+      }).join('');
+
+      const encoded = encodeURIComponent(JSON.stringify(days));
+      const actions = m.applied
+        ? `<div class="chad-plan-applied">✓ Applied</div>`
+        : `<div class="chad-plan-actions">
+            <button class="btn btn-sm" onclick="applyChadPlan('${encoded}')">Apply Plan</button>
+            <button class="btn btn-ghost btn-sm" onclick="this.closest('.chad-plan-card').style.opacity='0.4';this.parentElement.innerHTML='<span style=\\'font-size:12px;color:var(--muted)\\'>Dismissed</span>'">Dismiss</button>
+          </div>`;
+
+      return `<div class="chad-plan-card">
+        <p>${esc(m.content)}</p>
+        <div class="chad-plan-grid">${grid}</div>
+        ${actions}
+      </div>`;
+    }
+
+    window.applyChadPlan = function(encoded) {
+      try {
+        const days = JSON.parse(decodeURIComponent(encoded));
+        // Merge proposed days into existing plan
+        Object.keys(days).forEach(dow => {
+          state.plan[dow] = days[dow];
+        });
+        persist(['plan']);
+
+        // Mark this message as applied so re-renders show ✓ Applied
+        const msgIdx = state.chadMessages.findIndex(m =>
+          m.planProposal && JSON.stringify(m.planProposal) === JSON.stringify(days)
+        );
+        if (msgIdx >= 0) {
+          state.chadMessages[msgIdx].applied = true;
+          persist(['chadMessages']);
+        }
+
+        // Follow-up from Chad
+        state.chadMessages.push({
+          role: 'assistant',
+          content: "Done — plan updated. Good luck this week! 💪",
+          timestamp: Date.now(),
+        });
+        persist(['chadMessages']);
+        renderChadMessages();
+        renderPlanScreen();
+        renderTodayScreen();
+      } catch {
+        toast('Failed to apply plan');
+      }
+    };
+
     // ═══════════════════════════════════════════════════════════════════════════
     // PLAN SCREEN
     // ═══════════════════════════════════════════════════════════════════════════
