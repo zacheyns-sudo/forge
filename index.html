@@ -9,36 +9,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" id="theme-color-meta" content="#f7f3ed">
+<meta name="theme-color" id="theme-color-meta" content="#fdf8f0">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon.svg">
 <title>Forge</title>
 <style>
 :root {
-  /* Light — Warm Cream */
-  --bg: #f7f3ed;
-  --surface: #fefcf8;
-  --surface-2: #f0ebe3;
-  --surface-3: #e6dfd5;
-  --border: #ddd6cc;
-  --border-2: #bfb5a8;
-  --text: #1c1814;
-  --muted: #857970;
-  --muted-2: #b0a89e;
-  --accent: #3d6b52;
-  --accent-dim: rgba(61,107,82,0.12);
+  /* Light — Sand + Deep Red */
+  --bg: #fdf8f0;
+  --surface: #fffdf9;
+  --surface-2: #f5ede0;
+  --surface-3: #ede3d2;
+  --border: #e8dece;
+  --border-2: #d4c4aa;
+  --text: #1c1208;
+  --muted: #a0906e;
+  --muted-2: #c8b89a;
+  --accent: #991b1b;
+  --accent-dim: rgba(153, 27, 27, 0.10);
   --red: #b91c1c;
   --amber: #b45309;
   --blue: #1d4ed8;
   --success: #166534;
-  --topbar-bg: #f7f3ed;
-  --nav-bg: rgba(247,243,237,0.94);
-  --bg-fade: rgba(247,243,237,0);
+  --topbar-bg: #fdf8f0;
+  --nav-bg: rgba(253, 248, 240, 0.94);
+  --bg-fade: rgba(253, 248, 240, 0);
   --err-tint: #fde8e8;
-  --backdrop: rgba(0,0,0,0.4);
-  --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.1);
-  --nav-h: 68px;
+  --backdrop: rgba(0, 0, 0, 0.4);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.1);
   --top-h: 52px;
+  --pill-h: 52px;
   --sa-bot: env(safe-area-inset-bottom, 0px);
   --sa-top: env(safe-area-inset-top, 0px);
 }
@@ -64,6 +64,7 @@ html.dark {
   --err-tint: rgba(248,113,113,0.14);
   --backdrop: rgba(0,0,0,0.65);
   --shadow-sheet: 0 -8px 40px rgba(0,0,0,0.55);
+  --accent-dim: rgba(153, 27, 27, 0.22);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -77,8 +78,8 @@ html, body {
 }
 body {
   min-height: 100vh; min-height: 100dvh;
-  padding-top: calc(var(--top-h) + var(--sa-top));
-  padding-bottom: calc(var(--nav-h) + var(--sa-bot));
+  padding-top: calc(var(--top-h) + var(--sa-top) + var(--pill-h));
+  padding-bottom: var(--sa-bot);
 }
 button { font-family: inherit; }
 input, select, textarea { font-family: inherit; font-size: 16px; }
@@ -103,25 +104,40 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 }
 .icon-btn:active { background: var(--surface-2); }
 
-/* ── Bottom nav ──────────────────────────────────────────────────────────── */
-#bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-  height: calc(var(--nav-h) + var(--sa-bot));
-  padding-bottom: var(--sa-bot);
-  background: var(--nav-bg);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid var(--border);
-  display: grid; grid-template-columns: repeat(4, 1fr);
-}
-#bottom-nav button {
-  background: none; border: none; color: var(--muted);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; padding: 6px; cursor: pointer;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.01em;
-  transition: color 0.12s;
-}
-#bottom-nav button .nav-icon { font-size: 20px; }
-#bottom-nav button.active { color: var(--accent); }
+    /* ── Top pill nav ────────────────────────────────────────────────────────── */
+    #top-nav {
+      position: fixed;
+      top: calc(var(--top-h) + var(--sa-top));
+      left: 0;
+      right: 0;
+      z-index: 39;
+      padding: 8px 16px;
+      display: flex;
+      gap: 6px;
+      background: var(--topbar-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    #top-nav button {
+      flex: 1;
+      padding: 7px 0;
+      border: none;
+      border-radius: 20px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    #top-nav button.active {
+      background: var(--accent);
+      color: #fff;
+    }
 
 /* ── Screens ─────────────────────────────────────────────────────────────── */
 .screen { display: none; padding: 16px 16px 24px; max-width: 680px; margin: 0 auto; }
@@ -196,25 +212,6 @@ html.dark .pill.blue { background: rgba(96,165,250,0.18); }
 .pill.muted { background: var(--surface-2); color: var(--muted); }
 
 /* ── Workout type selector ───────────────────────────────────────────────── */
-.type-selector {
-  display: flex; gap: 8px;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; margin: 0 -16px 16px; padding: 4px 16px 8px;
-}
-.type-selector::-webkit-scrollbar { display: none; }
-.type-btn {
-  flex: 0 0 auto;
-  background: var(--surface); color: var(--text);
-  border: 1px solid var(--border); border-radius: 14px;
-  padding: 14px 16px; min-width: 86px;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  cursor: pointer;
-}
-.type-btn .type-icon { font-size: 24px; line-height: 1; }
-.type-btn .type-label { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
-.type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-.type-btn.active .type-label { font-weight: 800; }
-
 /* ── Exercise list ───────────────────────────────────────────────────────── */
 .exercise {
   background: var(--surface);
@@ -332,22 +329,6 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 .session-ex-row:last-child { border-bottom: none; }
 .session-ex-row .ex-name { color: var(--text); font-weight: 600; }
 .session-ex-row .ex-data { color: var(--muted); text-align: right; }
-
-/* ── Week ────────────────────────────────────────────────────────────────── */
-.week-nav {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 14px;
-}
-.week-nav button {
-  background: var(--surface-2); border: 1px solid var(--border);
-  width: 38px; height: 38px; border-radius: 10px;
-  color: var(--text); font-size: 16px; cursor: pointer;
-}
-.week-label { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
-.week-range { font-size: 11px; color: var(--muted); font-weight: 600; }
-
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.stats-grid .card { margin: 0; }
 
 #spark {
   width: 100%; height: 50px; display: block;
@@ -505,43 +486,243 @@ html.dark .spinner { border-color: rgba(255,255,255,0.12); border-top-color: var
 .text-center { text-align: center; }
 hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
+    /* ── Plan screen ─────────────────────────────────────────────────────────── */
+    .plan-dow-strip {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .plan-dow-btn {
+      flex: 0 0 auto;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .plan-dow-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .plan-type-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .plan-type-btn {
+      padding: 10px 4px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .plan-type-btn.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .plan-ex-list {
+      margin-bottom: 12px;
+    }
+
+    .plan-ex-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .plan-ex-item:last-child {
+      border-bottom: none;
+    }
+
+    .plan-ex-remove {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    /* ── Today screen ────────────────────────────────────────────────────────── */
+    .day-strip {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      margin: 0 -16px 16px;
+      padding: 10px 16px 12px;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .day-strip::-webkit-scrollbar { display: none; }
+
+    .day-cell {
+      flex: 0 0 auto;
+      width: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px 2px;
+      border-radius: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .day-cell:active { background: var(--surface-2); }
+
+    .day-cell .dc-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .day-cell .dc-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .day-cell.today .dc-label {
+      color: var(--accent);
+      font-size: 9px;
+    }
+
+    .day-cell.today .dc-num {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .day-cell.selected:not(.today) .dc-num {
+      background: var(--surface-3);
+    }
+
+    .day-cell .dc-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: transparent;
+    }
+
+    .day-cell .dc-dot.logged { background: var(--accent); }
+    .day-cell .dc-dot.planned { background: var(--border-2); }
+
+    .day-content-area {
+      padding: 0 0 24px;
+    }
+
+    .today-workout-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+    }
+
+    .today-workout-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .today-ex-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .today-ex-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .today-empty {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--muted);
+    }
+
+    .today-empty .big { font-size: 40px; margin-bottom: 8px; }
+
+    .today-secondary-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+      display: block;
+      margin-top: 4px;
+    }
 
 </style>
 </head>
 <body>
 
 <header id="top-bar">
-  <h1 id="screen-title">Log</h1>
+  <h1 id="screen-title">Today</h1>
   <div class="top-actions">
     <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" onclick="toggleTheme()">☀</button>
     <button class="icon-btn" id="settings-btn" aria-label="Settings" style="font-size:13px;font-weight:600;letter-spacing:0.02em">Settings</button>
   </div>
 </header>
 
-<!-- ══ LOG SCREEN ══════════════════════════════════════════════════════════ -->
-<section id="screen-log" class="screen active">
-  <div class="type-selector" id="type-selector"></div>
-  <div id="log-form"></div>
-</section>
+  <nav id="top-nav">
+    <button data-tab="today" class="active">Today</button>
+    <button data-tab="plan">Plan</button>
+    <button data-tab="prs">PRs</button>
+  </nav>
 
-<!-- ══ HISTORY SCREEN ══════════════════════════════════════════════════════ -->
-<section id="screen-history" class="screen">
-  <h2>History</h2>
-  <div id="history-list"></div>
-</section>
+  <!-- ══ TODAY SCREEN ═══════════════════════════════════════════════════════ -->
+  <section id="screen-today" class="screen active">
+    <div id="day-strip-wrap"></div>
+    <div id="day-content"></div>
+  </section>
 
-<!-- ══ WEEK SCREEN ═════════════════════════════════════════════════════════ -->
-<section id="screen-week" class="screen">
-  <div class="week-nav">
-    <button id="week-prev" aria-label="Previous week">◂</button>
-    <div style="text-align:center">
-      <div class="week-label" id="week-label">This Week</div>
-      <div class="week-range" id="week-range"></div>
-    </div>
-    <button id="week-next" aria-label="Next week">▸</button>
-  </div>
-  <div id="week-body"></div>
-</section>
+  <!-- ══ PLAN SCREEN ════════════════════════════════════════════════════════ -->
+  <section id="screen-plan" class="screen">
+    <div id="plan-body"></div>
+  </section>
 
 <!-- ══ PRS SCREEN ══════════════════════════════════════════════════════════ -->
 <section id="screen-prs" class="screen">
@@ -553,30 +734,30 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   <div id="pr-list"></div>
 </section>
 
-<!-- ══ BOTTOM NAV ══════════════════════════════════════════════════════════ -->
-<nav id="bottom-nav">
-  <button data-tab="log" class="active"><span class="nav-icon">＋</span><span>Log</span></button>
-  <button data-tab="history"><span class="nav-icon">≡</span><span>History</span></button>
-  <button data-tab="week"><span class="nav-icon">◔</span><span>Week</span></button>
-  <button data-tab="prs"><span class="nav-icon">★</span><span>PRs</span></button>
-</nav>
-
 <!-- ══ OVERLAYS ════════════════════════════════════════════════════════════ -->
 
 <!-- Onboarding -->
 <div id="onboarding" class="overlay hidden">
-  <div class="overlay-panel">
-    <div class="logo">🔥</div>
-    <h3>Forge</h3>
-    <p>Workout tracker for lifting, running, and everything in between.</p>
-    <label for="onboard-key">Anthropic API Key</label>
-    <input type="password" id="onboard-key" placeholder="sk-ant-...">
-    <div class="spacer-md"></div>
-    <button class="btn" id="onboard-save">Start Training</button>
-    <div class="spacer-sm"></div>
-    <button class="btn btn-ghost" id="onboard-skip">Skip for now</button>
-    <div class="spacer-sm"></div>
-    <p class="text-sm" style="margin:6px 0 0">Stored only on this device. AI features need it; logging works without.</p>
+  <div class="overlay-panel" style="max-width:400px">
+    <div id="setup-welcome" class="">
+      <div class="logo" style="font-size:36px;text-align:center;margin-bottom:8px">🔥</div>
+      <h3 style="text-align:center;margin-bottom:8px">Welcome to Forge</h3>
+      <p style="text-align:center;color:var(--muted);margin-bottom:24px">Let's set up your training week. You can always change this later in Plan.</p>
+      <button class="btn" id="setup-start">Get Started</button>
+      <div class="spacer-sm"></div>
+      <button class="btn btn-ghost" id="setup-skip">Skip for now</button>
+    </div>
+    <div id="setup-step" class="hidden">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px" id="setup-step-label">Day 1 of 7</div>
+      <h3 style="margin:0 0 16px" id="setup-step-day">Monday</h3>
+      <div class="plan-type-row" id="setup-type-row"></div>
+      <div id="setup-detail"></div>
+      <div class="spacer-md"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="setup-prev" style="flex:0 0 auto;width:44px">‹</button>
+        <button class="btn" id="setup-next" style="flex:1">Next →</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -612,6 +793,18 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     <button class="btn btn-ghost" id="confirm-no">Cancel</button>
   </div>
 </div>
+
+<!-- ══ LOG SHEET ═════════════════════════════════════════════════════════ -->
+  <div id="log-backdrop" class="sheet-backdrop"></div>
+  <div id="log-sheet" class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 id="log-sheet-title" style="margin:0">Log Workout</h3>
+      <button class="icon-btn" onclick="closeLogSheet()" aria-label="Close">✕</button>
+    </div>
+    <div id="sheet-type-selector" style="display:none"></div>
+    <div id="sheet-form"></div>
+  </div>
 
 <!-- Exercise picker -->
 <div id="picker-backdrop" class="sheet-backdrop"></div>
@@ -688,7 +881,7 @@ const TYPES = [
   { key: 'rest',     label: 'Rest',   icon: '😴' },
 ];
 
-const RUN_TYPES = ['Easy', 'Tempo', 'Intervals', 'Long Run'];
+const RUN_TYPES = ['Easy Run', 'Hard Run', 'Long Run'];
 
 // Storage keys
 const K = {
@@ -699,6 +892,8 @@ const K = {
   key:       'wt_key',
   custom:    'wt_custom_lifts',
   lastType:  'wt_last_type',
+  plan:      'wt_plan',
+  onboarded: 'wt_onboarded',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -716,6 +911,11 @@ const state = {
   viewWeek: null,   // ISO week key 'YYYY-WW'
   prCat:    'Lifts',
   wip:      null,   // in-progress workout object
+  plan:     {},
+  onboarded: false,
+  viewDate: null,
+  pickerContext: 'log',
+  planPickerDow: null,
 };
 
 function loadState() {
@@ -724,16 +924,20 @@ function loadState() {
   try { state.weekly   = JSON.parse(localStorage.getItem(K.weekly)   || '{}'); } catch { state.weekly = {}; }
   try { state.weight   = JSON.parse(localStorage.getItem(K.weight)   || '[]'); } catch { state.weight = []; }
   try { state.custom   = JSON.parse(localStorage.getItem(K.custom)   || '[]'); } catch { state.custom = []; }
+  try { const v = JSON.parse(localStorage.getItem(K.plan) || '{}'); state.plan = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch { state.plan = {}; }
+  state.onboarded = localStorage.getItem(K.onboarded) === '1';
   state.key         = localStorage.getItem(K.key) || '';
   state.currentType = localStorage.getItem(K.lastType) || 'strength';
   state.viewWeek    = isoWeekKey(new Date());
+  state.viewDate = iso();
 }
 function persist(keys) {
   (keys || Object.keys(K)).forEach(k => {
     const key = K[k];
     if (!key) return;
     if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
-    else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' ? {} : [])));
+    else if (k === 'onboarded') localStorage.setItem(key, state.onboarded ? '1' : '');
+    else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' || k === 'plan' ? {} : [])));
   });
 }
 
@@ -750,14 +954,14 @@ function initTheme() {
   const saved = localStorage.getItem('theme');
   const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.classList.toggle('dark', dark);
-  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f7f3ed';
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#fdf8f0';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 }
 window.toggleTheme = function() {
   const dark = !document.documentElement.classList.contains('dark');
   document.documentElement.classList.toggle('dark', dark);
   localStorage.setItem('theme', dark ? 'dark' : 'light');
-  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#f7f3ed';
+  document.getElementById('theme-color-meta').content = dark ? '#131110' : '#fdf8f0';
   document.getElementById('theme-btn').textContent = dark ? '☽' : '☀';
 };
 
@@ -842,43 +1046,351 @@ function toast(msg, opts = {}) {
 // TABS / NAV
 // ═══════════════════════════════════════════════════════════════════════════
 
-function showTab(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
-  document.querySelectorAll('#bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  $('#screen-title').textContent = { log: 'Log', history: 'History', week: 'Week', prs: 'PRs' }[name];
-  if (name === 'history') renderHistory();
-  if (name === 'week') renderWeek();
-  if (name === 'prs') renderPRs();
-}
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TODAY SCREEN
+    // ═══════════════════════════════════════════════════════════════════════════
 
-document.querySelectorAll('#bottom-nav button').forEach(b => {
-  b.addEventListener('click', () => showTab(b.dataset.tab));
-});
+    function renderTodayScreen() {
+      const stripEl = $('#day-strip-wrap');
+      const contentEl = $('#day-content');
+      if (!stripEl || !contentEl) return;
+      if (!state.viewDate) state.viewDate = iso();
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LOG SCREEN — workout type selector
-// ═══════════════════════════════════════════════════════════════════════════
+      stripEl.innerHTML = renderDayStrip();
+      contentEl.innerHTML = renderDayContent(state.viewDate);
 
-function renderTypeSelector() {
-  const wrap = $('#type-selector');
-  wrap.innerHTML = TYPES.map(t => `
-    <button class="type-btn${state.currentType === t.key ? ' active' : ''}" data-type="${t.key}">
-      <span class="type-icon">${t.icon}</span>
-      <span class="type-label">${t.label}</span>
-    </button>
-  `).join('');
-  wrap.querySelectorAll('.type-btn').forEach(b => {
-    b.addEventListener('click', () => setType(b.dataset.type));
-  });
-}
+      const selected = stripEl.querySelector('.day-cell.selected');
+      if (selected) selected.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }
 
-function setType(type) {
-  state.currentType = type;
-  persist(['lastType']);
-  state.wip = null; // clear in-progress on type change
-  renderTypeSelector();
-  renderLogForm();
-}
+    window.setViewDate = function(dateStr) {
+      state.viewDate = dateStr;
+      const today = iso();
+      $('#screen-title').textContent = dateStr === today ? 'Today' : fmtShort(dateStr);
+      renderTodayScreen();
+    };
+
+    function renderDayStrip() {
+      const today = iso();
+      const days = [];
+      for (let i = -14; i <= 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        days.push(iso(d));
+      }
+
+      return `<div class="day-strip">${days.map(dateStr => {
+        const d = new Date(dateStr + 'T00:00:00');
+        const isToday = dateStr === today;
+        const isSelected = dateStr === state.viewDate;
+        const logged = state.workouts.some(w => w.date === dateStr);
+        const dow = d.getDay();
+        const planned = state.plan[dow] && state.plan[dow].type !== 'rest';
+        const dayLabel = isToday ? 'TODAY' : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow];
+        const dotClass = logged ? 'logged' : (planned ? 'planned' : '');
+        const cellClass = ['day-cell', isToday ? 'today' : '', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
+        return `
+          <div class="${cellClass}" onclick="setViewDate('${dateStr}')">
+            <div class="dc-label">${dayLabel}</div>
+            <div class="dc-num">${d.getDate()}</div>
+            <div class="dc-dot ${dotClass}"></div>
+          </div>
+        `;
+      }).join('')}</div>`;
+    }
+
+    function renderDayContent(dateStr) {
+      const today = iso();
+      const d = new Date(dateStr + 'T00:00:00');
+      const dow = d.getDay();
+      const planDay = state.plan[dow];
+      const logged = state.workouts.filter(w => w.date === dateStr);
+      const isFuture = dateStr > today;
+      const isPast = dateStr < today;
+      const isToday = dateStr === today;
+
+      if (logged.length) {
+        const w = logged[0];
+        return `
+          <div class="day-content-area">
+            <div class="today-workout-name">${esc(TYPES.find(t => t.key === w.type)?.label || w.type)}</div>
+            <div class="today-workout-meta">${fmtDay(dateStr)}</div>
+            <div class="card">${renderSessionCard(w).replace('<div class="session"', '<div class="session expanded"')}</div>
+            ${isToday ? `<button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">+ Log another session</button>` : ''}
+          </div>
+        `;
+      }
+
+      if (isFuture) {
+        if (!planDay || planDay.type === 'rest') {
+          return `<div class="today-empty"><div class="big">😴</div><div>Rest day planned</div></div>`;
+        }
+        return renderPlannedDayView(dateStr, planDay, false);
+      }
+
+      if (isToday) {
+        if (!planDay) {
+          return `
+            <div class="today-empty">
+              <div class="big">📋</div>
+              <div style="font-weight:700;margin-bottom:8px">No plan set for today</div>
+              <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Set up your weekly schedule in the Plan tab.</div>
+              <button class="btn" onclick="showTab('plan')">Go to Plan</button>
+              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
+            </div>
+          `;
+        }
+        if (planDay.type === 'rest') {
+          return `
+            <div class="today-empty">
+              <div class="big">😴</div>
+              <div style="font-weight:700;margin-bottom:8px">Rest day</div>
+              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
+            </div>
+          `;
+        }
+        return renderPlannedDayView(dateStr, planDay, true);
+      }
+
+      if (isPast) {
+        if (!planDay || planDay.type === 'rest') {
+          return `<div class="today-empty"><div class="big">—</div><div style="color:var(--muted)">Nothing planned</div></div>`;
+        }
+        return `
+          <div class="day-content-area">
+            ${renderPlannedDayView(dateStr, planDay, false)}
+            <p style="color:var(--muted);font-size:13px;text-align:center;margin-top:8px">Not logged</p>
+            <button class="today-secondary-link" style="text-align:center" onclick="openLogSheet('${dateStr}', true)">Log it late</button>
+          </div>
+        `;
+      }
+
+      return '';
+    }
+
+    function renderPlannedDayView(dateStr, planDay, showStart) {
+      const typeLabel = { strength: 'Strength', run: 'Run', other: 'Other', rest: 'Rest' }[planDay.type] || planDay.type;
+      let detailHtml = '';
+
+      if (planDay.type === 'strength') {
+        const exes = planDay.exercises || [];
+        detailHtml = exes.length
+          ? `<div class="today-ex-preview">${exes.map(n => `<span class="today-ex-chip">${esc(n)}</span>`).join('')}</div>`
+          : `<p style="color:var(--muted);font-size:13px">No exercises set — tap Start to add them.</p>`;
+      } else if (planDay.type === 'run') {
+        const runType = planDay.runType || 'Easy Run';
+        const dist = planDay.targetDistance ? ` · ${planDay.targetDistance}km target` : '';
+        detailHtml = `<div class="today-workout-meta">${esc(runType)}${dist}</div>`;
+      }
+
+      const startBtn = showStart
+        ? `<button class="btn" onclick="openLogSheet('${dateStr}', true)">Start Workout</button>`
+        : '';
+
+      return `
+        <div class="day-content-area">
+          <div class="today-workout-name">${typeLabel}</div>
+          <div class="today-workout-meta">${fmtDay(dateStr)}</div>
+          ${detailHtml}
+          ${startBtn}
+        </div>
+      `;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LOG SHEET
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function openLogSheet(dateStr, fromPlan) {
+      if ($('#log-sheet').classList.contains('open')) return;
+      const d = new Date(dateStr + 'T00:00:00');
+      const dow = d.getDay();
+      const planDay = state.plan[dow];
+
+      if (fromPlan && planDay && planDay.type !== 'rest') {
+        state.currentType = planDay.type;
+        state.wip = initWIP();
+        state.wip.date = dateStr;
+        state.wip.timestamp = new Date(dateStr + 'T00:00:00').getTime();
+        if (planDay.type === 'strength' && planDay.exercises && planDay.exercises.length) {
+          state.wip.exercises = planDay.exercises.map(name => ({
+            name,
+            sets: [{ weight: '', reps: '' }],
+          }));
+        }
+        if (planDay.type === 'run' && planDay.runType) {
+          state.wip.runType = planDay.runType;
+        }
+        $('#sheet-type-selector').style.display = 'none';
+        $('#log-sheet-title').textContent = fmtShort(dateStr);
+      } else {
+        state.currentType = 'strength';
+        state.wip = initWIP();
+        state.wip.date = dateStr;
+        state.wip.timestamp = new Date(dateStr + 'T00:00:00').getTime();
+        const sel = $('#sheet-type-selector');
+        sel.style.display = 'block';
+        sel.innerHTML = TYPES.filter(t => t.key !== 'rest').map(t => `
+          <button class="type-btn${state.currentType === t.key ? ' active' : ''}" data-type="${t.key}" onclick="setSheetType('${t.key}')">
+            <span class="type-icon">${t.icon}</span>
+            <span class="type-label">${t.label}</span>
+          </button>
+        `).join('');
+        $('#log-sheet-title').textContent = 'Log Workout';
+      }
+
+      renderLogForm($('#sheet-form'));
+      $('#log-backdrop').classList.add('open');
+      $('#log-sheet').classList.add('open');
+    }
+
+    window.setSheetType = function(type) {
+      state.currentType = type;
+      state.wip = initWIP();
+      state.wip.date = state.viewDate || iso();
+      const sel = $('#sheet-type-selector');
+      if (sel) {
+        sel.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+      }
+      renderLogForm($('#sheet-form'));
+    };
+
+    function closeLogSheet() {
+      $('#log-backdrop').classList.remove('open');
+      $('#log-sheet').classList.remove('open');
+      state.wip = null;
+      renderTodayScreen();
+      const today = iso();
+      $('#screen-title').textContent = (state.viewDate === today) ? 'Today' : fmtShort(state.viewDate);
+    }
+
+    $('#log-backdrop').addEventListener('click', closeLogSheet);
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PLAN SCREEN
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    const DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let planViewDow = 1; // default to Monday
+
+    function renderPlanScreen() {
+      const el = $('#plan-body');
+      if (!el) return;
+      el.innerHTML = `
+        <h2>Weekly Plan</h2>
+        <div class="plan-dow-strip">
+          ${DOW_LABELS.map((label, dow) => `
+            <button class="plan-dow-btn${planViewDow === dow ? ' active' : ''}"
+              onclick="setPlanDow(${dow})">${label}</button>
+          `).join('')}
+        </div>
+        <div id="plan-day-editor"></div>
+      `;
+      renderPlanDayEditor(planViewDow);
+    }
+
+    window.setPlanDow = function(dow) {
+      planViewDow = dow;
+      renderPlanScreen();
+    };
+
+    function renderPlanDayEditor(dow) {
+      const el = $('#plan-day-editor');
+      if (!el) return;
+      const day = state.plan[dow] || { type: 'rest' };
+      const types = [
+        { key: 'strength', label: 'Strength' },
+        { key: 'run', label: 'Run' },
+        { key: 'rest', label: 'Rest' },
+        { key: 'other', label: 'Other' },
+      ];
+
+      let detailHtml = '';
+      if (day.type === 'strength') {
+        const exes = day.exercises || [];
+        detailHtml = `
+          <div class="card">
+            <label>Exercises</label>
+            <div class="plan-ex-list">
+              ${exes.length
+                ? exes.map((name, idx) => `
+                    <div class="plan-ex-item">
+                      <span>${esc(name)}</span>
+                      <button class="plan-ex-remove" onclick="removeExerciseFromPlan(${dow}, ${idx})">✕</button>
+                    </div>`).join('')
+                : `<div style="color:var(--muted);font-size:13px;padding:8px 0">No exercises yet.</div>`}
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="openPicker('plan', ${dow})" style="width:100%">＋ Add Exercise</button>
+          </div>
+        `;
+      } else if (day.type === 'run') {
+        const runType = day.runType || 'Easy Run';
+        detailHtml = `
+          <div class="card">
+            <label>Run Type</label>
+            <div class="segmented" style="margin-bottom:14px">
+              ${RUN_TYPES.map(t => `<button data-rt="${t}" class="${runType === t ? 'active' : ''}" onclick="savePlanDay(${dow},'runType','${t}')">${t}</button>`).join('')}
+            </div>
+            <label>Target Distance (km, optional)</label>
+            <input type="number" inputmode="decimal" step="0.1" placeholder="e.g. 10"
+              value="${esc(day.targetDistance || '')}"
+              onchange="savePlanDay(${dow},'targetDistance',this.value ? parseFloat(this.value) : null)">
+          </div>
+        `;
+      } else if (day.type === 'other' || day.type === 'rest') {
+        detailHtml = `
+          <div class="card">
+            <label>Notes (optional)</label>
+            <textarea placeholder="Any notes for this day…" onchange="savePlanDay(${dow},'notes',this.value)">${esc(day.notes || '')}</textarea>
+          </div>
+        `;
+      }
+
+      el.innerHTML = `
+        <div class="plan-type-row">
+          ${types.map(t => `
+            <button class="plan-type-btn${day.type === t.key ? ' active' : ''}"
+              onclick="savePlanDay(${dow},'type','${t.key}')">${t.label}</button>
+          `).join('')}
+        </div>
+        ${detailHtml}
+      `;
+    }
+
+    window.savePlanDay = function(dow, field, value) {
+      if (!state.plan[dow]) state.plan[dow] = { type: 'rest' };
+      if (field === 'type' && value !== state.plan[dow].type) {
+        state.plan[dow] = { type: value };
+        if (value === 'strength') state.plan[dow].exercises = [];
+        if (value === 'run') { state.plan[dow].runType = 'Easy Run'; state.plan[dow].targetDistance = null; }
+      } else {
+        state.plan[dow][field] = value;
+      }
+      persist(['plan']);
+      renderPlanDayEditor(dow);
+    };
+
+    window.removeExerciseFromPlan = function(dow, idx) {
+      if (!state.plan[dow] || !state.plan[dow].exercises) return;
+      state.plan[dow].exercises.splice(idx, 1);
+      persist(['plan']);
+      renderPlanDayEditor(dow);
+    };
+
+    function showTab(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+      document.querySelectorAll('#top-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+      const titles = { today: 'Today', plan: 'Plan', prs: 'PRs' };
+      $('#screen-title').textContent = titles[name] || name;
+      if (name === 'today') renderTodayScreen();
+      if (name === 'plan') renderPlanScreen();
+      if (name === 'prs') renderPRs();
+    }
+
+    document.querySelectorAll('#top-nav button').forEach(b => {
+      b.addEventListener('click', () => showTab(b.dataset.tab));
+    });
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LOG SCREEN — form rendering per type
@@ -887,17 +1399,22 @@ function setType(type) {
 function initWIP() {
   const base = { id: uuid(), date: iso(), timestamp: Date.now(), type: state.currentType };
   if (state.currentType === 'strength') { base.exercises = []; base.rpe = 6; base.feel = 3; }
-  if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy', hrZone: null });
+  if (state.currentType === 'run') Object.assign(base, { distance: '', time: '', rpe: 6, feel: 3, notes: '', runType: 'Easy Run', hrZone: null });
   if (state.currentType === 'other')
     Object.assign(base, { label: '', duration: '', rpe: 6, feel: 3, notes: '' });
   if (state.currentType === 'rest') Object.assign(base, { forced: false, notes: '' });
   return base;
 }
 
-function renderLogForm() {
+function resolveLogTarget() {
+  return $('#log-sheet').classList.contains('open') ? $('#sheet-form') : $('#log-form');
+}
+
+function renderLogForm(targetEl) {
   if (!state.wip || state.wip.type !== state.currentType) state.wip = initWIP();
   const t = state.currentType;
-  const el = $('#log-form');
+  const el = targetEl || $('#log-form');
+  if (!el) return;
   if (t === 'strength') el.innerHTML = renderStrengthForm();
   else if (t === 'run')                  el.innerHTML = renderRunForm();
   else if (t === 'rest')                 el.innerHTML = renderRestForm();
@@ -918,7 +1435,7 @@ function renderStrengthForm() {
     </div>
     ${showRepeat ? `<button class="btn btn-ghost" id="repeat-last" style="margin-bottom:12px">↻ Repeat last lift session (${esc(last.date)})</button>` : ''}
     <div id="exercise-list">${exHtml}</div>
-    <button class="add-exercise-btn" onclick="openPicker()">＋ Add Exercise</button>
+    <button class="add-exercise-btn" onclick="openPicker('log')">＋ Add Exercise</button>
     ${state.wip.exercises.length ? `
       ${renderRPEFeel(state.wip.rpe ?? 6, state.wip.feel ?? 3)}
       <div class="save-bar">
@@ -1128,23 +1645,41 @@ function wireFormHandlers() {
   $('#save-btn')?.addEventListener('click', saveWorkout);
 }
 
-window.setHRZone = z => { if (state.wip) { state.wip.hrZone = state.wip.hrZone === z ? null : z; renderLogForm(); } };
+window.setHRZone = z => { if (state.wip) { state.wip.hrZone = state.wip.hrZone === z ? null : z; renderLogForm(resolveLogTarget()); } };
 
 function syncPace() { if ($('#run-pace')) $('#run-pace').value = calcPaceStr(state.wip); }
 
-window.setRunType     = t => { state.wip.runType = t; renderLogForm(); };
-window.setRestForced  = f => { state.wip.forced = f; renderLogForm(); };
-window.addSet         = i => { state.wip.exercises[i].sets.push({ weight: '', reps: '' }); renderLogForm(); };
-window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm(); };
-window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(); };
+window.setRunType     = t => { state.wip.runType = t; renderLogForm(resolveLogTarget()); };
+window.setRestForced  = f => { state.wip.forced = f; renderLogForm(resolveLogTarget()); };
+window.addSet         = i => { state.wip.exercises[i].sets.push({ weight: '', reps: '' }); renderLogForm(resolveLogTarget()); };
+window.removeExercise = i => { state.wip.exercises.splice(i, 1); renderLogForm(resolveLogTarget()); };
+window.setFormat      = (i, f) => { state.wip.exercises[i].format = f; renderLogForm(resolveLogTarget()); };
 
 function addExercise(name) {
+  if (state.pickerContext === 'plan') {
+    const dow = state.planPickerDow;
+    if (dow == null) return;
+    if (!state.plan[dow]) state.plan[dow] = { type: 'strength', exercises: [] };
+    if (!state.plan[dow].exercises) state.plan[dow].exercises = [];
+    if (!state.plan[dow].exercises.includes(name)) {
+      state.plan[dow].exercises.push(name);
+      persist(['plan']);
+    }
+    if (!$('#setup-step').classList.contains('hidden')) {
+      renderSetupStep();
+    } else {
+      renderPlanDayEditor(dow);
+    }
+    return;
+  }
+  // Default: log context
   if (!LIFT_LIBRARY.includes(name) && !state.custom.includes(name)) {
     state.custom.push(name);
     persist(['custom']);
   }
+  if (!state.wip) state.wip = initWIP();
   state.wip.exercises.push({ name, sets: [{ weight: '', reps: '' }] });
-  renderLogForm();
+  renderLogForm(resolveLogTarget());
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1209,7 +1744,7 @@ function detectAndRecordPRs(workout) {
       const prev = state.prs[key];
       if (!prev || pace < prev.pace) {
         const pr = {
-          key, category: 'Runs', name: workout.runType + ' Run',
+          key, category: 'Runs', name: workout.runType,
           pace, distance: km, time: sec,
           date: workout.date, workoutId: workout.id,
         };
@@ -1265,10 +1800,14 @@ function saveWorkout() {
 
   if (w.type === 'strength') fetchStretches(w);
 
-  // Reset WIP and go to history
+  // Reset WIP and navigate
   state.wip = null;
-  renderLogForm();
-  setTimeout(() => showTab('history'), 400);
+  if ($('#log-sheet').classList.contains('open')) {
+    closeLogSheet();
+  } else {
+    renderLogForm();
+    setTimeout(() => showTab('today'), 400);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1298,7 +1837,7 @@ function repeatLastWorkout() {
   state.wip.exercises = last.exercises.map(ex =>
     ({ name: ex.name, sets: (ex.sets || []).map(() => ({ weight: '', reps: '' })) })
   );
-  renderLogForm();
+  renderLogForm(resolveLogTarget());
   toast('Loaded last session');
 }
 
@@ -1306,7 +1845,9 @@ function repeatLastWorkout() {
 // EXERCISE PICKER
 // ═══════════════════════════════════════════════════════════════════════════
 
-function openPicker() {
+function openPicker(context, planDow) {
+  state.pickerContext = context || 'log';
+  state.planPickerDow = planDow != null ? planDow : null;
   $('#picker-backdrop').classList.add('open');
   $('#picker-sheet').classList.add('open');
   $('#picker-search').value = '';
@@ -1658,7 +2199,7 @@ window.togglePRChart = function(key) {
     <div style="padding:12px 0 4px">
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">
         <path d="${d}" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? '#1a1a1a' : '#c9bfae'}"/>`).join('')}
+        ${pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === bestIdx ? 4 : 2.5}" fill="${i === bestIdx ? '#1a1a1a' : '#d4c4aa'}"/>`).join('')}
       </svg>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
         <span>${fmtShort(points[0].date)} · ${points[0].label}</span>
@@ -1976,7 +2517,7 @@ window.confirmClearAll = function() {
     persist(['workouts','prs','weekly','weight','custom']);
     toast('All data cleared.');
     closeSettings();
-    showTab('log');
+    showTab('today');
   });
 };
 
@@ -1988,18 +2529,123 @@ function openConfirm(title, msg, onYes) {
   $('#confirm-no').onclick  = () => $('#confirm-overlay').classList.add('hidden');
 }
 
-// Onboarding
+// ── First-run setup ─────────────────────────────────────────────────────────
+const SETUP_DAYS = [1, 2, 3, 4, 5, 6, 0]; // Mon–Sun
+const SETUP_DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+let setupIdx = 0;
+
 function maybeShowOnboarding() {
-  if (state.key) return;
+  if (state.onboarded) return;
   $('#onboarding').classList.remove('hidden');
 }
-$('#onboard-save').addEventListener('click', () => {
-  const v = $('#onboard-key').value.trim();
-  if (!v) return toast('Paste an Anthropic API key or tap Skip.', { err: true });
-  state.key = v; persist(['key']);
+
+function finishSetup() {
+  state.onboarded = true;
+  persist(['onboarded', 'plan']);
   $('#onboarding').classList.add('hidden');
+  renderTodayScreen();
+  renderPlanScreen();
+}
+
+$('#setup-start').addEventListener('click', () => {
+  $('#setup-welcome').classList.add('hidden');
+  $('#setup-step').classList.remove('hidden');
+  setupIdx = 0;
+  renderSetupStep();
 });
-$('#onboard-skip').addEventListener('click', () => $('#onboarding').classList.add('hidden'));
+
+$('#setup-skip').addEventListener('click', finishSetup);
+
+$('#setup-next').addEventListener('click', () => {
+  setupIdx++;
+  if (setupIdx >= SETUP_DAYS.length) {
+    finishSetup();
+  } else {
+    renderSetupStep();
+  }
+});
+
+$('#setup-prev').addEventListener('click', () => {
+  if (setupIdx > 0) { setupIdx--; renderSetupStep(); }
+});
+
+function renderSetupStep() {
+  const dow = SETUP_DAYS[setupIdx];
+  const dayName = SETUP_DAY_NAMES[setupIdx];
+  const day = state.plan[dow] || { type: 'rest' };
+
+  $('#setup-step-label').textContent = `Day ${setupIdx + 1} of 7`;
+  $('#setup-step-day').textContent = dayName;
+  $('#setup-prev').disabled = setupIdx === 0;
+  $('#setup-next').textContent = setupIdx === SETUP_DAYS.length - 1 ? "Let's Train →" : 'Next →';
+
+  const types = [
+    { key: 'strength', label: 'Strength' },
+    { key: 'run', label: 'Run' },
+    { key: 'rest', label: 'Rest' },
+    { key: 'other', label: 'Other' },
+  ];
+
+  $('#setup-type-row').innerHTML = types.map(t => `
+    <button class="plan-type-btn${day.type === t.key ? ' active' : ''}"
+      onclick="setSetupType(${dow}, '${t.key}')">${t.label}</button>
+  `).join('');
+
+  renderSetupDetail(dow, day);
+}
+
+window.setSetupType = function(dow, type) {
+  if (!state.plan[dow] || state.plan[dow].type !== type) {
+    state.plan[dow] = { type };
+    if (type === 'strength') state.plan[dow].exercises = [];
+    if (type === 'run') { state.plan[dow].runType = 'Easy Run'; }
+  }
+  renderSetupStep();
+};
+
+function renderSetupDetail(dow, day) {
+  const el = $('#setup-detail');
+  if (day.type === 'strength') {
+    const exes = day.exercises || [];
+    el.innerHTML = `
+      <div class="card" style="margin-top:12px">
+        <label>Exercises (optional)</label>
+        <div class="plan-ex-list" id="setup-ex-list">
+          ${exes.map((name, idx) => `
+            <div class="plan-ex-item">
+              <span>${esc(name)}</span>
+              <button class="plan-ex-remove" onclick="removeSetupEx(${dow},${idx})">✕</button>
+            </div>`).join('')}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openPicker('plan',${dow})" style="width:100%;margin-top:4px">＋ Add Exercise</button>
+      </div>
+    `;
+  } else if (day.type === 'run') {
+    el.innerHTML = `
+      <div class="card" style="margin-top:12px">
+        <label>Run Type</label>
+        <div class="segmented">
+          ${RUN_TYPES.map(t => `<button class="${(day.runType||'Easy Run')===t?'active':''}" onclick="setSetupRunType(${dow},'${t}')">${t}</button>`).join('')}
+        </div>
+      </div>
+    `;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+window.removeSetupEx = function(dow, idx) {
+  if (state.plan[dow] && state.plan[dow].exercises) {
+    state.plan[dow].exercises.splice(idx, 1);
+    renderSetupStep();
+  }
+};
+
+window.setSetupRunType = function(dow, runType) {
+  if (!state.plan[dow]) state.plan[dow] = { type: 'run' };
+  state.plan[dow].runType = runType;
+  renderSetupStep();
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -2007,8 +2653,8 @@ $('#onboard-skip').addEventListener('click', () => $('#onboarding').classList.ad
 
 initTheme();
 loadState();
-renderTypeSelector();
-renderLogForm();
+renderTodayScreen();
+renderPlanScreen();
 maybeShowOnboarding();
 
 </script>
