@@ -1791,20 +1791,21 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
 
       const grid = [1, 2, 3, 4, 5, 6, 0].map(dow => {
         const existing = state.plan[dow] || { type: 'rest' };
-        const proposed = days[String(dow)] || days[dow];
+        const proposed = days[String(dow)];
         const d = proposed || existing;
         const isProposed = !!proposed;
+        const safeType = ['strength','run','rest','other'].includes(d.type) ? d.type : 'rest';
         return `<div class="chad-plan-day">
           <div class="cpd-label">${DOW_ABBR[dow]}</div>
-          <div class="cpd-type ${d.type}${isProposed ? ' proposed' : ''}">${TYPE_ABBR[d.type] || d.type}</div>
+          <div class="cpd-type ${safeType}${isProposed ? ' proposed' : ''}">${TYPE_ABBR[safeType] || safeType}</div>
         </div>`;
       }).join('');
 
-      const encoded = encodeURIComponent(JSON.stringify(days));
+      const encoded = encodeURIComponent(JSON.stringify(days)).replace(/'/g, '%27');
       const actions = m.applied
         ? `<div class="chad-plan-applied">✓ Applied</div>`
         : `<div class="chad-plan-actions">
-            <button class="btn btn-sm" onclick="applyChadPlan('${encoded}')">Apply Plan</button>
+            <button class="btn btn-sm" onclick="applyChadPlan('${encoded}',${m.timestamp})">Apply Plan</button>
             <button class="btn btn-ghost btn-sm" onclick="this.closest('.chad-plan-card').style.opacity='0.4';this.parentElement.innerHTML='<span style=\\'font-size:12px;color:var(--muted)\\'>Dismissed</span>'">Dismiss</button>
           </div>`;
 
@@ -1815,7 +1816,7 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
       </div>`;
     }
 
-    window.applyChadPlan = function(encoded) {
+    window.applyChadPlan = function(encoded, msgTimestamp) {
       try {
         const days = JSON.parse(decodeURIComponent(encoded));
         // Merge proposed days into existing plan
@@ -1825,9 +1826,7 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
         persist(['plan']);
 
         // Mark this message as applied so re-renders show ✓ Applied
-        const msgIdx = state.chadMessages.findIndex(m =>
-          m.planProposal && JSON.stringify(m.planProposal) === JSON.stringify(days)
-        );
+        const msgIdx = state.chadMessages.findIndex(m => m.timestamp === msgTimestamp && m.planProposal);
         if (msgIdx >= 0) {
           state.chadMessages[msgIdx].applied = true;
           persist(['chadMessages']);
