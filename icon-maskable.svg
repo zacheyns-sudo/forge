@@ -1,8 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#3d6b52"/>
-  <g transform="translate(51,51) scale(0.8)">
-    <rect x="120" y="96" width="80" height="320" fill="#fff"/>
-    <rect x="120" y="96" width="272" height="80" fill="#fff"/>
-    <rect x="120" y="212" width="208" height="72" fill="#fff"/>
-  </g>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="62%" r="40%">
+      <stop offset="0%" stop-color="#fffdf0" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#b8924a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Full bleed background (maskable needs safe zone padding) -->
+  <rect width="512" height="512" fill="#b8924a"/>
+  <!-- Glow -->
+  <ellipse cx="256" cy="340" rx="160" ry="100" fill="url(#glow)"/>
+  <!-- Flame path (slightly smaller for safe zone) -->
+  <path d="
+    M256 130
+    C256 130 305 190 312 240
+    C318 275 303 266 310 248
+    C322 217 342 230 338 275
+    C334 316 310 348 303 362
+    C321 329 326 297 313 283
+    C311 338 285 370 256 384
+    C227 370 201 338 199 283
+    C186 297 191 329 209 362
+    C202 348 178 316 174 275
+    C170 230 190 217 202 248
+    C209 266 194 275 200 240
+    C207 190 256 130 256 130Z
+    M256 300
+    C256 300 275 276 279 258
+    C282 241 272 247 275 258
+    C279 265 286 265 284 282
+    C281 296 272 309 256 318
+    C240 309 231 296 228 282
+    C226 265 233 265 237 258
+    C240 247 230 241 233 258
+    C237 276 256 300 256 300Z
+  " fill="#fffdf5" fill-rule="evenodd"/>
 </svg>
