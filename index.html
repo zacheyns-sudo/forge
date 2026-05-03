@@ -1506,6 +1506,171 @@ function toast(msg, opts = {}) {
     $('#log-backdrop').addEventListener('click', closeLogSheet);
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // CHAD AI COACH
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function buildAthleteContext() {
+      const p = state.chadProfile;
+      if (!p || !p.goal) return 'You are a sports performance coach for an athlete using Forge workout tracker.';
+      const daysLeft = p.blockEnd
+        ? Math.max(0, Math.round((new Date(p.blockEnd) - new Date()) / 86400000))
+        : null;
+      let ctx = `You are a sports performance coach.
+Athlete profile:
+- Goal: ${p.goal}
+- Training block: ${p.blockStart || 'started recently'} → ${p.blockEnd || 'no end date'}${daysLeft !== null ? ` (${daysLeft} days remaining)` : ''}
+- Age / stats: ${p.heightWeight || 'not provided'}
+- Fitness level: ${p.fitnessLevel || 'not provided'}`;
+      if (state.chadPins.length) {
+        ctx += `\n\nImportant notes to remember:\n${state.chadPins.map(pin => `- ${pin}`).join('\n')}`;
+      }
+      return ctx;
+    }
+
+    function buildChadSystemPrompt() {
+      return `${buildAthleteContext()}
+
+You are Chad, the athlete's personal online training assistant inside the Forge workout tracking app.
+Be direct, practical, and motivating. Reference their actual workouts and plan when relevant.
+
+Always respond with valid JSON in exactly one of these two shapes — no markdown, no preamble, no trailing text:
+
+{"type":"message","content":"your response here"}
+
+{"type":"plan_proposal","content":"explanation of the change and why","days":{"1":{"type":"strength","exercises":["Squat","RDL"]},"3":{"type":"rest"}}}
+
+For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday). Only include days being changed. For strength days, exercises array is optional. For run days include runType: "Easy Run" | "Hard Run" | "Long Run". For rest/other, just include type.`;
+    }
+
+    async function callChadAPI(maxTokens = 1500) {
+      if (!state.key) throw new Error('No API key set — add it in Settings (⚙ top right).');
+      const messages = state.chadMessages.slice(-30).map(m => ({
+        role: m.role,
+        content: m.content,
+      }));
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': state.key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: maxTokens,
+          system: buildChadSystemPrompt(),
+          messages,
+        }),
+      });
+      if (!res.ok) { const t = await res.text(); throw new Error(`${res.status}: ${t.slice(0, 200)}`); }
+      const data = await res.json();
+      return data.content?.[0]?.text || '';
+    }
+
+    function openChad() {
+      // Clear 48hr old conversation cache
+      if (state.chadMessages.length) {
+        const last = state.chadMessages[state.chadMessages.length - 1];
+        if (Date.now() - last.timestamp > 48 * 60 * 60 * 1000) {
+          state.chadMessages = [];
+          persist(['chadMessages']);
+        }
+      }
+
+      renderChadSheet();
+      $('#chad-backdrop').classList.add('open');
+      $('#chad-sheet').classList.add('open');
+      state.chadOpen = true;
+
+      const msgs = $('#chad-messages');
+      if (msgs) setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 50);
+
+      if (!state.chadProfile) {
+        chadStartSetup();
+      }
+
+      setTimeout(() => $('#chad-input')?.focus(), 300);
+    }
+
+    function closeChad() {
+      $('#chad-backdrop').classList.remove('open');
+      $('#chad-sheet').classList.remove('open');
+      state.chadOpen = false;
+    }
+
+    $('#chad-backdrop').addEventListener('click', closeChad);
+
+    function renderChadSheet() {
+      const p = state.chadProfile;
+      const chip = $('#chad-block-chip');
+      if (chip) {
+        if (p && p.goal) {
+          const daysLeft = p.blockEnd
+            ? Math.max(0, Math.round((new Date(p.blockEnd) - new Date()) / 86400000))
+            : null;
+          chip.textContent = p.goal + (daysLeft !== null ? ` · ${daysLeft}d left` : '');
+        } else {
+          chip.textContent = '';
+        }
+      }
+      renderChadMessages();
+      renderChadPins();
+    }
+
+    function renderChadMessages() {
+      const el = $('#chad-messages');
+      if (!el) return;
+      if (!state.chadMessages.length) {
+        el.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;padding:32px 0">
+          Ask Chad anything about your training.
+        </div>`;
+        return;
+      }
+      el.innerHTML = state.chadMessages.map(m => {
+        if (m.role === 'user') {
+          return `<div class="chad-msg chad-msg-user">${esc(m.content)}</div>`;
+        }
+        if (m.planProposal) {
+          return renderChadPlanCard(m);
+        }
+        return `<div class="chad-msg chad-msg-chad">${esc(m.content)}</div>`;
+      }).join('');
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function renderChadPins() {
+      const el = $('#chad-pins-strip');
+      if (!el) return;
+      if (!state.chadPins.length) { el.innerHTML = ''; return; }
+      el.innerHTML = state.chadPins.map((pin, idx) => `
+        <div class="chad-pin-chip">
+          <span>${esc(pin.length > 38 ? pin.slice(0, 35) + '…' : pin)}</span>
+          <button onclick="deleteChadPin(${idx})" aria-label="Remove pin">✕</button>
+        </div>
+      `).join('');
+    }
+
+    window.toggleChadPin = function() {
+      $('#chad-pin-toggle').classList.toggle('active');
+    };
+
+    window.deleteChadPin = function(idx) {
+      state.chadPins.splice(idx, 1);
+      persist(['chadPins']);
+      renderChadPins();
+    };
+
+    window.chadSend = function() {
+      const input = $('#chad-input');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      sendChadMessage(text);
+    };
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // PLAN SCREEN
     // ═══════════════════════════════════════════════════════════════════════════
 
