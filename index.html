@@ -1734,6 +1734,54 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
       }
     }
 
+    // ── First-open profile setup ─────────────────────────────────────────────────
+
+    const CHAD_SETUP_STEPS = [
+      { field: 'goal',         q: "What's your main training goal right now? e.g. Get shredded, Run a half marathon, Build muscle" },
+      { field: 'blockEnd',     q: "When do you want to hit that goal? Give me a rough date (e.g. July 2026, 12 weeks time)" },
+      { field: 'heightWeight', q: "What's your age, height and weight? e.g. 20 years old, 6'3\", 85kg" },
+      { field: 'fitnessLevel', q: "Last one — how would you describe your current fitness level? Beginner, intermediate, or advanced?" },
+    ];
+
+    let chadSetupStep = -1; // -1 = not in setup; 0–3 = collecting profile fields
+
+    function chadStartSetup() {
+      chadSetupStep = 0;
+      state.chadProfile = {};
+      const greeting = {
+        role: 'assistant',
+        content: `Hi, I'm Chad — your personal online training assistant. Before we get started, let me learn a bit about you.\n\n${CHAD_SETUP_STEPS[0].q}`,
+        timestamp: Date.now(),
+      };
+      state.chadMessages = [greeting];
+      persist(['chadMessages']);
+      renderChadMessages();
+    }
+
+    function chadHandleSetupResponse(text) {
+      const step = CHAD_SETUP_STEPS[chadSetupStep];
+
+      state.chadMessages.push({ role: 'user', content: text, timestamp: Date.now() });
+      state.chadProfile[step.field] = text;
+      chadSetupStep++;
+
+      let chadReply;
+      if (chadSetupStep < CHAD_SETUP_STEPS.length) {
+        chadReply = CHAD_SETUP_STEPS[chadSetupStep].q;
+      } else {
+        state.chadProfile.blockStart = iso();
+        chadSetupStep = -1;
+        persist(['chadProfile']);
+        chadReply = `Perfect — I've got everything I need. Let's get to work. Your goal is "${state.chadProfile.goal}" and we've got until ${state.chadProfile.blockEnd} to get there. Ask me anything about your training, or say "update my plan" and I'll build you a weekly schedule.`;
+        const chip = $('#chad-block-chip');
+        if (chip && state.chadProfile.goal) chip.textContent = state.chadProfile.goal;
+      }
+
+      state.chadMessages.push({ role: 'assistant', content: chadReply, timestamp: Date.now() });
+      persist(['chadMessages']);
+      renderChadMessages();
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // PLAN SCREEN
     // ═══════════════════════════════════════════════════════════════════════════
