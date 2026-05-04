@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- __FORGE_KEY__ -->
 <script>
   // Anti-FOUC: apply saved theme before CSS renders
   (function(){const t=localStorage.getItem('theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');})();
@@ -362,7 +363,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 /* ── Overlays ────────────────────────────────────────────────────────────── */
 .overlay {
   position: fixed; inset: 0; z-index: 60;
-  background: var(--backdrop); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.45);
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
 .overlay.hidden { display: none; }
@@ -370,7 +371,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 18px; padding: 20px; width: 100%; max-width: 440px;
   max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px);
-  overflow-y: auto;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .overlay-panel h3 { margin-top: 0; font-size: 18px; font-weight: 800; }
 .overlay-close { position: absolute; top: 12px; right: 12px; }
@@ -1158,7 +1159,7 @@ function loadState() {
   try { state.custom   = JSON.parse(localStorage.getItem(K.custom)   || '[]'); } catch { state.custom = []; }
   try { const v = JSON.parse(localStorage.getItem(K.plan) || '{}'); state.plan = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; } catch { state.plan = {}; }
   state.onboarded = localStorage.getItem(K.onboarded) === '1';
-  state.key         = localStorage.getItem(K.key) || '';
+  state.key         = localStorage.getItem(K.key) || window.__FORGE_KEY__ || '';
   state.currentType = localStorage.getItem(K.lastType) || 'strength';
   try { state.chadProfile  = JSON.parse(localStorage.getItem(K.chadProfile)  || 'null'); } catch { state.chadProfile = null; }
   try { state.chadBlocks   = JSON.parse(localStorage.getItem(K.chadBlocks)   || '[]');  } catch { state.chadBlocks = []; }
