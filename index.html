@@ -158,6 +158,19 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 .stat { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
 .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 4px; }
 .stat-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.week-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.week-nav button {
+  background: var(--surface-2); border: 1px solid var(--border);
+  width: 38px; height: 38px; border-radius: 10px;
+  color: var(--text); font-size: 16px; cursor: pointer; touch-action: manipulation;
+}
+.week-label { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.week-range { font-size: 11px; color: var(--muted); font-weight: 600; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stats-grid .card { margin: 0; }
 
 .row { display: flex; gap: 8px; align-items: center; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -927,6 +940,16 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <!-- ══ PRS SCREEN ══════════════════════════════════════════════════════════ -->
 <section id="screen-prs" class="screen">
+  <div class="week-nav">
+    <button id="week-prev" aria-label="Previous week">◂</button>
+    <div>
+      <div class="week-label" id="week-label">This Week</div>
+      <div class="week-range" id="week-range"></div>
+    </div>
+    <button id="week-next" aria-label="Next week">▸</button>
+  </div>
+  <div id="week-body"></div>
+  <hr>
   <h2>Personal Records</h2>
   <div class="pr-tabs" id="pr-tabs">
     <button data-cat="Lifts" class="active">Lifts</button>
@@ -1978,7 +2001,7 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
       $('#screen-title').textContent = titles[name] || name;
       if (name === 'today') renderTodayScreen();
       if (name === 'plan') renderPlanScreen();
-      if (name === 'prs') renderPRs();
+      if (name === 'prs') { renderPRs(); renderWeek(); }
     }
 
     document.querySelectorAll('#top-nav button').forEach(b => {
@@ -3091,6 +3114,8 @@ window.saveSettingsKey = function() {
   toast('Key saved.');
   closeSettings();
 };
+
+$('#settings-btn').addEventListener('click', window.openSettings);
 
 window.exportCSV = function() {
   const rows = [['date','type','exercise','weight_kg','reps','distance_m','time','extra_notes']];
