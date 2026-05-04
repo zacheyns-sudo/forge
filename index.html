@@ -1381,8 +1381,8 @@ function toast(msg, opts = {}) {
               <div class="big">📋</div>
               <div style="font-weight:700;margin-bottom:8px">No plan set for today</div>
               <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Set up your weekly schedule in the Plan tab.</div>
-              <button class="btn" onclick="showTab('plan')">Go to Plan</button>
-              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
+              <button class="btn" onclick="openLogSheet('${dateStr}', false)">Log Workout</button>
+              <button class="today-secondary-link" onclick="showTab('plan')">Set up weekly plan</button>
             </div>
           `;
         }
@@ -1391,7 +1391,7 @@ function toast(msg, opts = {}) {
             <div class="today-empty">
               <div class="big">😴</div>
               <div style="font-weight:700;margin-bottom:8px">Rest day</div>
-              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
+              <button class="btn btn-ghost" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>
             </div>
           `;
         }
@@ -1400,13 +1400,19 @@ function toast(msg, opts = {}) {
 
       if (isPast) {
         if (!planDay || planDay.type === 'rest') {
-          return `<div class="today-empty"><div class="big">—</div><div style="color:var(--muted)">Nothing planned</div></div>`;
+          return `
+            <div class="today-empty">
+              <div class="big">—</div>
+              <div style="color:var(--muted);margin-bottom:12px">Nothing planned</div>
+              <button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">Log a session</button>
+            </div>
+          `;
         }
         return `
           <div class="day-content-area">
             ${renderPlannedDayView(dateStr, planDay, false)}
             <p style="color:var(--muted);font-size:13px;text-align:center;margin-top:8px">Not logged</p>
-            <button class="today-secondary-link" style="text-align:center" onclick="openLogSheet('${dateStr}', true)">Log it late</button>
+            <button class="btn btn-ghost" style="width:100%;margin-top:4px" onclick="openLogSheet('${dateStr}', true)">Log it late</button>
           </div>
         `;
       }
