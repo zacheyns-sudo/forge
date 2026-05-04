@@ -100,7 +100,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 .icon-btn {
   background: none; border: none; color: var(--text);
   width: 38px; height: 38px; border-radius: 10px;
-  font-size: 18px; cursor: pointer;
+  font-size: 18px; cursor: pointer; touch-action: manipulation;
   display: flex; align-items: center; justify-content: center;
 }
 .icon-btn:active { background: var(--surface-2); }
@@ -188,6 +188,7 @@ textarea { min-height: 80px; resize: vertical; }
   font-weight: 700; font-size: 15px; cursor: pointer;
   width: 100%; letter-spacing: -0.01em;
   transition: transform 0.08s, opacity 0.12s;
+  touch-action: manipulation;
 }
 .btn:active { transform: scale(0.98); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -937,7 +938,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <!-- ══ OVERLAYS ════════════════════════════════════════════════════════════ -->
 
 <!-- Onboarding -->
-<div id="onboarding" class="overlay hidden">
+<div id="onboarding" class="overlay hidden" onclick="void(0)">
   <div class="overlay-panel" style="max-width:400px">
     <div id="setup-welcome" class="">
       <div class="logo" style="font-size:36px;text-align:center;margin-bottom:8px">🔥</div>
@@ -961,37 +962,40 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
   </div>
 </div>
 
-<!-- Settings -->
-<div id="settings-overlay" class="overlay hidden">
-  <div class="overlay-panel" style="position:relative">
-    <button class="icon-btn overlay-close" onclick="closeSettings()">✕</button>
-    <h3>Settings</h3>
-    <label for="settings-key">Anthropic API Key</label>
-    <input type="password" id="settings-key" placeholder="sk-ant-...">
-    <div class="spacer-sm"></div>
-    <button class="btn btn-sm btn-ghost" onclick="saveSettingsKey()" style="width:100%">Save Key</button>
-
-    <hr>
-    <h3 style="font-size:15px">Data</h3>
-    <button class="btn btn-ghost" onclick="exportCSV()">Export as CSV</button>
-    <div class="spacer-sm"></div>
-    <button class="btn btn-danger" onclick="confirmClearAll()">Clear All Data</button>
-
-    <hr>
-    <p class="text-sm text-muted">Forge v1.0 · All data stored locally on this device.</p>
+<!-- Settings sheet -->
+<div id="settings-backdrop" class="sheet-backdrop" onclick="closeSettings()"></div>
+<div id="settings-sheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h3 style="margin:0">Settings</h3>
+    <button class="icon-btn" onclick="closeSettings()">✕</button>
   </div>
+  <label for="settings-key" style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Anthropic API Key</label>
+  <input type="password" id="settings-key" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box">
+  <div class="spacer-sm"></div>
+  <button class="btn" onclick="saveSettingsKey()" style="width:100%">Save Key</button>
+  <hr>
+  <h3 style="font-size:15px">Setup</h3>
+  <button class="btn btn-ghost" onclick="rerunSetup()" style="width:100%">Re-run Setup Wizard</button>
+  <hr>
+  <h3 style="font-size:15px">Data</h3>
+  <button class="btn btn-ghost" onclick="exportCSV()" style="width:100%">Export as CSV</button>
+  <div class="spacer-sm"></div>
+  <button class="btn btn-danger" onclick="confirmClearAll()" style="width:100%">Clear All Data</button>
+  <hr>
+  <p class="text-sm text-muted">Forge v1.0 · All data stored locally on this device.</p>
 </div>
 
-<!-- Confirm dialog -->
-<div id="confirm-overlay" class="overlay hidden">
-  <div class="overlay-panel">
-    <h3 id="confirm-title">Are you sure?</h3>
-    <p id="confirm-msg" class="text-muted text-sm"></p>
-    <div class="spacer-md"></div>
-    <button class="btn btn-danger" id="confirm-yes">Yes, do it</button>
-    <div class="spacer-sm"></div>
-    <button class="btn btn-ghost" id="confirm-no">Cancel</button>
-  </div>
+<!-- Confirm sheet -->
+<div id="confirm-backdrop" class="sheet-backdrop"></div>
+<div id="confirm-sheet" class="sheet">
+  <div class="sheet-handle"></div>
+  <h3 id="confirm-title">Are you sure?</h3>
+  <p id="confirm-msg" class="text-muted text-sm"></p>
+  <div class="spacer-md"></div>
+  <button class="btn btn-danger" id="confirm-yes">Yes, do it</button>
+  <div class="spacer-sm"></div>
+  <button class="btn btn-ghost" id="confirm-no">Cancel</button>
 </div>
 
 <!-- ══ CHAD FLOATING BUTTON ═════════════════════════════════════════════ -->
@@ -3060,9 +3064,20 @@ ${weightStr || '  (none logged)'}`;
 $('#settings-btn').addEventListener('click', openSettings);
 function openSettings() {
   $('#settings-key').value = state.key;
-  $('#settings-overlay').classList.remove('hidden');
+  $('#settings-backdrop').classList.add('open');
+  $('#settings-sheet').classList.add('open');
 }
-window.closeSettings = () => $('#settings-overlay').classList.add('hidden');
+window.closeSettings = function() {
+  $('#settings-backdrop').classList.remove('open');
+  $('#settings-sheet').classList.remove('open');
+};
+
+window.rerunSetup = function() {
+  state.onboarded = false;
+  persist(['onboarded']);
+  closeSettings();
+  $('#onboarding').classList.remove('hidden');
+};
 
 window.saveSettingsKey = function() {
   const v = $('#settings-key').value.trim();
@@ -3108,9 +3123,17 @@ window.confirmClearAll = function() {
 function openConfirm(title, msg, onYes) {
   $('#confirm-title').textContent = title;
   $('#confirm-msg').textContent = msg;
-  $('#confirm-overlay').classList.remove('hidden');
-  $('#confirm-yes').onclick = () => { $('#confirm-overlay').classList.add('hidden'); onYes(); };
-  $('#confirm-no').onclick  = () => $('#confirm-overlay').classList.add('hidden');
+  $('#confirm-backdrop').classList.add('open');
+  $('#confirm-sheet').classList.add('open');
+  $('#confirm-yes').onclick = () => {
+    $('#confirm-backdrop').classList.remove('open');
+    $('#confirm-sheet').classList.remove('open');
+    onYes();
+  };
+  $('#confirm-no').onclick = () => {
+    $('#confirm-backdrop').classList.remove('open');
+    $('#confirm-sheet').classList.remove('open');
+  };
 }
 
 // ── First-run setup ─────────────────────────────────────────────────────────
