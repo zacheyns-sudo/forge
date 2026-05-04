@@ -2478,6 +2478,24 @@ function closePicker() {
 $('#picker-backdrop').addEventListener('click', closePicker);
 $('#picker-cancel').addEventListener('click', closePicker);
 $('#picker-search').addEventListener('input', e => renderPicker(e.target.value));
+$('#picker-search').addEventListener('keydown', e => {
+  if (e.key !== ',' && e.key !== 'Enter') return;
+  const val = $('#picker-search').value.trim();
+  if (!val) return;
+  e.preventDefault();
+  // On comma: add what's typed so far and clear for next entry.
+  // On Enter: add the first visible picker item if the typed text matches,
+  //           otherwise add it as a custom exercise.
+  if (e.key === ',') {
+    addExercise(val);
+    $('#picker-search').value = '';
+    renderPicker('');
+  } else {
+    const first = $('#picker-list .picker-item');
+    addExercise(first ? first.dataset.name : val);
+    closePicker();
+  }
+});
 
 function renderPicker(q) {
   const ql = q.trim().toLowerCase();
