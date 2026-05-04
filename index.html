@@ -3067,8 +3067,7 @@ ${weightStr || '  (none logged)'}`;
 // SETTINGS / ONBOARDING
 // ═══════════════════════════════════════════════════════════════════════════
 
-$('#settings-btn').addEventListener('click', openSettings);
-window.openSettings = function openSettings() {
+window.openSettings = function() {
   $('#settings-key').value = state.key;
   $('#settings-backdrop').classList.add('open');
   $('#settings-sheet').classList.add('open');
