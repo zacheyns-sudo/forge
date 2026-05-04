@@ -1171,10 +1171,14 @@ function persist(keys) {
   (keys || Object.keys(K)).forEach(k => {
     const key = K[k];
     if (!key) return;
-    if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
-    else if (k === 'onboarded') localStorage.setItem(key, state.onboarded ? '1' : '');
-    else if (k === 'chadProfile') localStorage.setItem(key, JSON.stringify(state.chadProfile ?? null));
-    else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' || k === 'plan' ? {} : [])));
+    try {
+      if (k === 'key' || k === 'lastType') localStorage.setItem(key, state[k === 'lastType' ? 'currentType' : 'key'] || '');
+      else if (k === 'onboarded') localStorage.setItem(key, state.onboarded ? '1' : '');
+      else if (k === 'chadProfile') localStorage.setItem(key, JSON.stringify(state.chadProfile ?? null));
+      else localStorage.setItem(key, JSON.stringify(state[k] ?? (k === 'prs' || k === 'weekly' || k === 'plan' ? {} : [])));
+    } catch (e) {
+      console.error('persist failed for', k, e);
+    }
   });
 }
 
@@ -3229,6 +3233,9 @@ window.setSetupRunType = function(dow, runType) {
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
+
+// Request persistent storage so iOS doesn't evict data between sessions
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
 
 initTheme();
 loadState();
