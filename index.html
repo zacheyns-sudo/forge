@@ -1225,6 +1225,16 @@ function persist(keys) {
 
 const $ = sel => document.querySelector(sel);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+// Strip markdown formatting so Chad's replies read as plain English (no stars/hashtags/backticks).
+const stripMd = s => String(s ?? '')
+  .replace(/```[\s\S]*?```/g, m => m.replace(/```/g, ''))   // fenced code → drop fences, keep text
+  .replace(/`([^`]+)`/g, '$1')                              // inline code
+  .replace(/#{1,6}\s+/g, '')                                // headings (line-start or stray mid-line)
+  .replace(/(\*\*\*|\*\*|\*|___|__|_)(?=\S)([\s\S]*?\S)\1/g, '$2') // bold/italic
+  .replace(/^\s{0,3}[-*+]\s+/gm, '')                        // bullet markers
+  .replace(/^\s{0,3}>\s?/gm, '')                            // blockquotes
+  .replace(/\*+/g, '')                                      // any stray asterisks
+  .replace(/(^|\s)#(?=\w)/g, '$1');                         // stray hashtags
 const uuid = (prefix = 'w') => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 
 /* ── Theme ──────────────────────────────────────────────────────────────── */
@@ -1257,6 +1267,12 @@ function fmtDay(dateStr) {
   return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
+// Parse a user-entered decimal, tolerating comma decimal separators
+// (some locales' decimal keypad emits ',' instead of '.').
+function parseNum(v) {
+  if (v == null) return NaN;
+  return parseFloat(String(v).replace(',', '.'));
+}
 function parseTime(str) {
   if (!str) return 0;
   const s = String(str).trim();
@@ -1600,7 +1616,9 @@ Always respond with valid JSON in exactly one of these two shapes — no markdow
 
 {"type":"plan_proposal","content":"explanation of the change and why","days":{"1":{"type":"strength","exercises":["Squat","RDL"]},"3":{"type":"rest"}}}
 
-For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday). Only include days being changed. For strength days, exercises array is optional. For run days include runType: "Easy Run" | "Hard Run" | "Long Run". For rest/other, just include type.`;
+For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday). Only include days being changed. For strength days, exercises array is optional. For run days include runType: "Easy Run" | "Hard Run" | "Long Run". For rest/other, just include type.
+
+Write the "content" field in plain conversational English. Do NOT use any markdown or formatting symbols — no asterisks, no hash signs, no bullet characters, no backticks, no headings. No bold, no italics. If you need a list, write it as a normal sentence or use plain short lines separated by line breaks. Just talk like a coach texting the athlete.`;
     }
 
     async function callChadAPI(maxTokens = 1500) {
@@ -1695,7 +1713,7 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
         if (m.planProposal) {
           return renderChadPlanCard(m);
         }
-        return `<div class="chad-msg chad-msg-chad">${esc(m.content)}</div>`;
+        return `<div class="chad-msg chad-msg-chad">${esc(stripMd(m.content))}</div>`;
       }).join('');
       el.scrollTop = el.scrollHeight;
     }
@@ -1871,7 +1889,7 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
           </div>`;
 
       return `<div class="chad-plan-card">
-        <p>${esc(m.content)}</p>
+        <p>${esc(stripMd(m.content))}</p>
         <div class="chad-plan-grid">${grid}</div>
         ${actions}
       </div>`;
@@ -1974,9 +1992,9 @@ For plan_proposal: days keys are day-of-week integers (0=Sunday … 6=Saturday).
               ${RUN_TYPES.map(t => `<button data-rt="${t}" class="${runType === t ? 'active' : ''}" onclick="savePlanDay(${dow},'runType','${t}')">${t}</button>`).join('')}
             </div>
             <label>Target Distance (km, optional)</label>
-            <input type="number" inputmode="decimal" step="0.1" placeholder="e.g. 10"
+            <input type="text" inputmode="decimal" placeholder="e.g. 10"
               value="${esc(day.targetDistance || '')}"
-              onchange="savePlanDay(${dow},'targetDistance',this.value ? parseFloat(this.value) : null)">
+              onchange="savePlanDay(${dow},'targetDistance',this.value ? parseNum(this.value) : null)">
           </div>
         `;
       } else if (day.type === 'other' || day.type === 'rest') {
@@ -2094,7 +2112,7 @@ function renderExerciseCard(ex, i) {
     ${ex.sets.map((s, si) => `
       <div class="set-row" data-ex="${i}" data-set="${si}">
         <div class="set-idx">${si + 1}</div>
-        <input type="number" inputmode="decimal" placeholder="Weight" class="set-w" value="${s.weight ?? ''}">
+        <input type="text" inputmode="decimal" placeholder="Weight" class="set-w" value="${s.weight ?? ''}">
         <input type="number" inputmode="numeric" placeholder="Reps" class="set-r" value="${s.reps ?? ''}">
         <div class="set-pr${s.isPR ? '' : ' hidden'}">🏆</div>
       </div>
@@ -2131,7 +2149,7 @@ function renderRunForm() {
       <div class="grid-2">
         <div>
           <label>Distance (km)</label>
-          <input type="number" inputmode="decimal" step="0.01" id="run-distance" value="${w.distance}" placeholder="10.5">
+          <input type="text" inputmode="decimal" id="run-distance" value="${w.distance}" placeholder="10.5">
         </div>
         <div>
           <label>Time (mm:ss)</label>
@@ -2261,14 +2279,14 @@ function wireFormHandlers() {
       const exIdx = +row.dataset.ex, setIdx = +row.dataset.set;
       const ex = w.exercises[exIdx];
       const set = ex.sets[setIdx];
-      if (e.target.classList.contains('set-w')) set.weight = parseFloat(e.target.value) || 0;
+      if (e.target.classList.contains('set-w')) set.weight = parseNum(e.target.value) || 0;
       if (e.target.classList.contains('set-r')) set.reps   = parseInt(e.target.value) || 0;
       updateLiftPRFlag(ex, setIdx, row);
       persist(['wip']);
     });
   });
   // Run
-  $('#run-distance')?.addEventListener('input', e => { w.distance = e.target.value; syncPace(); });
+  $('#run-distance')?.addEventListener('input', e => { w.distance = e.target.value.replace(',', '.'); syncPace(); });
   $('#run-time')?.addEventListener('input', e => { w.time = e.target.value; syncPace(); });
   $('#run-notes')?.addEventListener('input', e => { w.notes = e.target.value; });
 
@@ -2695,7 +2713,7 @@ function renderWeek() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div class="stat-label" style="margin:0">Body Weight</div>
         <div style="display:flex;gap:6px;align-items:center">
-          <input type="number" inputmode="decimal" step="0.1" id="weight-input" placeholder="kg" style="width:80px;padding:8px 10px;font-size:14px;text-align:right">
+          <input type="text" inputmode="decimal" id="weight-input" placeholder="kg" style="width:80px;padding:8px 10px;font-size:14px;text-align:right">
           <button class="btn btn-sm" style="padding:8px 12px" id="weight-add">Log</button>
         </div>
       </div>
@@ -2753,7 +2771,7 @@ function drawSpark(pts) {
 }
 
 function logWeight() {
-  const v = parseFloat($('#weight-input').value);
+  const v = parseNum($('#weight-input').value);
   if (!v || v < 30 || v > 250) return toast('Enter a valid weight in kg.', { err: true });
   // replace same-day entry if exists
   const today = iso();
