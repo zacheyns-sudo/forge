@@ -710,6 +710,90 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       margin-top: 4px;
     }
 
+    /* ── Graft rehab program ─────────────────────────────────────────────── */
+    .graft-head { margin-bottom: 14px; }
+    .graft-head h2 { margin: 0 0 4px; font-size: 20px; }
+    .graft-sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+    .graft-progress {
+      font-size: 12px; font-weight: 700; color: var(--accent);
+      margin-top: 8px; letter-spacing: 0.02em;
+    }
+    .graft-week-strip {
+      display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .graft-week-btn {
+      flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer;
+      position: relative;
+    }
+    .graft-week-btn.current::after {
+      content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+    }
+    .graft-week-btn.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .graft-week-btn.active.current::after { background: #fff; }
+    .graft-week-label {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      margin: 6px 0 10px;
+    }
+    .graft-days { display: flex; flex-direction: column; gap: 8px; }
+    .graft-day-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--border); border-radius: 12px; padding: 12px 14px;
+    }
+    .graft-day-card.today { box-shadow: 0 0 0 2px var(--accent) inset; }
+    .graft-day-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .graft-day-dow { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .graft-day-pill {
+      font-size: 11px; font-weight: 700; color: #222; padding: 2px 8px; border-radius: 999px;
+    }
+    .graft-day-session { font-size: 14px; line-height: 1.45; color: var(--text); }
+    .graft-details, .graft-ref { margin-top: 10px; }
+    .graft-details summary, .graft-ref summary {
+      cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent);
+      padding: 6px 0; list-style: none;
+    }
+    .graft-details summary::-webkit-details-marker,
+    .graft-ref summary::-webkit-details-marker { display: none; }
+    .graft-details summary::before, .graft-ref summary::before { content: '▸ '; }
+    .graft-details[open] summary::before, .graft-ref[open] summary::before { content: '▾ '; }
+    .graft-ref {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 4px 14px; margin-top: 10px;
+    }
+    .graft-ex-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 8px; }
+    .graft-ex {
+      padding: 8px 10px; background: var(--bg); border-radius: 8px;
+    }
+    .graft-ex-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .graft-ex-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .graft-ex-dose { font-size: 12px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+    .graft-ex-notes { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+    .graft-pain { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 10px; }
+    .graft-pain-row { display: flex; gap: 10px; font-size: 13px; }
+    .graft-pain-row .gp-k { flex: 0 0 120px; font-weight: 700; color: var(--text); }
+    .graft-pain-row span:last-child { color: var(--muted); }
+    .plan-mode-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+
+    /* Graft banner + prescribed-day view on the Today screen */
+    .graft-banner {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--border); border-radius: 10px;
+      padding: 8px 12px; margin-bottom: 12px;
+    }
+    .graft-banner-tag { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .graft-banner-session { font-size: 13px; color: var(--text); margin-top: 2px; line-height: 1.4; }
+    .graft-day-tag { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 4px; }
+    .graft-session-text { font-size: 15px; line-height: 1.5; color: var(--text); margin: 6px 0 4px; }
+    .graft-session-extras { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
 /* ── Chad floating button ───────────────────────────────────────────────── */
 #chad-btn {
   position: fixed;
@@ -1134,6 +1218,711 @@ const TYPES = [
 
 const RUN_TYPES = ['Easy Run', 'Hard Run', 'Long Run'];
 
+// ── Graft: hard-coded 8-week Achilles rehab program ────────────────────────
+// While active this takes preference over the day-of-week weekly template.
+const GRAFT_PROGRAM = {
+  "meta": {
+    "name": "Graft – Summer Routine & Achilles Rebuild",
+    "start": "2026-07-06",
+    "weeks": 8,
+    "description": "8-week base building + Achilles rehab block. 4 runs/week, 2 rehab workouts, structured around internship hours."
+  },
+  "colorKey": {
+    "easy": "#D4EDDA",
+    "hard": "#FFF3CD",
+    "long": "#CCE5FF",
+    "rehab": "#E8D5F5",
+    "rest": "#F2F2F2"
+  },
+  "weeks": [
+    {
+      "week": 1,
+      "label": "Reentry – conservative",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-07-06",
+          "type": "easy",
+          "session": "Easy Run 20 min · truly easy pace · KT tape · no Achilles heroics",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-07-07",
+          "type": "rehab",
+          "session": "Rehab Workout A · eccentric heel drops 3×15 · isometric holds 5×45s · ankle mobility · glute bridges 3×15",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-07-08",
+          "type": "easy",
+          "session": "Easy Run 20–25 min · conversational pace · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-07-09",
+          "type": "rest",
+          "session": "Full Rest · let tendon settle · stretch if wanted",
+          "morning": "8:00 wake · light movement",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-07-10",
+          "type": "hard",
+          "session": "Hard-ish Run 20 min · light fartlek, 4–5 × 1 min pickups · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-07-11",
+          "type": "rest",
+          "session": "Full Rest · recreational day · guilt-free",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-07-12",
+          "type": "long",
+          "session": "Long Run · max 8K · easy pace · KT tape · morning session",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "label": "Reentry – consolidate",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-07-13",
+          "type": "easy",
+          "session": "Easy Run 25 min · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-07-14",
+          "type": "rehab",
+          "session": "Rehab Workout A · same protocol, add 1 set each exercise if no flare",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-07-15",
+          "type": "easy",
+          "session": "Easy Run 25 min · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-07-16",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake · light movement",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-07-17",
+          "type": "hard",
+          "session": "Hard-ish Run 20–25 min · fartlek · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-07-18",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-07-19",
+          "type": "long",
+          "session": "Long Run · max 8K · if Achilles quiet 8K, if grumbling 6K",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "label": "Extend – careful progression",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-07-20",
+          "type": "easy",
+          "session": "Easy Run 28–30 min · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-07-21",
+          "type": "rehab",
+          "session": "Rehab Workout B · single-leg eccentric drops · holds 5×45s · add calf raises if zero discomfort",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-07-22",
+          "type": "easy",
+          "session": "Easy Run 28–30 min · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-07-23",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-07-24",
+          "type": "hard",
+          "session": "Tempo Run 25 min · 10 min easy, 10 min tempo effort, 5 min easy · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-07-25",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-07-26",
+          "type": "long",
+          "session": "Long Run · 10K · easy pace · KT tape",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "label": "Extend – build confidence",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-07-27",
+          "type": "easy",
+          "session": "Easy Run 30 min · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-07-28",
+          "type": "rehab",
+          "session": "Rehab Workout B · 4×15 eccentric drops · holds · calf raises 3×20",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-07-29",
+          "type": "easy",
+          "session": "Easy Run 30 min · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-07-30",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-07-31",
+          "type": "hard",
+          "session": "Tempo Run 25 min · 10 easy, 12–13 tempo, 5 easy · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-08-01",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-08-02",
+          "type": "long",
+          "session": "Long Run · 12K · KT tape · assess Achilles after for week 5 decision",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "label": "Base building – structured sessions",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-08-03",
+          "type": "easy",
+          "session": "Easy Run 5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-08-04",
+          "type": "rehab",
+          "session": "Rehab Workout B · maintain protocol",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-08-05",
+          "type": "easy",
+          "session": "Easy Run 5–5.5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-08-06",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-08-07",
+          "type": "hard",
+          "session": "Interval Session · 5 × 3 min hard / 2 min easy · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-08-08",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-08-09",
+          "type": "long",
+          "session": "Long Run · 12–13K · KT tape",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "label": "Base building – push volume",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-08-10",
+          "type": "easy",
+          "session": "Easy Run 5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-08-11",
+          "type": "rehab",
+          "session": "Rehab Workout B",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-08-12",
+          "type": "easy",
+          "session": "Easy Run 5.5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-08-13",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-08-14",
+          "type": "hard",
+          "session": "Interval Session · 6 × 3 min hard / 90s easy · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-08-15",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-08-16",
+          "type": "long",
+          "session": "Long Run · 13–14K · KT tape",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "label": "Consolidate – full sessions",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-08-17",
+          "type": "easy",
+          "session": "Easy Run 5.5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-08-18",
+          "type": "rehab",
+          "session": "Rehab Workout B · if fully comfortable, begin phasing down",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-08-19",
+          "type": "easy",
+          "session": "Easy Run 5.5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-08-20",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-08-21",
+          "type": "hard",
+          "session": "Tempo Run 30 min · 10 easy, 15 tempo, 5 easy · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-08-22",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-08-23",
+          "type": "long",
+          "session": "Long Run · 14K · KT tape",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "label": "Assessment week – lighter load",
+      "days": [
+        {
+          "day": "Mon",
+          "date": "2026-08-24",
+          "type": "easy",
+          "session": "Easy Run 5K · lighter week · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Tue",
+          "date": "2026-08-25",
+          "type": "rehab",
+          "session": "Rehab Workout · maintenance",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Wed",
+          "date": "2026-08-26",
+          "type": "easy",
+          "session": "Easy Run 5K · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Thu",
+          "date": "2026-08-27",
+          "type": "rest",
+          "session": "Full Rest",
+          "morning": "8:00 wake",
+          "trainTime": null
+        },
+        {
+          "day": "Fri",
+          "date": "2026-08-28",
+          "type": "hard",
+          "session": "Hard Run 25 min · feel it out · KT tape",
+          "morning": "8:00 wake · Walk/stretch · Work 9:30",
+          "trainTime": "14:00"
+        },
+        {
+          "day": "Sat",
+          "date": "2026-08-29",
+          "type": "rest",
+          "session": "Full Rest – reflect on 8 weeks",
+          "morning": "Free morning",
+          "trainTime": null
+        },
+        {
+          "day": "Sun",
+          "date": "2026-08-30",
+          "type": "long",
+          "session": "Long Run · 14K · assessment run – how does the tendon feel?",
+          "morning": "Run before 10:00",
+          "trainTime": "09:00"
+        }
+      ]
+    }
+  ],
+  "exercises": {
+    "workoutA": {
+      "label": "Workout A – Weeks 1–2",
+      "exercises": [
+        {
+          "name": "Isometric Calf Hold",
+          "sets": 5,
+          "reps": "45 sec hold",
+          "tempo": "hold at top",
+          "notes": "Single leg on step, slight knee bend. Most important exercise."
+        },
+        {
+          "name": "Eccentric Heel Drop (straight knee)",
+          "sets": 3,
+          "reps": 15,
+          "tempo": "3 sec down",
+          "notes": "Rise on two feet, lower on one. Gastrocnemius. Alfredson protocol."
+        },
+        {
+          "name": "Eccentric Heel Drop (bent knee)",
+          "sets": 3,
+          "reps": 15,
+          "tempo": "3 sec down",
+          "notes": "Knee bent ~30°. Soleus. Do both variations."
+        },
+        {
+          "name": "Ankle Circles",
+          "sets": 2,
+          "reps": "20 each direction",
+          "tempo": "slow, controlled",
+          "notes": "Full range. Both directions. Seated or standing."
+        },
+        {
+          "name": "Wall Dorsiflexion Stretch",
+          "sets": 3,
+          "reps": "30 sec hold",
+          "tempo": "hold, no bouncing",
+          "notes": "Front foot close to wall, knee forward. Calf and Achilles."
+        },
+        {
+          "name": "Single Leg Glute Bridge",
+          "sets": 3,
+          "reps": 15,
+          "tempo": "2 sec up, hold 1s",
+          "notes": "Builds posterior chain, offloads tendon."
+        },
+        {
+          "name": "Calf Raises (skip if pain)",
+          "sets": 3,
+          "reps": 20,
+          "tempo": "1 up, 2 down",
+          "notes": "Only if zero discomfort. Skip weeks 1–2 if any sensitivity."
+        }
+      ]
+    },
+    "workoutB": {
+      "label": "Workout B – Weeks 3+",
+      "exercises": [
+        {
+          "name": "Isometric Calf Hold",
+          "sets": 5,
+          "reps": "45–60 sec hold",
+          "tempo": "hold at top",
+          "notes": "Increase to 60s if comfortable."
+        },
+        {
+          "name": "Single-Leg Eccentric Drop (straight)",
+          "sets": 4,
+          "reps": 15,
+          "tempo": "3 sec down",
+          "notes": "Progress from 2-leg rise to 1-leg rise when ready."
+        },
+        {
+          "name": "Single-Leg Eccentric Drop (bent)",
+          "sets": 4,
+          "reps": 15,
+          "tempo": "3 sec down",
+          "notes": "Slow and deliberate always."
+        },
+        {
+          "name": "Calf Raises – single leg",
+          "sets": 3,
+          "reps": 20,
+          "tempo": "2 up, 3 down",
+          "notes": "On step for full range. Add reps before adding load."
+        },
+        {
+          "name": "Tibialis Anterior Raise",
+          "sets": 3,
+          "reps": 20,
+          "tempo": "controlled",
+          "notes": "Heels on step, raise toes. Balances calf load."
+        },
+        {
+          "name": "Step-Ups",
+          "sets": 3,
+          "reps": "12 each leg",
+          "tempo": "slow and stable",
+          "notes": "Knee tracking over toes. Quads and ankle stability."
+        },
+        {
+          "name": "Single-Leg Balance Stand",
+          "sets": 3,
+          "reps": "30 sec",
+          "tempo": "eyes closed if easy",
+          "notes": "Proprioception. Critical for tendon reloading."
+        },
+        {
+          "name": "Single Leg Glute Bridge",
+          "sets": 3,
+          "reps": 15,
+          "tempo": "2 sec hold",
+          "notes": "Maintain throughout all weeks."
+        }
+      ]
+    },
+    "morningRoutine": {
+      "label": "Daily Morning Routine (every day)",
+      "exercises": [
+        {
+          "name": "Morning Walk",
+          "duration": "15–20 min",
+          "notes": "Non-negotiable. Gets tendon moving, clears stiffness."
+        },
+        {
+          "name": "Calf Stretch – standing",
+          "duration": "2 × 30 sec",
+          "notes": "Both legs. Heel on floor, lean into wall."
+        },
+        {
+          "name": "Hip Flexor Stretch",
+          "duration": "2 × 30 sec",
+          "notes": "Running posture depends on hip mobility."
+        },
+        {
+          "name": "General Mobility",
+          "duration": "5 min",
+          "notes": "Leg swings, hip circles, shoulder rolls. Light, not a workout."
+        }
+      ]
+    }
+  },
+  "painRule": {
+    "0-3": "Fine – continue session",
+    "4+": "Cut session short",
+    "morning_stiffness": "Normal if clears within 10 min of walking",
+    "24-48h_soreness": "Did too much – hold volume next session"
+  }
+};
+
+// ── Graft program helpers ──────────────────────────────────────────────────
+// Display metadata per Graft session type (colour accents from GRAFT_PROGRAM.colorKey).
+const GRAFT_TYPE_META = {
+  easy:  { label: 'Easy Run',  emoji: '🏃' },
+  hard:  { label: 'Session',   emoji: '⚡' },
+  long:  { label: 'Long Run',  emoji: '🛣️' },
+  rehab: { label: 'Rehab',     emoji: '🦵' },
+  rest:  { label: 'Rest',      emoji: '😴' },
+};
+function graftTypeMeta(type) {
+  const m = GRAFT_TYPE_META[type] || { label: type, emoji: '•' };
+  return { ...m, color: (GRAFT_PROGRAM.colorKey && GRAFT_PROGRAM.colorKey[type]) || 'var(--border)' };
+}
+// The day object for a date string, annotated with its week number/label, or null.
+function graftDayFor(dateStr) {
+  for (const wk of GRAFT_PROGRAM.weeks) {
+    for (const day of wk.days) {
+      if (day.date === dateStr) return { ...day, week: wk.week, weekLabel: wk.label };
+    }
+  }
+  return null;
+}
+// First/last program dates.
+function graftStart() { return GRAFT_PROGRAM.weeks[0].days[0].date; }
+function graftEnd() {
+  const lastWk = GRAFT_PROGRAM.weeks[GRAFT_PROGRAM.weeks.length - 1];
+  return lastWk.days[lastWk.days.length - 1].date;
+}
+// Week number (1..N) containing today, clamped to the program range.
+function graftCurrentWeek() {
+  const today = iso();
+  const hit = graftDayFor(today);
+  if (hit) return hit.week;
+  if (today < graftStart()) return 1;
+  return GRAFT_PROGRAM.weeks.length;
+}
+// Which rehab workout applies in a given program week (A for weeks 1–2, B after).
+function graftWorkoutForWeek(week) {
+  return week <= 2 ? GRAFT_PROGRAM.exercises.workoutA : GRAFT_PROGRAM.exercises.workoutB;
+}
+
 // Storage keys
 const K = {
   workouts:     'wt_workouts',
@@ -1379,7 +2168,10 @@ function toast(msg, opts = {}) {
         const isSelected = dateStr === state.viewDate;
         const logged = state.workouts.some(w => w.date === dateStr);
         const dow = d.getDay();
-        const planned = state.plan[dow] && state.plan[dow].type !== 'rest';
+        const graftDay = graftDayFor(dateStr);
+        const planned = graftDay
+          ? graftDay.type !== 'rest'
+          : (state.plan[dow] && state.plan[dow].type !== 'rest');
         const dayLabel = isToday ? 'TODAY' : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow];
         const dotClass = logged ? 'logged' : (planned ? 'planned' : '');
         const cellClass = ['day-cell', isToday ? 'today' : '', isSelected ? 'selected' : ''].filter(Boolean).join(' ');
@@ -1398,6 +2190,7 @@ function toast(msg, opts = {}) {
       const d = new Date(dateStr + 'T00:00:00');
       const dow = d.getDay();
       const planDay = state.plan[dow];
+      const graft = graftDayFor(dateStr);
       const logged = state.workouts.filter(w => w.date === dateStr);
       const isFuture = dateStr > today;
       const isPast = dateStr < today;
@@ -1407,12 +2200,18 @@ function toast(msg, opts = {}) {
         const w = logged[0];
         return `
           <div class="day-content-area">
+            ${graft ? renderGraftBanner(graft) : ''}
             <div class="today-workout-name">${esc(TYPES.find(t => t.key === w.type)?.label || w.type)}</div>
             <div class="today-workout-meta">${fmtDay(dateStr)}</div>
             <div class="card">${renderSessionCard(w).replace('<div class="session"', '<div class="session expanded"')}</div>
             ${isToday ? `<button class="today-secondary-link" onclick="openLogSheet('${dateStr}', false)">+ Log another session</button>` : ''}
           </div>
         `;
+      }
+
+      // Graft program takes preference over the day-of-week weekly template.
+      if (graft) {
+        return renderGraftDayView(dateStr, graft, { showStart: isToday, late: isPast });
       }
 
       if (isFuture) {
@@ -1495,6 +2294,77 @@ function toast(msg, opts = {}) {
           ${startBtn}
         </div>
       `;
+    }
+
+    // ── Graft program rendering ───────────────────────────────────────────────
+    // Compact prescribed-session strip shown above a logged workout for comparison.
+    function renderGraftBanner(graft) {
+      const meta = graftTypeMeta(graft.type);
+      return `
+        <div class="graft-banner" style="border-left-color:${meta.color}">
+          <div class="graft-banner-tag">Week ${graft.week} · Graft plan</div>
+          <div class="graft-banner-session">${meta.emoji} ${esc(graft.session)}</div>
+        </div>`;
+    }
+
+    // A prescribed Graft session as the day's main content.
+    function renderGraftDayView(dateStr, graft, opts = {}) {
+      const { showStart = false, late = false } = opts;
+      const meta = graftTypeMeta(graft.type);
+      const isRest = graft.type === 'rest';
+
+      let detail = '';
+      if (graft.type === 'rehab') {
+        const workout = graftWorkoutForWeek(graft.week);
+        detail = `
+          <details class="graft-details">
+            <summary>View rehab exercises (${workout.label})</summary>
+            ${renderGraftExerciseList(workout)}
+          </details>`;
+      }
+      const extras = [];
+      if (graft.morning) extras.push(`🌅 ${esc(graft.morning)}`);
+      if (graft.trainTime) extras.push(`⏱️ Train ${esc(graft.trainTime)}`);
+
+      let cta = '';
+      if (!isRest && showStart) {
+        cta = `<button class="btn" onclick="openLogSheet('${dateStr}', false)">Start Workout</button>`;
+      } else if (isRest && showStart) {
+        cta = `<button class="btn btn-ghost" onclick="openLogSheet('${dateStr}', false)">Log a workout anyway</button>`;
+      } else if (late) {
+        cta = `<button class="btn btn-ghost" style="width:100%" onclick="openLogSheet('${dateStr}', false)">Log it late</button>`;
+      }
+
+      return `
+        <div class="day-content-area">
+          <div class="graft-day-tag" style="color:${meta.color === 'var(--border)' ? 'var(--muted)' : meta.color}">
+            Week ${graft.week} · ${esc(graft.weekLabel)}
+          </div>
+          <div class="today-workout-name">${meta.emoji} ${meta.label}</div>
+          <div class="today-workout-meta">${fmtDay(dateStr)}</div>
+          <div class="graft-session-text">${esc(graft.session)}</div>
+          ${extras.length ? `<div class="graft-session-extras">${extras.join(' &nbsp;·&nbsp; ')}</div>` : ''}
+          ${detail}
+          ${cta}
+          ${late ? '<p style="color:var(--muted);font-size:13px;text-align:center;margin-top:8px">Not logged</p>' : ''}
+        </div>`;
+    }
+
+    // Reusable exercise table for a Graft workout (rehab A/B or morning routine).
+    function renderGraftExerciseList(workout) {
+      return `<div class="graft-ex-list">${workout.exercises.map(ex => {
+        const prescription = ex.sets != null
+          ? `${ex.sets} × ${esc(String(ex.reps))}${ex.tempo ? ` · ${esc(ex.tempo)}` : ''}`
+          : esc(ex.duration || '');
+        return `
+          <div class="graft-ex">
+            <div class="graft-ex-head">
+              <span class="graft-ex-name">${esc(ex.name)}</span>
+              <span class="graft-ex-dose">${prescription}</span>
+            </div>
+            ${ex.notes ? `<div class="graft-ex-notes">${esc(ex.notes)}</div>` : ''}
+          </div>`;
+      }).join('')}</div>`;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -1932,22 +2802,103 @@ Write the "content" field in plain conversational English. Do NOT use any markdo
 
     const DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     let planViewDow = 1; // default to Monday
+    let planMode = 'graft';               // 'graft' program (default) | 'template' weekly editor
+    let graftViewWeek = graftCurrentWeek(); // which program week is shown
 
     function renderPlanScreen() {
       const el = $('#plan-body');
       if (!el) return;
-      el.innerHTML = `
-        <h2>Weekly Plan</h2>
-        <div class="plan-dow-strip">
-          ${DOW_LABELS.map((label, dow) => `
-            <button class="plan-dow-btn${planViewDow === dow ? ' active' : ''}"
-              onclick="setPlanDow(${dow})">${label}</button>
-          `).join('')}
-        </div>
-        <div id="plan-day-editor"></div>
-      `;
-      renderPlanDayEditor(planViewDow);
+      if (planMode === 'graft') {
+        renderGraftProgramView(el);
+      } else {
+        el.innerHTML = `
+          <div class="plan-mode-head">
+            <h2>Weekly Template</h2>
+            <button class="today-secondary-link" onclick="setPlanMode('graft')">← Back to Graft program</button>
+          </div>
+          <div class="plan-dow-strip">
+            ${DOW_LABELS.map((label, dow) => `
+              <button class="plan-dow-btn${planViewDow === dow ? ' active' : ''}"
+                onclick="setPlanDow(${dow})">${label}</button>
+            `).join('')}
+          </div>
+          <div id="plan-day-editor"></div>
+        `;
+        renderPlanDayEditor(planViewDow);
+      }
     }
+
+    // The Graft rehab program is the primary Plan view while active.
+    function renderGraftProgramView(el) {
+      const wk = GRAFT_PROGRAM.weeks.find(w => w.week === graftViewWeek) || GRAFT_PROGRAM.weeks[0];
+      const curWeek = graftCurrentWeek();
+      const today = iso();
+
+      const weekTabs = GRAFT_PROGRAM.weeks.map(w => `
+        <button class="graft-week-btn${w.week === graftViewWeek ? ' active' : ''}${w.week === curWeek ? ' current' : ''}"
+          onclick="setGraftWeek(${w.week})">${w.week}</button>`).join('');
+
+      const dayCards = wk.days.map(day => {
+        const meta = graftTypeMeta(day.type);
+        const isToday = day.date === today;
+        const rehab = day.type === 'rehab'
+          ? (() => { const wo = graftWorkoutForWeek(wk.week); return `
+              <details class="graft-details">
+                <summary>${wo.label}</summary>
+                ${renderGraftExerciseList(wo)}
+              </details>`; })()
+          : '';
+        return `
+          <div class="graft-day-card${isToday ? ' today' : ''}" style="border-left-color:${meta.color}">
+            <div class="graft-day-top">
+              <span class="graft-day-dow">${day.day}${isToday ? ' · Today' : ''}</span>
+              <span class="graft-day-pill" style="background:${meta.color}">${meta.label}</span>
+            </div>
+            <div class="graft-day-session">${esc(day.session)}</div>
+            ${rehab}
+          </div>`;
+      }).join('');
+
+      const morning = GRAFT_PROGRAM.exercises.morningRoutine;
+      const pain = GRAFT_PROGRAM.painRule;
+
+      el.innerHTML = `
+        <div class="graft-head">
+          <h2>${esc(GRAFT_PROGRAM.meta.name)}</h2>
+          <div class="graft-sub">${esc(GRAFT_PROGRAM.meta.description)}</div>
+          <div class="graft-progress">Week ${curWeek} of ${GRAFT_PROGRAM.meta.weeks} · ${esc(graftStart())} → ${esc(graftEnd())}</div>
+        </div>
+        <div class="graft-week-strip">${weekTabs}</div>
+        <div class="graft-week-label">Week ${wk.week} · ${esc(wk.label)}</div>
+        <div class="graft-days">${dayCards}</div>
+
+        <details class="graft-ref">
+          <summary>🌅 ${esc(morning.label)}</summary>
+          ${renderGraftExerciseList(morning)}
+        </details>
+        <details class="graft-ref">
+          <summary>⚠️ Pain rule guide</summary>
+          <div class="graft-pain">
+            <div class="graft-pain-row"><span class="gp-k">Pain 0–3</span><span>${esc(pain['0-3'])}</span></div>
+            <div class="graft-pain-row"><span class="gp-k">Pain 4+</span><span>${esc(pain['4+'])}</span></div>
+            <div class="graft-pain-row"><span class="gp-k">Morning stiffness</span><span>${esc(pain.morning_stiffness)}</span></div>
+            <div class="graft-pain-row"><span class="gp-k">24–48h soreness</span><span>${esc(pain['24-48h_soreness'])}</span></div>
+          </div>
+        </details>
+
+        <button class="today-secondary-link" style="margin-top:16px" onclick="setPlanMode('template')">Edit weekly template →</button>
+      `;
+    }
+
+    window.setGraftWeek = function(week) {
+      graftViewWeek = week;
+      renderPlanScreen();
+    };
+    window.setPlanMode = function(mode) {
+      planMode = mode;
+      if (mode === 'graft') graftViewWeek = graftCurrentWeek();
+      renderPlanScreen();
+    };
 
     window.setPlanDow = function(dow) {
       planViewDow = dow;
